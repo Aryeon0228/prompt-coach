@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { db, uid } from './lib/db'
 import { loadIndex, loadTemplate, validateTemplate } from './lib/templates'
+import { isPromptCoaching } from './lib/coach-handoff'
 import type { FreePromptBrief } from './lib/free-prompt'
 import type { Project, Template, TemplateIndexEntry } from './types'
 
@@ -153,6 +154,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (!p || typeof p !== 'object' || !p.templateId || !p.decisions) throw new Error('프로젝트 파일 형식이 아니에요')
       if (!index.some((e) => e.id === p.templateId)) throw new Error(`이 파일의 템플릿(${p.templateId})이 여기에는 없어요`)
       if (p.templateId === 'free-scene' && !isFreePromptBrief(p.freeform)) throw new Error('자유 장면의 입력 내용이 올바르지 않아요. 이미지·영상·3D 웹 장면 형식으로 저장한 파일인지 확인해 주세요.')
+      if (p.promptCoaching !== undefined && !isPromptCoaching(p.promptCoaching)) throw new Error('프롬프트 코칭 기록의 형식이 올바르지 않아요. 이 앱에서 내보낸 프로젝트 파일인지 확인해 주세요.')
       const copy: Project = { ...p, id: uid(), updatedAt: Date.now(), locks: p.locks ?? [], references: p.references ?? [], iterations: p.iterations ?? [] }
       await db.put(copy)
       await refresh()

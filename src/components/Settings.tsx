@@ -22,7 +22,7 @@ export function Settings() {
 
       <section className="card stack">
         <h2>프로젝트 보관 · 내보내기</h2>
-        <p className="small muted">장면 설명, 설정, 참고 이미지, 유지할 내용, 수정 기록이 전부 한 파일에 담겨요. 작업을 보관하거나 다른 기기에서 이어갈 때 쓰세요. 시작 화면의 "JSON 열기"로 다시 불러올 수 있어요.</p>
+        <p className="small muted">장면 설명, 설정, 참고 이미지, 유지할 내용, 수정 기록과 함께 코칭 요청, 가져온 프롬프트, 메모도 한 파일에 담겨요. 작업을 보관하거나 다른 기기에서 이어갈 때 쓰세요. 시작 화면의 "JSON 열기"로 다시 불러올 수 있어요.</p>
         <div className="row">
           <button
             onClick={() => {
