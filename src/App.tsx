@@ -44,7 +44,7 @@ export function App() {
           ) : null}
           <div className="grow">
             <div className="title">{project ? project.name : '프롬프트 코치'}</div>
-            {project && template ? <div className="small muted">{template.name}</div> : <div className="small muted">첫 프롬프트를 만들고, 결과를 보며 고치는 법을 익히는 도구</div>}
+            {project && template ? <div className="small muted">{template.name}</div> : <div className="small muted">첫 프롬프트를 만들고, 결과를 보면서 고쳐 나가는 연습 도구</div>}
           </div>
         </header>
 

@@ -20,11 +20,11 @@ export function Brief() {
       <div className={`note ${missing.length ? 'warn' : ''}`}>
         {missing.length ? (
           <>
-            <b>아직 말하지 않은 것 {missing.length}개</b> — {missing.map((d) => d.label).join(', ')}. 이대로 두면 프롬프트가 "AI가 2안을 제시하고 물어보게" 요청해요. 모르는 건 모른다고 두는 게, 아무 말 안 하는 것보다 나아요.
+            <b>아직 정하지 않은 항목 {missing.length}개</b>: {missing.map((d) => d.label).join(', ')}. 이대로 두면 프롬프트에 "두 가지 안을 내고 나한테 물어봐 줘"라는 요청이 들어가요. 모르는 건 모른다고 두는 편이 아무 말도 안 하는 것보다 나아요.
           </>
         ) : (
           <>
-            모든 결정이 내려졌어요. <b>내가 정함</b>은 그대로 전달되고, <b>AI에게</b>는 "네가 어울리게 정해" 로 전달돼요.
+            모든 항목을 정했어요. <b>내가 정함</b>은 그대로 프롬프트에 들어가고, <b>AI에게</b>로 둔 항목은 "나머지와 어울리게 네가 정해 줘"로 들어가요.
           </>
         )}
       </div>
@@ -81,8 +81,8 @@ export function Brief() {
                 {a.state === 'set' && d.kind === 'text' && (
                   <textarea value={typeof a.value === 'string' ? a.value : ''} placeholder={d.placeholder} onChange={(e) => set(d, { state: 'set', value: e.target.value })} />
                 )}
-                {a.state === 'delegate' && <p className="small muted">→ "{(d.delegateText ?? { ko: '이 부분은 나머지 요구사항에 어울리게 네가 정해줘.' }).ko}"</p>}
-                {a.state === 'unknown' && <p className="small" style={{ color: 'var(--amber)' }}>→ 프롬프트가 AI에게 2안을 내고 물어보라고 해요.</p>}
+                {a.state === 'delegate' && <p className="small muted">→ "{(d.delegateText ?? { ko: '이건 나머지 내용과 어울리게 네가 정해줘.' }).ko}"</p>}
+                {a.state === 'unknown' && <p className="small" style={{ color: 'var(--amber)' }}>→ 프롬프트에 "두 가지 안을 내고 물어봐 줘"가 들어가요.</p>}
               </div>
             )
           })}

@@ -1,7 +1,7 @@
 {
   "id": "miniature-island",
   "name": "미니어처 섬 · 3D 웹 장면",
-  "description": "투명한 젤리 블록 속 미니어처 섬. 지형·물·생물·날씨·상호작용을 결정하고, 결과를 진단합니다.",
+  "description": "투명한 젤리 블록 안의 미니어처 섬. 지형, 물, 생물, 날씨, 상호작용을 정하고 결과를 진단해요.",
   "version": 1,
   "targets": [
     {
@@ -67,7 +67,7 @@
       "label": "구도·분위기",
       "text": {
         "en": "Image {n}: the composition and overall mood to aim for.",
-        "ko": "이미지 {n}: 목표로 할 구도와 전체 분위기."
+        "ko": "이미지 {n}: 이런 구도와 분위기를 목표로."
       }
     },
     {
@@ -75,7 +75,7 @@
       "label": "그림체·재질",
       "text": {
         "en": "Image {n}: the art style and material look only (not the layout).",
-        "ko": "이미지 {n}: 그림체와 재질 느낌만 참고 (배치는 아님)."
+        "ko": "이미지 {n}: 그림체와 재질 느낌만 참고하고, 배치는 참고하지 말 것."
       }
     },
     {
@@ -83,7 +83,7 @@
       "label": "특정 오브젝트",
       "text": {
         "en": "Image {n}: how one specific object should look (see note).",
-        "ko": "이미지 {n}: 특정 오브젝트의 모양 참고 (메모 참조)."
+        "ko": "이미지 {n}: 특정 물체의 모양만 참고 (메모에 적은 것)."
       }
     },
     {
@@ -99,7 +99,7 @@
       "label": "이렇게는 말 것",
       "text": {
         "en": "Image {n}: an example of what NOT to do.",
-        "ko": "이미지 {n}: 피해야 할 예."
+        "ko": "이미지 {n}: 이렇게는 만들지 말 것."
       }
     }
   ],
@@ -112,19 +112,19 @@
       "importance": "core",
       "kind": "choice",
       "default": "toy",
-      "help": "모든 결정의 기준이 되는 선택이에요. 레퍼런스가 있으면 함께 주세요.",
+      "help": "다른 모든 결정의 기준이 되는 선택이에요. 참고 이미지가 있으면 같이 주세요.",
       "options": [
         {
           "value": "toy",
-          "label": "장난감·클레이 (스타일라이즈드)",
+          "label": "장난감·클레이 느낌",
           "text": {
             "en": "Art direction: a toy / clay miniature look — soft rounded forms, simplified shapes, pastel land and saturated water, NOT photoreal. Materials slightly glossy like painted resin.",
-            "ko": "아트 디렉션: 장난감·클레이 미니어처 느낌 — 둥글고 단순한 형태, 파스텔 땅과 채도 높은 물, 실사 아님. 재질은 칠한 레진처럼 살짝 윤기."
+            "ko": "그림체는 장난감이나 클레이로 만든 미니어처 느낌으로. 형태는 둥글고 단순하게, 땅은 파스텔, 물은 채도 높게, 실사처럼은 만들지 말고. 재질은 칠한 레진처럼 살짝 윤이 나게."
           },
           "checklist": [
             {
               "en": "Nothing in the block looks photoreal or noisy; every object reads as a toy.",
-              "ko": "블록 안의 어떤 것도 실사처럼 거칠거나 노이즈가 많지 않고, 전부 장난감처럼 읽힌다."
+              "ko": "블록 안의 모든 것이 장난감처럼 보이고, 실사처럼 거칠거나 노이즈가 낀 데가 없다."
             }
           ]
         },
@@ -133,12 +133,12 @@
           "label": "로우폴리",
           "text": {
             "en": "Art direction: low-poly — visible flat facets, flat shading, a limited palette, no textures.",
-            "ko": "아트 디렉션: 로우폴리 — 눈에 보이는 평평한 면, 플랫 셰이딩, 제한된 팔레트, 텍스처 없음."
+            "ko": "그림체는 로우폴리로. 평평한 면이 그대로 보이는 플랫 셰이딩, 색은 몇 가지로만, 텍스처는 쓰지 말고."
           },
           "checklist": [
             {
               "en": "Every mesh is flat-shaded; no smooth normals, no texture maps.",
-              "ko": "모든 메시가 플랫 셰이딩이고 매끈한 법선이나 텍스처 맵이 없다."
+              "ko": "모든 메시가 플랫 셰이딩이고, 매끈한 법선이나 텍스처 맵을 쓰지 않았다."
             }
           ]
         },
@@ -147,7 +147,7 @@
           "label": "실사풍",
           "text": {
             "en": "Art direction: realistic — natural materials with PBR textures, physically plausible water and light.",
-            "ko": "아트 디렉션: 실사풍 — PBR 텍스처의 자연 재질, 물리적으로 그럴듯한 물과 빛."
+            "ko": "그림체는 실사풍으로. PBR 텍스처를 쓴 자연 재질, 물리적으로 그럴듯한 물과 빛."
           }
         }
       ]
@@ -165,7 +165,7 @@
           "label": "말랑한 젤리 블록",
           "text": {
             "en": "The water is a rounded transparent block that itself IS the sea (no separate container): jelly-like, slightly wobbly, with soft rounded top edges and a crisp waterline.",
-            "ko": "물은 그 자체가 바다인 둥근 투명 블록(따로 용기 없음): 젤리처럼 말랑하고 살짝 흔들리며, 윗모서리는 둥글고 물의 선은 또렷하게."
+            "ko": "물 자체가 바다인 둥근 투명 블록으로, 따로 그릇은 없게. 젤리처럼 말랑하게 살짝 흔들리고, 위쪽 모서리는 둥글게, 수면 선은 또렷하게."
           }
         },
         {
@@ -173,7 +173,7 @@
           "label": "단단한 레진 블록",
           "text": {
             "en": "The water is a rigid, polished transparent resin block that itself is the sea; sharp edges, no deformation.",
-            "ko": "물은 단단하고 매끈한 투명 레진 블록이며 그 자체가 바다; 모서리는 날카롭고 변형 없음."
+            "ko": "물은 단단하고 매끈한 투명 레진 블록이고 그 자체가 바다. 모서리는 날카롭게, 흔들리지 않게."
           }
         },
         {
@@ -181,7 +181,7 @@
           "label": "유리 수조",
           "text": {
             "en": "The sea sits inside a thin glass tank with visible glass walls.",
-            "ko": "바다는 유리벽이 보이는 얇은 유리 수조 안에 담긴다."
+            "ko": "바다는 유리벽이 보이는 얇은 유리 수조 안에 담기게."
           }
         }
       ]
@@ -193,14 +193,14 @@
       "labelEn": "block proportions",
       "kind": "choice",
       "default": "long",
-      "help": "정사각은 섬이 꽉 차 보이고, 2:1은 먼바다를 둘 여유가 생겨요.",
+      "help": "정사각이면 섬이 꽉 차 보이고, 2:1이면 먼바다를 넣을 자리가 생겨요.",
       "options": [
         {
           "value": "long",
           "label": "2:1 길쭉한 블록",
           "text": {
             "en": "The block is elongated 2:1. The island sits in one corner; the long side is open sea with its own landmarks.",
-            "ko": "블록은 2:1로 길쭉하게. 섬은 한쪽 모서리에, 긴 쪽은 나름의 볼거리가 있는 먼바다로."
+            "ko": "블록은 2:1로 길쭉하게. 섬은 한쪽 끝에 두고, 긴 쪽은 그 나름의 볼거리가 있는 먼바다로."
           }
         },
         {
@@ -208,7 +208,7 @@
           "label": "정사각 블록",
           "text": {
             "en": "The block is square with the island slightly off-centre.",
-            "ko": "블록은 정사각형, 섬은 중심에서 약간 비켜서."
+            "ko": "블록은 정사각형으로, 섬은 가운데에서 살짝 비켜 놓기."
           }
         }
       ]
@@ -227,7 +227,7 @@
           "label": "절벽 + 곡선 해변",
           "text": {
             "en": "Island: noise-generated, with steep cliffs on the far side, a curved sandy beach facing the camera, a grassy plateau on top, and a shallow turquoise lagoon in front of the beach.",
-            "ko": "섬: 노이즈로 생성, 먼 쪽은 가파른 절벽, 카메라 쪽은 곡선 모래 해변, 위는 풀밭 고원, 해변 앞은 얕은 청록 석호."
+            "ko": "섬은 노이즈로 생성. 먼 쪽은 가파른 절벽, 카메라 쪽은 둥글게 휘는 모래 해변, 꼭대기는 풀밭, 해변 앞은 얕고 맑은 청록색 석호."
           }
         },
         {
@@ -235,7 +235,7 @@
           "label": "바위 능선",
           "text": {
             "en": "Island: rugged rock ridges and steep coastal faces with small sandy pockets between the rocks.",
-            "ko": "섬: 거친 바위 능선과 가파른 해안면, 바위 사이에 작은 모래 구역."
+            "ko": "섬은 거친 바위 능선과 가파른 해안으로, 바위 사이사이에 작은 모래밭."
           }
         },
         {
@@ -243,7 +243,7 @@
           "label": "환초",
           "text": {
             "en": "Island: a low ring of sand and palms enclosing a shallow lagoon.",
-            "ko": "섬: 얕은 석호를 감싼 낮은 모래·야자수 고리."
+            "ko": "섬은 환초로. 얕은 석호를 둘러싼 낮은 모래와 야자수 고리."
           }
         }
       ]
@@ -259,15 +259,15 @@
       "options": [
         {
           "value": "rhythm",
-          "label": "지형 리듬 + 볼거리",
+          "label": "지형에 리듬 + 볼거리",
           "text": {
             "en": "Give the open sea a rhythm along the block: a reef ridge off the island, a sandy basin, dunes cut by a winding channel, a big reef mound, then a calm flat. Add a small lighthouse islet at the far end and two sea stacks rising from reef platforms.",
-            "ko": "먼바다에 리듬을: 섬 옆 산호 능선 → 모래 분지 → 굽은 수로가 가로지르는 사구 → 큰 산호 언덕 → 잔잔한 평지. 끝에는 작은 등대 섬, 암초 발판 위에 선 바위 기둥 두 개."
+            "ko": "먼바다에 리듬을 줘: 섬 옆 산호 능선, 모래 분지, 굽은 물길이 가로지르는 모래 언덕, 큰 산호 언덕, 잔잔한 평지 순서로. 맨 끝에는 작은 등대 섬과, 암초 발판 위에 선 바위 기둥 두 개."
           },
           "checklist": [
             {
               "en": "Sea stacks and rocks rise from reef platforms, never alone on flat sand.",
-              "ko": "바위 기둥과 바위는 암초 발판 위에 서 있고, 평평한 모래 위에 홀로 서지 않는다."
+              "ko": "바위 기둥과 바위는 암초 발판 위에 서 있고, 평평한 모래 위에 혼자 덩그러니 서 있지 않다."
             }
           ]
         },
@@ -276,7 +276,7 @@
           "label": "단순한 모래 바닥",
           "text": {
             "en": "Keep the seabed a gently rolling sandy floor with a few rocks.",
-            "ko": "해저는 바위 몇 개가 있는 완만한 모래 바닥으로."
+            "ko": "해저는 바위 몇 개가 놓인 완만한 모래 바닥으로."
           }
         }
       ]
@@ -294,7 +294,7 @@
           "label": "섬 밑 동굴 + 보물상자",
           "text": {
             "en": "Cut a sea cave into the island's underwater root facing the camera, with a glowing treasure chest inside and fish swimming in and out.",
-            "ko": "카메라 쪽 섬 수중 뿌리에 바다 동굴을 파고, 안에 빛나는 보물상자, 물고기가 드나들게."
+            "ko": "카메라 쪽 섬 밑 물속에 바다 동굴을 파고, 안에는 빛나는 보물상자, 물고기가 드나들게."
           }
         },
         {
@@ -302,7 +302,7 @@
           "label": "없음",
           "text": {
             "en": "No cave.",
-            "ko": "동굴 없음."
+            "ko": "동굴은 없음."
           }
         }
       ]
@@ -320,7 +320,7 @@
           "label": "청록 → 짙은 청록",
           "text": {
             "en": "Water palette: pale turquoise in the shallows blending into deep teal.",
-            "ko": "물 색: 얕은 곳 밝은 청록에서 깊은 곳 짙은 청록으로."
+            "ko": "물 색은 얕은 곳은 밝은 청록, 깊은 곳은 짙은 청록으로."
           }
         },
         {
@@ -328,7 +328,7 @@
           "label": "하늘색 → 바다색",
           "text": {
             "en": "Water palette: pale blue in the shallows blending into deep ocean blue.",
-            "ko": "물 색: 얕은 곳 밝은 파랑에서 깊은 곳 짙은 바다색으로."
+            "ko": "물 색은 얕은 곳은 밝은 하늘색, 깊은 곳은 짙은 바다색으로."
           }
         },
         {
@@ -336,7 +336,7 @@
           "label": "민트 → 에메랄드",
           "text": {
             "en": "Water palette: pale mint in the shallows blending into deep emerald.",
-            "ko": "물 색: 얕은 곳 민트에서 깊은 곳 짙은 에메랄드로."
+            "ko": "물 색은 얕은 곳은 민트, 깊은 곳은 짙은 에메랄드로."
           }
         }
       ]
@@ -354,12 +354,12 @@
           "label": "실시간 물결 시뮬레이션",
           "text": {
             "en": "Water surface: a GPU height-field simulation with ripples, reflections, depth-tinted colour, shoreline foam and caustics on the seabed. The block refracts what is inside it (any technique; a custom shader is fine).",
-            "ko": "수면: GPU 높이장 시뮬레이션으로 물결·반사·깊이에 따른 색·해안선 거품·해저 코스틱. 블록은 안쪽이 굴절돼 보이게(방식 자유, 커스텀 셰이더 가능)."
+            "ko": "수면은 GPU 높이장 시뮬레이션으로: 물결, 반사, 깊이에 따라 달라지는 색, 해안선 거품, 해저 코스틱. 블록은 안쪽이 굴절돼 보이게(방법은 자유, 커스텀 셰이더도 괜찮아)."
           },
           "checklist": [
             {
               "en": "Caustics appear only on upward-facing surfaces; never as vertical streaks on cut faces.",
-              "ko": "코스틱은 위를 향한 면에만; 수직 단면에 세로 줄무늬로 늘어지지 않는다."
+              "ko": "코스틱은 위를 향한 면에만 생기고, 수직 단면에서 세로 줄무늬로 늘어지지 않는다."
             }
           ]
         },
@@ -368,7 +368,7 @@
           "label": "단순한 애니메이션 수면",
           "text": {
             "en": "Water surface: a simple animated wave shader with reflections and depth colour; no interactive ripples.",
-            "ko": "수면: 반사와 깊이 색이 있는 단순 애니메이션 물결 셰이더; 상호작용 파문 없음."
+            "ko": "수면은 반사와 깊이 색이 있는 단순한 애니메이션 물결 셰이더로. 클릭 파문은 없음."
           }
         }
       ]
@@ -376,22 +376,22 @@
     {
       "id": "vegetation",
       "group": "내용물",
-      "label": "식생",
+      "label": "식물",
       "labelEn": "vegetation",
       "kind": "choice",
       "default": "lush",
       "options": [
         {
           "value": "lush",
-          "label": "풍성 (야자수·둥근 나무·덤불)",
+          "label": "풍성하게 (야자수·둥근 나무·덤불)",
           "text": {
             "en": "Lush vegetation: palms along the beach, round trees and bushes on the plateau, never on steep cliff faces, never floating or buried.",
-            "ko": "풍성한 식생: 해변엔 야자수, 고원엔 둥근 나무와 덤불; 가파른 절벽 면에는 없고, 떠 있거나 묻히지 않게."
+            "ko": "식물은 풍성하게: 해변에는 야자수, 꼭대기 풀밭에는 둥근 나무와 덤불. 가파른 절벽 면에는 심지 말고, 땅에서 뜨거나 묻히지 않게."
           },
           "checklist": [
             {
               "en": "No plant floats above the ground or sinks into it; none grows on vertical rock.",
-              "ko": "식물이 땅 위에 뜨거나 묻히지 않고, 수직 바위 위에 자라지 않는다."
+              "ko": "식물이 땅에서 뜨거나 묻히지 않고, 수직 바위 면에 자라지 않는다."
             }
           ]
         },
@@ -400,7 +400,7 @@
           "label": "드문드문",
           "text": {
             "en": "Sparse vegetation: a few palms and bushes, most of the ground visible.",
-            "ko": "드문 식생: 야자수와 덤불 몇 개, 땅이 대부분 보이게."
+            "ko": "식물은 드문드문: 야자수와 덤불 몇 개만, 땅이 대부분 보이게."
           }
         },
         {
@@ -408,7 +408,7 @@
           "label": "없음",
           "text": {
             "en": "No vegetation.",
-            "ko": "식생 없음."
+            "ko": "식물은 없음."
           }
         }
       ]
@@ -423,14 +423,14 @@
         "fish",
         "whale"
       ],
-      "help": "여러 개 고를 수 있어요. 움직이는 것은 서로 길이 겹치지 않게 경로를 짜야 해요.",
+      "help": "여러 개 골라도 돼요. 움직이는 생물은 서로 길이 겹치지 않게 경로를 짜 줘야 해요.",
       "options": [
         {
           "value": "fish",
           "label": "물고기 떼",
           "text": {
             "en": "Schools of small tropical fish lap the island at different depths; clownfish live in anemones and never stray far.",
-            "ko": "작은 열대어 떼가 수심을 달리해 섬을 돌고, 흰동가리는 말미잘에 살며 멀리 가지 않는다."
+            "ko": "작은 열대어 떼가 깊이를 달리해 섬 주변을 돌고, 흰동가리는 말미잘 곁에 살면서 멀리 가지 않게."
           }
         },
         {
@@ -438,12 +438,12 @@
           "label": "고래 (점프)",
           "text": {
             "en": "A whale cruises the open sea and breaches when clicked, planning a path that avoids rocks, the boat and the seabed.",
-            "ko": "고래가 먼바다를 돌다가 클릭하면 점프; 바위·배·해저를 피하는 경로를 미리 계산."
+            "ko": "고래가 먼바다를 돌다가 클릭하면 뛰어오르게. 바위, 배, 해저를 피하는 경로를 미리 계산해 둘 것."
           },
           "checklist": [
             {
               "en": "The whale never clips the seabed, rocks or the boat during a breach.",
-              "ko": "고래가 점프 중 해저·바위·배를 뚫지 않는다."
+              "ko": "고래가 뛰어오르는 동안 해저, 바위, 배를 뚫지 않는다."
             }
           ]
         },
@@ -452,7 +452,7 @@
           "label": "가오리",
           "text": {
             "en": "A stingray glides a loop in the open sea, wings rippling, banking into turns; cute: big eyes and a small ω mouth underneath.",
-            "ko": "가오리가 먼바다를 활공하며 날개를 물결치고 굽이에서 몸을 기울임; 귀엽게 큰 눈과 코 밑 ω 입."
+            "ko": "가오리가 먼바다를 날개를 물결치며 천천히 활공하고, 방향을 틀 때 몸을 기울이게. 눈은 크고 코 밑에 ω 모양 입, 귀엽게."
           }
         },
         {
@@ -460,7 +460,7 @@
           "label": "해파리 무리 (야광)",
           "text": {
             "en": "A swarm of round jellyfish drifts slowly and pulses; they glow when the scene darkens.",
-            "ko": "둥근 해파리 무리가 느리게 떠다니며 맥동; 장면이 어두워지면 발광."
+            "ko": "둥근 해파리 무리가 천천히 떠다니며 맥동하고, 장면이 어두워지면 빛나게."
           }
         },
         {
@@ -468,7 +468,7 @@
           "label": "새",
           "text": {
             "en": "A few birds circle above the island.",
-            "ko": "새 몇 마리가 섬 위를 맴돈다."
+            "ko": "새 몇 마리가 섬 위를 맴돌게."
           }
         }
       ]
@@ -490,12 +490,12 @@
           "label": "등대 (회전 빛)",
           "text": {
             "en": "A striped lighthouse on the far islet with a slowly sweeping beam.",
-            "ko": "먼 섬 위 줄무늬 등대, 천천히 도는 빛줄기."
+            "ko": "먼 끝 작은 섬 위에 줄무늬 등대, 빛줄기가 천천히 돌게."
           },
           "checklist": [
             {
               "en": "The light beam casts no shadow and does not darken the table.",
-              "ko": "빛줄기는 그림자를 만들지 않고 바닥을 어둡게 하지 않는다."
+              "ko": "등대 빛줄기가 그림자를 만들거나 바닥을 어둡게 하지 않는다."
             }
           ]
         },
@@ -504,7 +504,7 @@
           "label": "해변 오두막 + 선착장",
           "text": {
             "en": "A beach hut on a levelled patch of sand and a wooden pier into the lagoon.",
-            "ko": "평평하게 고른 모래 위 오두막과 석호로 이어지는 나무 선착장."
+            "ko": "평평하게 고른 모래 위에 오두막, 석호로 이어지는 나무 선착장."
           }
         },
         {
@@ -512,7 +512,7 @@
           "label": "돛단배",
           "text": {
             "en": "A small sailboat that bobs on the waves and sails a slow loop.",
-            "ko": "파도에 흔들리며 천천히 한 바퀴 도는 작은 돛단배."
+            "ko": "작은 돛단배가 파도에 흔들리며 천천히 한 바퀴 돌게."
           }
         },
         {
@@ -520,7 +520,7 @@
           "label": "해변 소품 (조개·불가사리·모래성)",
           "text": {
             "en": "Shells, starfish, pebbles, driftwood and a sandcastle on the dry sand.",
-            "ko": "마른 모래 위에 조개·불가사리·조약돌·유목·모래성."
+            "ko": "마른 모래 위에 조개, 불가사리, 조약돌, 유목, 모래성."
           }
         }
       ]
@@ -538,16 +538,16 @@
           "label": "솜구름 → 비·번개·무지개",
           "text": {
             "en": "Two cotton-like clouds of different shapes float over the island and the islet. Clicking one darkens it, rain falls, lightning strikes, and a rainbow appears as it clears.",
-            "ko": "모양이 다른 솜구름 두 개가 섬과 작은 섬 위에. 클릭하면 어두워지며 비가 내리고 번개가 치고, 개면서 무지개."
+            "ko": "모양이 서로 다른 솜구름 두 개를 섬과 작은 섬 위에. 구름을 클릭하면 어두워지면서 비가 내리고 번개가 치고, 개면서 무지개가 뜨게."
           },
           "checklist": [
             {
               "en": "The two clouds are visibly different shapes.",
-              "ko": "두 구름의 모양이 눈에 띄게 다르다."
+              "ko": "두 구름의 모양이 한눈에 다르다."
             },
             {
               "en": "Rain stops on roofs and props instead of falling through them.",
-              "ko": "비는 지붕과 소품 위에서 멈추고 뚫고 떨어지지 않는다."
+              "ko": "비는 지붕과 소품 위에서 멈추고, 뚫고 떨어지지 않는다."
             }
           ]
         },
@@ -556,7 +556,7 @@
           "label": "구름만",
           "text": {
             "en": "A couple of soft clouds drift slowly; no weather.",
-            "ko": "부드러운 구름 두어 개가 천천히 흐름; 날씨 없음."
+            "ko": "부드러운 구름 두어 개만 천천히 흐르게. 날씨 변화는 없음."
           }
         },
         {
@@ -572,7 +572,7 @@
     {
       "id": "hover",
       "group": "상호작용",
-      "label": "마우스를 스칠 때",
+      "label": "마우스를 올리기만 하면",
       "labelEn": "what happens on hover",
       "importance": "core",
       "kind": "choice",
@@ -583,12 +583,12 @@
           "label": "아무 일 없음",
           "text": {
             "en": "Hover does nothing — the water and the block never move on hover.",
-            "ko": "스치기만 하면 아무 일도 없다 — 물도 블록도 움직이지 않는다."
+            "ko": "마우스를 올리기만 했을 때는 아무 일도 일어나지 않게. 물도 블록도 움직이지 않게."
           },
           "checklist": [
             {
               "en": "Moving the mouse without pressing produces zero motion.",
-              "ko": "누르지 않고 마우스만 움직이면 아무것도 움직이지 않는다."
+              "ko": "누르지 않고 마우스만 움직일 때는 아무것도 움직이지 않는다."
             }
           ]
         },
@@ -597,7 +597,7 @@
           "label": "잔물결",
           "text": {
             "en": "Hover leaves faint ripples on the water.",
-            "ko": "스치면 수면에 희미한 잔물결."
+            "ko": "마우스가 지나가면 수면에 희미한 잔물결."
           }
         }
       ]
@@ -615,7 +615,7 @@
           "label": "동심원 물결",
           "text": {
             "en": "A click on the water pops concentric rings that spread and fade.",
-            "ko": "물을 클릭하면 동심원 물결이 퍼지며 사라진다."
+            "ko": "물을 클릭하면 동심원 물결이 퍼지다가 사라지게."
           }
         },
         {
@@ -623,7 +623,7 @@
           "label": "물방울 튐",
           "text": {
             "en": "A click splashes droplets and leaves a ring.",
-            "ko": "클릭하면 물방울이 튀고 고리가 남는다."
+            "ko": "클릭하면 물방울이 튀고 고리가 남게."
           }
         },
         {
@@ -631,7 +631,7 @@
           "label": "없음",
           "text": {
             "en": "Clicking the water does nothing.",
-            "ko": "물 클릭은 아무 일도 없음."
+            "ko": "물을 클릭해도 아무 일 없음."
           }
         }
       ]
@@ -651,7 +651,7 @@
           "label": "블록: 젤리 흔들기 / 바깥: 카메라 회전",
           "text": {
             "en": "A drag that starts ON the block wobbles the jelly (the water sloshes; the island itself stays put); a drag that starts OUTSIDE the block orbits the camera. Wheel zooms toward the cursor.",
-            "ko": "블록 위에서 시작한 드래그는 젤리를 흔들고(물이 출렁, 섬은 제자리), 블록 바깥에서 시작한 드래그는 카메라 회전. 휠은 커서 쪽으로 확대."
+            "ko": "블록 위에서 시작한 드래그는 젤리를 흔들고(물은 출렁이고 섬은 제자리), 블록 바깥에서 시작한 드래그는 카메라를 돌리게. 휠은 커서 쪽으로 확대."
           },
           "checklist": [
             {
@@ -660,7 +660,7 @@
             },
             {
               "en": "The jelly wobble never pushes the island's cut faces out through the water walls.",
-              "ko": "젤리가 흔들려도 섬의 단면이 물벽 밖으로 삐져나오지 않는다."
+              "ko": "젤리가 흔들려도 섬 단면이 물 벽 밖으로 삐져나오지 않는다."
             }
           ]
         },
@@ -669,7 +669,7 @@
           "label": "카메라 회전만",
           "text": {
             "en": "Dragging anywhere orbits the camera; the block does not deform.",
-            "ko": "어디서 드래그하든 카메라 회전; 블록은 변형되지 않음."
+            "ko": "어디서 드래그하든 카메라만 돌고, 블록은 변형되지 않게."
           }
         },
         {
@@ -677,7 +677,7 @@
           "label": "블록이 살짝 기울기",
           "text": {
             "en": "Dragging tilts the whole block slightly as a rigid body; release springs it back.",
-            "ko": "드래그하면 블록 전체가 단단한 채로 살짝 기울고, 놓으면 튕겨 돌아옴."
+            "ko": "드래그하면 블록 전체가 단단한 채로 살짝 기울고, 놓으면 튕기듯 돌아오게."
           }
         }
       ]
@@ -695,7 +695,7 @@
           "label": "책상 위 (실사 나무)",
           "text": {
             "en": "The block stands on a real wooden desk: photo-scanned wood with normal and roughness maps, receiving the block's shadow and a soft contact shadow, fading into the studio backdrop with distance.",
-            "ko": "블록은 실제 나무 책상 위에: 사진 스캔 나무 텍스처(노멀·러프니스), 블록 그림자와 접촉 그림자를 받고, 멀어질수록 스튜디오 배경으로 녹아들게."
+            "ko": "블록은 진짜 나무 책상 위에 놓이게: 사진으로 스캔한 나무 텍스처(노멀, 러프니스 포함), 블록 그림자와 접촉 그림자를 받고, 멀어질수록 스튜디오 배경에 녹아들게."
           }
         },
         {
@@ -703,7 +703,7 @@
           "label": "스튜디오 배경만",
           "text": {
             "en": "Only a seamless ivory studio backdrop with a soft contact shadow under the block.",
-            "ko": "이음새 없는 아이보리 스튜디오 배경과 블록 아래 부드러운 접촉 그림자만."
+            "ko": "이음새 없는 아이보리색 스튜디오 배경과 블록 아래 부드러운 접촉 그림자만."
           }
         },
         {
@@ -711,7 +711,7 @@
           "label": "어두운 배경",
           "text": {
             "en": "A dark slate backdrop so the block glows against it.",
-            "ko": "블록이 돋보이게 짙은 슬레이트 배경."
+            "ko": "블록이 돋보이게 짙은 슬레이트색 배경."
           }
         }
       ]
@@ -726,10 +726,10 @@
       "options": [
         {
           "value": "tele",
-          "label": "장초점·높은 각도 (제품 사진)",
+          "label": "망원·높은 각도 (제품 사진 느낌)",
           "text": {
             "en": "Camera: long lens (narrow FOV), high angle, product-photo framing; depth of field focused on the block; a subtle tilt-shift band to sell the miniature scale.",
-            "ko": "카메라: 장초점(좁은 화각), 높은 각도, 제품 사진 구도; 블록에 초점을 맞춘 피사계 심도; 미니어처 느낌을 주는 은은한 틸트시프트."
+            "ko": "카메라는 망원(좁은 화각), 높은 각도, 제품 사진 같은 구도로. 블록에 초점을 맞춘 피사계 심도와, 미니어처 느낌을 주는 은은한 틸트시프트."
           }
         },
         {
@@ -737,7 +737,7 @@
           "label": "광각·낮은 각도",
           "text": {
             "en": "Camera: wide lens, low angle, dramatic perspective.",
-            "ko": "카메라: 광각, 낮은 각도, 극적인 원근."
+            "ko": "카메라는 광각, 낮은 각도, 원근이 극적으로."
           }
         }
       ]
@@ -760,7 +760,7 @@
           "label": "AO (틈 그늘)",
           "text": {
             "en": "Ambient occlusion in crevices and where objects meet the ground.",
-            "ko": "틈과 물체가 바닥에 닿는 곳에 AO."
+            "ko": "틈새와 물체가 바닥에 닿는 곳에 AO(주변광 차폐)."
           }
         },
         {
@@ -784,7 +784,7 @@
           "label": "필름 그레인",
           "text": {
             "en": "A touch of film grain after tone mapping.",
-            "ko": "톤매핑 뒤에 필름 그레인 약간."
+            "ko": "톤매핑 뒤에 필름 그레인을 살짝."
           }
         }
       ]
@@ -792,27 +792,27 @@
     {
       "id": "extra",
       "group": "그 밖에",
-      "label": "꼭 넣고 싶은 것 (자유)",
+      "label": "꼭 넣고 싶은 것",
       "labelEn": "must-haves",
       "kind": "text",
       "importance": "nice",
       "placeholder": "예: 섬 꼭대기에 작은 폭포, 밤 모드",
       "text": {
         "en": "Also include: {value}",
-        "ko": "그리고 꼭 넣어줘: {value}"
+        "ko": "그리고 이것도 꼭 넣어줘: {value}"
       }
     },
     {
       "id": "avoid",
       "group": "그 밖에",
-      "label": "하지 말았으면 하는 것 (자유)",
+      "label": "하지 말았으면 하는 것",
       "labelEn": "things to avoid",
       "kind": "text",
       "importance": "nice",
       "placeholder": "예: 사람 캐릭터는 넣지 말 것",
       "text": {
         "en": "Do not: {value}",
-        "ko": "하지 말 것: {value}"
+        "ko": "이건 하지 마: {value}"
       }
     }
   ],
@@ -825,7 +825,7 @@
       },
       "intro": {
         "en": "Create an interactive 3D web scene: a miniature island inside a transparent water block.",
-        "ko": "인터랙티브 3D 웹 장면을 만들어줘: 투명한 물 블록 속 미니어처 섬."
+        "ko": "투명한 물 블록 안에 미니어처 섬이 들어 있는, 웹에서 돌아가는 인터랙티브 3D 장면을 만들어줘."
       },
       "decisions": [
         "artStyle",
@@ -882,7 +882,7 @@
       "id": "interaction",
       "title": {
         "en": "Interaction (exact mapping)",
-        "ko": "상호작용 (정확한 대응)"
+        "ko": "상호작용 (입력마다 반응은 하나씩)"
       },
       "decisions": [
         "hover",
@@ -920,7 +920,7 @@
       },
       "intro": {
         "en": "Vite + React + TypeScript, three, @react-three/fiber, @react-three/drei, @react-three/postprocessing, leva for a control panel. Terrain and water are procedural. Reusable models (clouds, creatures, corals, props) may be generated by scripts (for example headless Blender) and loaded as glTF — do not download random models from the internet. Put the water simulation in its own hook and split components by responsibility.",
-        "ko": "Vite + React + TypeScript, three, @react-three/fiber, @react-three/drei, @react-three/postprocessing, 조절 패널은 leva. 지형과 물은 절차 생성. 재사용 모델(구름·생물·산호·소품)은 스크립트(예: 헤드리스 Blender)로 만들어 glTF로 불러와도 됨 — 인터넷에서 아무 모델이나 받지는 말 것. 물 시뮬레이션은 별도 훅으로, 컴포넌트는 역할별로 분리."
+        "ko": "기술 구성은 Vite + React + TypeScript에 three, @react-three/fiber, @react-three/drei, @react-three/postprocessing, 조절 패널은 leva. 지형과 물은 절차 생성으로. 여러 번 쓰는 모델(구름, 생물, 산호, 소품)은 스크립트(예: 헤드리스 Blender)로 만들어 glTF로 불러와도 되지만, 인터넷에서 아무 모델이나 받아 쓰지는 마. 물 시뮬레이션은 별도 훅으로 빼고, 컴포넌트는 역할별로 나눠줘."
       }
     },
     {
@@ -959,53 +959,53 @@
   "checklistBase": [
     {
       "en": "Nothing pokes out through the water block's walls; every rock, plant and prop sits fully inside the sand footprint.",
-      "ko": "물 블록 벽 밖으로 삐져나오는 것이 없다; 바위·식물·소품이 모두 모래 발자국 안에 들어온다."
+      "ko": "물 블록 벽 밖으로 삐져나온 것이 없다. 바위, 식물, 소품이 전부 모래 바닥 범위 안에 들어와 있다."
     },
     {
       "en": "Nothing floats above the ground or sinks into it (check props on slopes).",
-      "ko": "땅 위에 떠 있거나 묻힌 것이 없다 (비탈 위 소품을 확인)."
+      "ko": "땅에서 떠 있거나 땅에 묻힌 것이 없다 (비탈 위 소품을 특히 확인)."
     },
     {
       "en": "The block's side cut faces read as clean layers of sand and rock, roughly level along the sand line.",
-      "ko": "블록 옆 단면은 모래·바위 층이 깔끔하게 보이고, 모래선이 거의 수평이다."
+      "ko": "블록 옆 단면에 모래와 바위 층이 깔끔하게 보이고, 모래선이 거의 수평이다."
     },
     {
       "en": "Moving creatures never pass through terrain, rocks, props or each other's lanes.",
-      "ko": "움직이는 생물이 지형·바위·소품을 뚫거나 서로의 길을 가로지르지 않는다."
+      "ko": "움직이는 생물이 지형, 바위, 소품을 뚫지 않고, 서로 길이 겹치지 않는다."
     },
     {
       "en": "Lights, beams and transparent effects cast no shadows.",
-      "ko": "불빛·빛줄기·투명 효과는 그림자를 만들지 않는다."
+      "ko": "불빛, 빛줄기, 투명 효과는 그림자를 만들지 않는다."
     },
     {
       "en": "A loading screen with a progress indicator shows from the first paint; the first frame is never a blank page.",
-      "ko": "첫 화면부터 진행률이 있는 로딩 화면이 보이고, 빈 페이지가 뜨지 않는다."
+      "ko": "첫 화면부터 진행률이 보이는 로딩 화면이 뜨고, 빈 페이지가 보이는 순간이 없다."
     },
     {
       "en": "Quality tiers only step down (never flip up and down, which rebuilds the scene and flickers).",
-      "ko": "품질 단계는 내려가기만 한다 (오르내리면 장면을 다시 만들어 깜빡인다)."
+      "ko": "자동 품질 단계는 내려가기만 한다 (오르락내리락하면 장면을 다시 만들면서 깜빡인다)."
     },
     {
       "en": "60 fps on a retina laptop: cap the total render pixels per tier, run depth of field / AO / bloom at half resolution, no MSAA on the high tier.",
-      "ko": "레티나 노트북에서 60fps: 단계별 렌더 픽셀 총량에 상한, 피사계 심도·AO·블룸은 절반 해상도, 높음 단계에서도 MSAA 끔."
+      "ko": "레티나 노트북에서 60fps가 나온다: 품질 단계마다 렌더 픽셀 총량에 상한을 두고, 피사계 심도·AO·블룸은 절반 해상도로, 가장 높은 단계에서도 MSAA는 끈다."
     }
   ],
   "process": [
     {
       "en": "Build in stages: layout → water → island → life → weather → polish. Get each stage working before beautifying it.",
-      "ko": "단계별로: 배치 → 물 → 섬 → 생물 → 날씨 → 다듬기. 예쁘게 만들기 전에 각 단계가 동작하게 할 것."
+      "ko": "단계별로 진행해줘: 배치 → 물 → 섬 → 생물 → 날씨 → 다듬기. 예쁘게 만들기 전에 각 단계가 먼저 동작하게."
     },
     {
       "en": "After each stage, take screenshots from the default view, a low side angle and a top-down view; compare them with the references and fix what differs before moving on.",
-      "ko": "단계마다 기본 뷰·낮은 옆 각도·위에서 본 뷰로 스크린샷을 찍어 참고 이미지와 비교하고, 다른 점을 고친 뒤 넘어갈 것."
+      "ko": "단계가 끝날 때마다 기본 뷰, 낮은 옆 각도, 위에서 본 뷰로 스크린샷을 찍어 참고 이미지와 비교하고, 다른 점을 고친 뒤에 넘어가줘."
     },
     {
       "en": "Verify motion with numbers, not by eye: simulate creature paths against the terrain and obstacles and report the minimum clearance.",
-      "ko": "움직임은 눈이 아니라 수치로 검증: 생물 경로를 지형·장애물과 시뮬레이션해서 최소 여유 거리를 보고할 것."
+      "ko": "움직임은 눈이 아니라 수치로 검증해줘: 생물 경로를 지형과 장애물에 대해 시뮬레이션해서 최소 여유 거리를 보고할 것."
     },
     {
       "en": "Ask before any large structural change. Reply in Korean, including short progress updates.",
-      "ko": "큰 구조 변경 전에는 물어볼 것. 짧은 진행 보고까지 모두 한국어로."
+      "ko": "구조를 크게 바꾸기 전에는 먼저 물어봐줘. 짧은 진행 보고까지 전부 한국어로."
     }
   ],
   "diagnosis": [
@@ -1018,23 +1018,43 @@
           "id": "shape-blobby",
           "label": "뭉개져 보임 (감자·계란 프라이 같음)",
           "labelEn": "reads as a shapeless blob",
-          "hint": "모든 면이 둥글고 특징이 없음",
+          "hint": "어디를 봐도 둥글둥글하고 특징이 없음",
           "fix": {
             "en": "{target} reads as a shapeless blob. Give it a readable structure: distinct layers/steps, sharper edges where the reference has them, and a clear top vs side. Keep the toy softness but add 2–3 recognisable features.",
-            "ko": "{target}이 형체 없는 덩어리로 보여. 읽히는 구조를 줘: 층·단이 구분되고, 참고처럼 모서리가 살고, 윗면과 옆면이 분명하게. 장난감 같은 부드러움은 두되 알아볼 특징 2~3개를 더해줘."
+            "ko": "{target} 부분이 형체 없는 덩어리처럼 보여. 구조가 읽히게 바꿔줘: 층이나 단이 구분되고, 참고 이미지처럼 모서리가 살아 있고, 윗면과 옆면이 또렷하게. 장난감 같은 부드러움은 그대로 두되, 한눈에 알아볼 특징을 두세 개 더해줘."
           },
-          "why": "노이즈를 많이 돌리거나 스무딩을 세게 하면 모든 게 둥글어져요. 좋은 스타일라이즈드는 '단순한데 특징은 또렷'이에요. 우리도 첫 암초 선반이 계란 프라이처럼 나와서 층을 올리고 테두리를 거칠게 했어요."
+          "why": "노이즈를 많이 돌리거나 스무딩을 세게 걸면 전부 둥글둥글해져요. 좋은 스타일라이즈드는 \"단순하지만 특징은 또렷\"이에요. 우리도 암초 선반이 처음엔 계란 프라이처럼 나와서, 층을 올리고 테두리를 거칠게 만들었어요.",
+          "examples": [
+            {
+              "src": "examples/miniature-island/shape-blobby-before.jpg",
+              "caption": "전: 납작하고 밋밋한 덩어리. 바위인지 모래인지 읽히지 않아요."
+            },
+            {
+              "src": "examples/miniature-island/shape-blobby-after.jpg",
+              "caption": "후: 층과 모서리가 생기니 바위로 읽혀요."
+            }
+          ]
         },
         {
           "id": "shape-repeat",
           "label": "똑같은 게 반복됨",
           "labelEn": "the same shape repeats",
-          "hint": "구름 두 개가 같은 모양, 나무가 다 같음",
+          "hint": "구름 두 개가 같은 모양, 나무가 전부 똑같음",
           "fix": {
             "en": "{target} repeats the same shape. Give each instance a different silhouette (different recipe or seed, scale, rotation, mirrored), not just a different position.",
-            "ko": "{target}이 같은 모양으로 반복돼. 인스턴스마다 실루엣을 다르게 (다른 레시피나 씨앗값, 크기, 회전, 좌우 반전) — 위치만 다른 게 아니라."
+            "ko": "{target} 부분이 같은 모양으로 반복돼. 하나하나 실루엣이 다르게 만들어줘. 위치만 다르게 두지 말고, 생성 레시피나 시드값, 크기, 회전, 좌우 반전을 바꿔서."
           },
-          "why": "같은 모델을 복사하면 눈이 바로 알아채요. 특히 큰 요소(구름·바위)는 레시피 자체가 달라야 해요."
+          "why": "같은 모델을 복사해 놓으면 눈이 바로 알아채요. 특히 구름이나 바위처럼 큰 요소는 만드는 레시피 자체가 달라야 해요.",
+          "examples": [
+            {
+              "src": "examples/miniature-island/shape-repeat-before.jpg",
+              "caption": "전: 구름 두 개가 똑같은 모양."
+            },
+            {
+              "src": "examples/miniature-island/shape-repeat-after.jpg",
+              "caption": "후: 모양과 크기가 다른 구름."
+            }
+          ]
         },
         {
           "id": "shape-proportion",
@@ -1043,8 +1063,19 @@
           "hint": "너무 크거나 작거나 납작함",
           "fix": {
             "en": "Fix the scale of {target} relative to its neighbours: state the intended size in world units (e.g. the whale is 0.9× the hut) and match the reference proportions.",
-            "ko": "{target}의 크기를 주변과 맞춰줘: 의도한 크기를 월드 단위로 적고(예: 고래는 오두막의 0.9배) 참고 이미지의 비율에 맞춰줘."
-          }
+            "ko": "{target}의 크기를 주변과 맞춰줘. 의도한 크기를 월드 단위로 적어 두고(예: 고래는 오두막의 0.9배), 참고 이미지의 비율에 맞춰줘."
+          },
+          "why": "크기를 숫자로 말하지 않으면 AI는 요소를 하나씩 따로 만들다가 비율을 놓쳐요. 다른 물체와의 상대 크기로 말해 주면 한 번에 잡혀요.",
+          "examples": [
+            {
+              "src": "examples/miniature-island/shape-proportion-before.jpg",
+              "caption": "전: 등대가 작은 섬보다 커서 장난감 같은 비율이 깨져요."
+            },
+            {
+              "src": "examples/miniature-island/shape-proportion-after.jpg",
+              "caption": "후: 섬과 등대의 크기가 어울려요."
+            }
+          ]
         },
         {
           "id": "shape-detail",
@@ -1053,7 +1084,7 @@
           "hint": "가까이 보면 아무것도 없음",
           "fix": {
             "en": "Add a second level of detail to {target} that shows at the default zoom: small features (steps, ripples, pores, leaves) consistent with the art style, without noise.",
-            "ko": "{target}에 기본 줌에서 보이는 2단계 디테일을 더해줘: 그림체에 맞는 작은 특징(단, 물결, 구멍, 잎)들을, 노이즈 없이."
+            "ko": "{target}에 기본 줌에서도 보이는 두 번째 단계의 디테일을 더해줘. 단, 물결, 구멍, 잎처럼 그림체에 맞는 작은 특징으로, 노이즈는 넣지 말고."
           }
         },
         {
@@ -1063,7 +1094,7 @@
           "hint": "장난감 느낌인데 날카로움",
           "fix": {
             "en": "Round off {target}: bevel the hard edges and soften the tips so it matches the toy look of the rest.",
-            "ko": "{target}을 둥글려줘: 날카로운 모서리는 베벨, 끝은 부드럽게, 나머지 장난감 느낌과 맞게."
+            "ko": "{target} 부분을 둥글려줘. 날카로운 모서리는 깎고(베벨), 끝은 부드럽게, 나머지 장난감 느낌과 맞추고."
           }
         }
       ]
@@ -1079,7 +1110,7 @@
           "labelEn": "muddy, greyish colour",
           "fix": {
             "en": "{target} looks muddy. Raise its saturation toward the reference palette and remove grey tints from the lighting; keep highlights clean.",
-            "ko": "{target}이 탁해 보여. 참고 팔레트 쪽으로 채도를 올리고 조명의 회색끼를 빼줘; 하이라이트는 깨끗하게."
+            "ko": "{target} 부분이 탁해 보여. 참고 팔레트 쪽으로 채도를 올리고 조명에 낀 회색기를 빼줘. 밝은 부분은 깨끗하게."
           },
           "why": "환경광이 회색이거나 톤매핑이 과하면 전체가 탁해져요."
         },
@@ -1089,16 +1120,16 @@
           "labelEn": "colour clashes with the scene",
           "fix": {
             "en": "The colour of {target} clashes with the scene. Pick it from the same palette as its neighbours (list the hex values you use) and keep one accent colour at most.",
-            "ko": "{target}의 색이 장면과 안 어울려. 주변과 같은 팔레트에서 고르고(쓰는 hex 값을 적어줘) 강조색은 하나만."
+            "ko": "{target}의 색이 장면과 안 어울려. 주변과 같은 팔레트 안에서 고르고(쓴 hex 값을 적어줘), 강조색은 하나만 써줘."
           }
         },
         {
           "id": "col-flat",
-          "label": "한 가지 색으로 평평함",
+          "label": "한 가지 색이라 밋밋함",
           "labelEn": "one flat colour",
           "fix": {
             "en": "{target} is one flat colour. Vary it by height, slope or depth (e.g. lighter crests, darker crevices) so the form reads.",
-            "ko": "{target}이 단색으로 평평해. 높이·경사·깊이에 따라 색을 바꿔(예: 능선은 밝게, 틈은 어둡게) 형태가 읽히게."
+            "ko": "{target} 부분이 단색이라 밋밋해. 높이, 경사, 깊이에 따라 색이 달라지게 해서(예: 능선은 밝게, 틈은 어둡게) 형태가 읽히게 해줘."
           }
         },
         {
@@ -1107,8 +1138,19 @@
           "labelEn": "highlights blown out",
           "fix": {
             "en": "Highlights on {target} are blown out. Lower the light or bloom intensity and use a filmic tone mapping so bright areas keep detail.",
-            "ko": "{target}의 밝은 부분이 하얗게 날아가. 광량이나 블룸을 낮추고 필름 톤매핑으로 밝은 곳에도 디테일이 남게."
-          }
+            "ko": "{target}의 밝은 부분이 하얗게 날아가. 광량이나 블룸을 낮추고, 필름 톤매핑을 써서 밝은 곳에도 디테일이 남게 해줘."
+          },
+          "why": "빛이 너무 세면 밝은 부분이 전부 흰색으로 뭉쳐서 모양이 사라져요. 빛을 줄이거나, 밝은 쪽을 부드럽게 눌러 주는 톤매핑을 쓰면 돼요.",
+          "examples": [
+            {
+              "src": "examples/miniature-island/col-blown-before.jpg",
+              "caption": "전: 빛이 너무 세서 섬과 물이 하얗게 날아갔어요."
+            },
+            {
+              "src": "examples/miniature-island/col-blown-after.jpg",
+              "caption": "후: 밝은 곳에도 색과 디테일이 남아요."
+            }
+          ]
         }
       ]
     },
@@ -1119,14 +1161,14 @@
       "symptoms": [
         {
           "id": "light-float",
-          "label": "떠 보임 (접지감 없음)",
+          "label": "떠 보임 (바닥에 닿은 느낌이 없음)",
           "labelEn": "looks like it floats (no grounding)",
           "hint": "물체 아래에 그림자가 없음",
           "fix": {
             "en": "{target} looks like it floats. Add a soft contact shadow and ambient occlusion where it meets the ground, and make sure its base actually touches the surface.",
-            "ko": "{target}이 떠 보여. 바닥과 닿는 곳에 부드러운 접촉 그림자와 AO를 넣고, 실제로 바닥에 닿아 있는지 확인해줘."
+            "ko": "{target} 부분이 바닥에서 떠 보여. 바닥과 닿는 곳에 부드러운 접촉 그림자와 AO를 넣고, 실제로 바닥에 닿아 있는지도 확인해줘."
           },
-          "why": "'가짜 같다'의 1순위 원인이 접촉 그림자 부재예요."
+          "why": "\"가짜 같다\"는 느낌의 첫 번째 원인이 접촉 그림자가 없는 거예요."
         },
         {
           "id": "light-wrongshadow",
@@ -1135,20 +1177,30 @@
           "hint": "빛이나 투명한 것이 그림자를 만듦",
           "fix": {
             "en": "{target} casts a shadow it should not (a light beam, glass, a transparent effect). Exclude it from shadow casting and from any contact-shadow capture.",
-            "ko": "{target}이 있으면 안 될 그림자를 만들어 (빛줄기·유리·투명 효과). 그림자 캐스팅과 접촉 그림자 캡처에서 빼줘."
+            "ko": "{target} 부분이 있으면 안 될 그림자를 만들어 (빛줄기, 유리, 투명 효과 같은 것). 그림자 캐스팅과 접촉 그림자 캡처에서 빼줘."
           },
-          "why": "우리 등대 빛줄기가 바닥에 사다리꼴 그림자를 남겼던 게 이 경우예요: 접촉 그림자 카메라가 투명 원뿔을 단단한 물체로 찍었어요."
+          "why": "우리 등대 빛줄기가 바닥에 사다리꼴 그림자를 남겼던 게 바로 이 경우예요. 접촉 그림자 카메라가 투명한 원뿔을 단단한 물체로 찍었거든요."
         },
         {
           "id": "light-caustic",
-          "label": "빛 무늬가 늘어짐·이상함",
+          "label": "빛 무늬(코스틱)가 늘어짐",
           "labelEn": "light pattern stretched into streaks",
-          "hint": "그물 무늬가 세로로 줄줄이",
+          "hint": "그물 무늬가 세로로 줄줄 흘러내림",
           "fix": {
             "en": "The caustic/light pattern on {target} is stretched into streaks. Apply it only to upward-facing surfaces (weight by the surface normal's up component) and fade it on vertical faces.",
-            "ko": "{target}의 코스틱(빛 무늬)이 줄무늬로 늘어져. 위를 향한 면에만(법선의 위쪽 성분으로 가중) 적용하고 수직면에서는 꺼줘."
+            "ko": "{target}의 코스틱(물결 빛 무늬)이 줄무늬처럼 늘어져. 위를 향한 면에만(법선의 위쪽 성분으로 가중치를 줘서) 그리고, 수직면에서는 꺼줘."
           },
-          "why": "코스틱은 바닥 좌표로 그리기 때문에 수직면에선 한 축이 고정돼 세로로 늘어져요."
+          "why": "코스틱은 바닥 좌표로 그리기 때문에, 수직면에서는 한 축이 고정돼서 세로로 늘어져요.",
+          "examples": [
+            {
+              "src": "examples/miniature-island/light-caustic-before.jpg",
+              "caption": "전: 단면(옆면)에 빛 무늬가 세로 줄무늬로 흘러내려요."
+            },
+            {
+              "src": "examples/miniature-island/light-caustic-after.jpg",
+              "caption": "후: 위를 향한 바닥에만 무늬가 생겨요."
+            }
+          ]
         },
         {
           "id": "light-dark",
@@ -1156,8 +1208,19 @@
           "labelEn": "too dark",
           "fix": {
             "en": "{target} is too dark. Raise the fill/ambient light for it or reduce AO strength there; keep the key light direction.",
-            "ko": "{target}이 너무 어두워. 보조광·환경광을 올리거나 그 부분 AO를 줄여줘; 주광 방향은 유지."
-          }
+            "ko": "{target} 부분이 너무 어두워. 보조광이나 환경광을 올리거나 그 부분의 AO를 줄여줘. 주광 방향은 그대로."
+          },
+          "why": "주광(해) 하나만 세고 보조광이 없으면 그늘진 곳이 그냥 검게 떨어져요. 보조광과 환경광이 그늘을 채워 줘요.",
+          "examples": [
+            {
+              "src": "examples/miniature-island/light-dark-before.jpg",
+              "caption": "전: 그늘이 검게 떨어지고 전체가 어두워요."
+            },
+            {
+              "src": "examples/miniature-island/light-dark-after.jpg",
+              "caption": "후: 보조광과 환경광이 그늘을 채워요."
+            }
+          ]
         }
       ]
     },
@@ -1172,17 +1235,18 @@
           "labelEn": "looks like shiny plastic",
           "fix": {
             "en": "{target} looks like shiny plastic. Raise roughness, reduce clearcoat/specular, and vary roughness across the surface.",
-            "ko": "{target}이 번들거리는 플라스틱 같아. 러프니스를 올리고 클리어코트·스페큘러를 줄이고, 표면마다 러프니스를 다르게."
-          }
+            "ko": "{target} 부분이 번들거리는 플라스틱처럼 보여. 러프니스를 올리고 클리어코트와 스페큘러를 줄이고, 표면마다 러프니스를 조금씩 다르게 해줘."
+          },
+          "why": "거칠기(러프니스) 값이 하나뿐이면 전부 같은 플라스틱처럼 보여요. 실제 물체는 표면마다 거칠기가 달라요."
         },
         {
           "id": "mat-tonemismatch",
           "label": "그림체가 안 맞음",
           "labelEn": "does not match the art style",
-          "hint": "다른 것은 장난감인데 이것만 실사(또는 반대)",
+          "hint": "다른 건 장난감인데 이것만 실사 (또는 반대)",
           "fix": {
             "en": "{target} does not match the art direction of the rest. Rework its material and shape to the same style (same palette family, same softness, same level of detail).",
-            "ko": "{target}이 나머지 그림체와 안 맞아. 재질과 형태를 같은 스타일로(같은 팔레트 계열, 같은 부드러움, 같은 디테일 수준) 다시 만들어줘."
+            "ko": "{target} 부분이 나머지 그림체와 안 맞아. 재질과 형태를 같은 스타일로 다시 만들어줘: 같은 팔레트 계열, 같은 부드러움, 같은 디테일 수준으로."
           }
         },
         {
@@ -1191,9 +1255,9 @@
           "labelEn": "noisy / crumpled surface",
           "fix": {
             "en": "{target} has a crumpled or noisy surface. Lower the bump/normal strength and the noise frequency; aim for a smooth surface with gentle variation.",
-            "ko": "{target} 표면이 구겨지거나 노이즈가 껴 보여. 범프·노멀 세기와 노이즈 주파수를 낮춰 부드러운 표면에 완만한 변화만 남겨줘."
+            "ko": "{target} 표면이 구겨지거나 노이즈가 낀 것처럼 보여. 범프·노멀 세기와 노이즈 주파수를 낮춰서, 부드러운 표면에 완만한 변화만 남겨줘."
           },
-          "why": "우리 솜구름 첫 버전이 구겨진 은박지처럼 나왔던 원인이에요."
+          "why": "우리 솜구름 첫 버전이 구겨진 은박지처럼 나왔던 이유가 이거예요."
         },
         {
           "id": "mat-water",
@@ -1202,7 +1266,7 @@
           "hint": "유리·젤리·우유처럼 보임",
           "fix": {
             "en": "The water of {target} does not read as water. Make refraction stronger near the surface, keep the body clear with depth-based tint, add sparkle on the surface and foam at the shoreline.",
-            "ko": "{target}의 물이 물로 안 읽혀. 수면 근처 굴절을 키우고, 물 몸체는 깊이 색만 입혀 맑게, 수면에 반짝임과 해안선에 거품을 더해줘."
+            "ko": "{target}의 물이 물처럼 안 보여. 수면 근처의 굴절을 키우고, 물 몸체는 깊이에 따른 색만 입혀 맑게 두고, 수면에는 반짝임을, 해안선에는 거품을 더해줘."
           }
         }
       ]
@@ -1218,9 +1282,19 @@
           "labelEn": "pokes through another object or the wall",
           "fix": {
             "en": "{target} pokes through another object or the block wall. Change the placement rule so the whole object (its full extent, not just its centre) must lie inside the allowed area; re-run placement.",
-            "ko": "{target}이 다른 물체나 블록 벽을 뚫고 나와. 중심점만이 아니라 물체 전체 범위가 허용 영역 안에 들어와야 놓이도록 배치 규칙을 고치고 다시 배치해줘."
+            "ko": "{target} 부분이 다른 물체나 블록 벽을 뚫고 나와. 중심점만 보지 말고 물체의 전체 범위가 허용 영역 안에 들어올 때만 놓이도록 배치 규칙을 고치고, 다시 배치해줘."
           },
-          "why": "자동 배치는 보통 중심점만 검사해요. 크기까지 고려하라고 해야 해요."
+          "why": "자동 배치는 보통 중심점만 검사해요. 크기까지 보라고 따로 말해 줘야 해요.",
+          "examples": [
+            {
+              "src": "examples/miniature-island/place-poke-before.jpg",
+              "caption": "전: 바위가 블록 벽을 뚫고 밖으로 나왔어요."
+            },
+            {
+              "src": "examples/miniature-island/place-poke-after.jpg",
+              "caption": "후: 바위 전체가 모래 안에 들어와 있어요."
+            }
+          ]
         },
         {
           "id": "place-buried",
@@ -1228,19 +1302,30 @@
           "labelEn": "buried in or hovering over the ground",
           "fix": {
             "en": "{target} is buried in / hovering over the ground. Seat it on the actual surface height under its base, tilt it to the local slope, and sink it slightly (a few percent of its size) so the base edge never floats.",
-            "ko": "{target}이 땅에 묻혔거나 떠 있어. 받침 아래 실제 지면 높이에 앉히고 경사에 맞춰 기울이고, 받침 가장자리가 뜨지 않게 살짝(크기의 몇 %) 묻어줘."
-          }
+            "ko": "{target} 부분이 땅에 묻혔거나 공중에 떠 있어. 받침 아래의 실제 지면 높이에 앉히고, 경사에 맞춰 기울이고, 받침 가장자리가 뜨지 않게 크기의 몇 % 정도만 살짝 묻어줘."
+          },
+          "why": "물체를 지형 위에 올릴 때 한 점의 높이만 보면, 비탈에서는 한쪽이 뜨고 반대쪽이 묻혀요. 받침 전체를 보고 앉혀야 해요."
         },
         {
           "id": "place-lonely",
           "label": "덩그러니 서 있음 (뻘쭘함)",
           "labelEn": "stands alone without context",
-          "hint": "주변 맥락이 없음",
+          "hint": "주변에 아무것도 없음",
           "fix": {
             "en": "{target} stands alone without context. Build up its surroundings: lower, wider pieces at its foot (platforms, boulders, smaller versions), and let other content (coral, plants) gather around it.",
-            "ko": "{target}이 맥락 없이 덩그러니 서 있어. 발치에 낮고 넓은 것들(발판, 바위, 더 작은 것들)을 쌓고, 다른 내용물(산호·식물)이 주변에 모이게 해줘."
+            "ko": "{target} 부분이 맥락 없이 덩그러니 서 있어. 발치에 낮고 넓은 것들(발판, 바위, 더 작은 것들)을 쌓고, 산호나 식물 같은 다른 내용물도 주변에 모이게 해줘."
           },
-          "why": "우리 바위 기둥 두 개가 모래 위에 홀로 서 있다가 암초 선반을 쌓고 나서 자연스러워졌어요."
+          "why": "우리 바위 기둥 두 개가 모래 위에 혼자 서 있다가, 암초 선반을 쌓고 나서야 자연스러워졌어요.",
+          "examples": [
+            {
+              "src": "examples/miniature-island/place-lonely-before.jpg",
+              "caption": "전: 바위 기둥이 모래 위에 혼자 덩그러니."
+            },
+            {
+              "src": "examples/miniature-island/place-lonely-after.jpg",
+              "caption": "후: 발치에 낮은 바위를 쌓으니 자리를 잡아요."
+            }
+          ]
         },
         {
           "id": "place-empty",
@@ -1248,8 +1333,18 @@
           "labelEn": "feels empty",
           "fix": {
             "en": "{target} is empty. Add a few points of interest with a rhythm (big–small–medium), not evenly spread, and leave some calm space on purpose.",
-            "ko": "{target}이 허전해. 볼거리를 몇 개 리듬 있게(큼–작음–중간) 두되 고르게 뿌리지 말고, 일부러 빈 공간도 남겨줘."
-          }
+            "ko": "{target} 부분이 허전해. 볼거리를 몇 개 리듬 있게(큰 것, 작은 것, 중간 것) 두되, 고르게 뿌리지는 말고 일부러 비워 두는 공간도 남겨줘."
+          },
+          "examples": [
+            {
+              "src": "examples/miniature-island/place-empty-before.jpg",
+              "caption": "전: 해저가 텅 비어 허전해요."
+            },
+            {
+              "src": "examples/miniature-island/place-empty-after.jpg",
+              "caption": "후: 볼거리가 리듬 있게 놓여요."
+            }
+          ]
         },
         {
           "id": "place-crowded",
@@ -1257,8 +1352,18 @@
           "labelEn": "overcrowded",
           "fix": {
             "en": "{target} is overcrowded. Reduce the density by about a third, enforce a minimum spacing, and cluster things into a few groups with gaps between them.",
-            "ko": "{target}이 너무 빽빽해. 밀도를 1/3쯤 줄이고 최소 간격을 두고, 몇 개의 무리로 묶어 사이를 비워줘."
-          }
+            "ko": "{target} 부분이 너무 빽빽해. 밀도를 1/3쯤 줄이고 최소 간격을 두고, 몇 개의 무리로 묶어서 사이사이를 비워줘."
+          },
+          "examples": [
+            {
+              "src": "examples/miniature-island/place-crowded-before.jpg",
+              "caption": "전: 산호가 빽빽해서 어지러워요."
+            },
+            {
+              "src": "examples/miniature-island/place-crowded-after.jpg",
+              "caption": "후: 무리 사이에 빈 공간이 있어요."
+            }
+          ]
         },
         {
           "id": "place-edge",
@@ -1267,8 +1372,19 @@
           "hint": "옆에서 보면 들쭉날쭉",
           "fix": {
             "en": "The cut face / edge of {target} looks messy. Flatten the terrain toward the walls so the sand line is nearly level, and keep the strata clean.",
-            "ko": "{target}의 단면·가장자리가 지저분해. 벽 쪽으로 갈수록 지형을 평평하게 해서 모래선이 거의 수평이 되게 하고 지층은 깔끔하게."
-          }
+            "ko": "{target}의 단면과 가장자리가 지저분해. 벽 쪽으로 갈수록 지형을 평평하게 다듬어서 모래선이 거의 수평이 되게 하고, 지층은 깔끔하게 보이게 해줘."
+          },
+          "why": "지형 노이즈가 블록 벽까지 그대로 이어지면 단면이 들쭉날쭉해져요. 벽 근처에서는 노이즈를 줄여 평평하게 수렴시키면 깔끔해져요.",
+          "examples": [
+            {
+              "src": "examples/miniature-island/place-edge-before.jpg",
+              "caption": "전: 옆면 모래가 들쭉날쭉 찌그러져 보여요."
+            },
+            {
+              "src": "examples/miniature-island/place-edge-after.jpg",
+              "caption": "후: 벽 쪽으로 갈수록 평평해져 모래선이 수평이에요."
+            }
+          ]
         }
       ]
     },
@@ -1281,22 +1397,22 @@
           "id": "mot-wrongtrigger",
           "label": "엉뚱한 때에 반응함",
           "labelEn": "responds to the wrong input",
-          "hint": "스치기만 해도 움직임, 드래그가 카메라까지 돌림",
+          "hint": "올리기만 해도 움직임, 드래그하면 카메라까지 돌아감",
           "fix": {
             "en": "{target} responds to the wrong input. Implement the exact mapping: hover → nothing; click → effect; drag starting on the block → jelly; drag starting outside → camera. Decide which on pointer-down and hold it until release.",
-            "ko": "{target}이 엉뚱한 입력에 반응해. 정확한 대응을 구현해줘: 스치기 → 없음, 클릭 → 효과, 블록 위에서 시작한 드래그 → 젤리, 바깥에서 시작 → 카메라. 누르는 순간 판정하고 놓을 때까지 유지."
+            "ko": "{target} 부분이 엉뚱한 입력에 반응해. 입력마다 반응을 하나씩 정확히 묶어줘: 마우스 올리기 → 아무 일 없음, 클릭 → 효과, 블록 위에서 시작한 드래그 → 젤리, 바깥에서 시작한 드래그 → 카메라. 누르는 순간에 판정하고 놓을 때까지 유지해줘."
           }
         },
         {
           "id": "mot-clip",
           "label": "뚫고 지나감",
           "labelEn": "passes through terrain or obstacles",
-          "hint": "물고기가 바위를, 고래가 바닥을 통과",
+          "hint": "물고기가 바위를, 고래가 바닥을 통과함",
           "fix": {
             "en": "{target} passes through terrain or obstacles. Treat rocks, reef and the seabed as obstacles with a margin, push its path off them, and verify by sampling the path against the terrain (report minimum clearance).",
-            "ko": "{target}이 지형이나 장애물을 뚫고 지나가. 바위·산호·해저를 여유 거리가 있는 장애물로 보고 경로를 밀어내고, 경로를 지형과 샘플링해서 최소 여유 거리를 보고해줘."
+            "ko": "{target} 부분이 지형이나 장애물을 뚫고 지나가. 바위, 산호, 해저를 여유 거리가 있는 장애물로 보고 경로를 밀어내고, 경로를 지형과 대조해 샘플링해서 최소 여유 거리를 보고해줘."
           },
-          "why": "눈으로는 못 잡아요. '수치로 검증해 달라'가 핵심이에요."
+          "why": "이건 눈으로는 못 잡아요. \"수치로 검증해 달라\"는 말이 핵심이에요."
         },
         {
           "id": "mot-stiff",
@@ -1304,7 +1420,7 @@
           "labelEn": "moves stiffly",
           "fix": {
             "en": "{target} moves stiffly. Add secondary motion (a travelling wave along the body, lag in the tail/limbs), ease the turns and bank into them.",
-            "ko": "{target}의 움직임이 뻣뻣해. 2차 움직임(몸을 따라 흐르는 물결, 꼬리·지느러미의 지연)을 더하고 회전은 부드럽게, 굽이에서는 기울게."
+            "ko": "{target}의 움직임이 뻣뻣해. 몸을 따라 흐르는 물결, 꼬리와 지느러미의 지연 같은 2차 움직임을 더하고, 회전은 부드럽게, 방향을 틀 때는 기울게 해줘."
           }
         },
         {
@@ -1313,7 +1429,7 @@
           "labelEn": "jumps or stutters",
           "fix": {
             "en": "{target} jumps or stutters. Interpolate between states with damping, never set a pose directly, and make sure no per-frame recomputation (e.g. rebuilding geometry) happens.",
-            "ko": "{target}이 튀거나 끊겨. 상태 사이를 감쇠로 보간하고 포즈를 직접 세팅하지 말고, 프레임마다 무거운 재계산(지오메트리 재생성 등)이 없는지 확인해줘."
+            "ko": "{target} 부분이 튀거나 끊겨. 상태 사이를 감쇠로 보간하고 포즈를 직접 세팅하지 말고, 프레임마다 무거운 재계산(지오메트리 다시 만들기 같은 것)이 없는지 확인해줘."
           }
         },
         {
@@ -1322,7 +1438,7 @@
           "labelEn": "moves too much",
           "fix": {
             "en": "{target} moves too much. Halve the amplitude and cap it so nothing leaves its allowed region.",
-            "ko": "{target}이 너무 많이 움직여. 진폭을 절반으로 줄이고, 허용 영역을 벗어나지 않게 상한을 둬줘."
+            "ko": "{target} 부분이 너무 많이 움직여. 진폭을 절반으로 줄이고, 허용 범위를 벗어나지 않게 상한을 둬줘."
           }
         },
         {
@@ -1331,7 +1447,7 @@
           "labelEn": "reaction too small to notice",
           "fix": {
             "en": "The reaction of {target} is too small to notice at the default zoom. Increase it until it is clearly visible, then cap it so nothing breaks.",
-            "ko": "{target}의 반응이 기본 줌에서 안 보일 만큼 작아. 눈에 띌 때까지 키우고, 망가지지 않게 상한을 둬줘."
+            "ko": "{target}의 반응이 기본 줌에서는 안 보일 만큼 작아. 눈에 띌 때까지 키우되, 망가지지 않게 상한을 둬줘."
           }
         }
       ]
@@ -1347,8 +1463,18 @@
           "labelEn": "too small in frame",
           "fix": {
             "en": "{target} is too small in frame. Move the camera closer / narrow the field of view so the block fills about 60–70% of the width by default.",
-            "ko": "{target}이 화면에서 너무 작아. 카메라를 가까이 하거나 화각을 좁혀 블록이 기본으로 너비의 60~70%를 차지하게."
-          }
+            "ko": "{target} 부분이 화면에서 너무 작아. 카메라를 가까이 가져가거나 화각을 좁혀서, 블록이 기본 화면 너비의 60~70%를 차지하게 해줘."
+          },
+          "examples": [
+            {
+              "src": "examples/miniature-island/comp-small-before.jpg",
+              "caption": "전: 블록이 화면에서 너무 작아요."
+            },
+            {
+              "src": "examples/miniature-island/comp-small-after.jpg",
+              "caption": "후: 블록이 화면 너비의 2/3쯤 차요."
+            }
+          ]
         },
         {
           "id": "comp-angle",
@@ -1356,8 +1482,19 @@
           "labelEn": "awkward camera angle",
           "fix": {
             "en": "The default camera angle for {target} is awkward. Use a high angle (~30° down) from the front-right corner with a long lens, and clamp orbiting so the camera never goes under the table.",
-            "ko": "{target}의 기본 카메라 각도가 어색해. 앞 오른쪽 모서리에서 약 30° 내려다보는 장초점으로, 회전은 책상 아래로 못 가게 제한."
-          }
+            "ko": "{target}의 기본 카메라 각도가 어색해. 앞 오른쪽 모서리에서 약 30° 내려다보는 망원 구도로 바꾸고, 회전은 책상 아래로 못 내려가게 제한해줘."
+          },
+          "why": "바로 위에서 내려다보면 지도처럼 납작해지고, 눈높이에서 보면 블록 윗면이 안 보여요. 비스듬히 내려다보는 각도가 입체감과 윗면을 둘 다 살려요.",
+          "examples": [
+            {
+              "src": "examples/miniature-island/comp-angle-before.jpg",
+              "caption": "전: 바로 위에서 내려다봐서 지도처럼 납작해요."
+            },
+            {
+              "src": "examples/miniature-island/comp-angle-after.jpg",
+              "caption": "후: 비스듬히 내려다보니 입체감이 살아요."
+            }
+          ]
         },
         {
           "id": "comp-flat",
@@ -1365,7 +1502,7 @@
           "labelEn": "looks flat (no depth)",
           "fix": {
             "en": "{target} looks flat. Add depth of field focused on the block, a subtle tilt-shift band, and stronger size contrast between near and far elements.",
-            "ko": "{target}이 평면적으로 보여. 블록에 초점 맞춘 피사계 심도와 은은한 틸트시프트, 가까운 것과 먼 것의 크기 대비를 키워줘."
+            "ko": "{target} 부분이 평면적으로 보여. 블록에 초점을 맞춘 피사계 심도와 은은한 틸트시프트를 넣고, 가까운 것과 먼 것의 크기 차이를 키워줘."
           }
         }
       ]
@@ -1381,9 +1518,9 @@
           "labelEn": "runs slowly",
           "fix": {
             "en": "The scene is slow. Measure first (GPU time with and without each full-screen effect), then: cap the total render pixels per quality tier, run DOF/AO/bloom at half resolution, disable MSAA on the high tier, and report the before/after frame times.",
-            "ko": "장면이 느려. 먼저 측정하고(전체 화면 효과를 하나씩 끄며 GPU 시간) 품질 단계별 렌더 픽셀 총량에 상한, 피사계 심도·AO·블룸은 절반 해상도, 높음 단계 MSAA 끔, 전후 프레임 시간을 보고해줘."
+            "ko": "장면이 느려. 먼저 측정부터 해줘(전체 화면 효과를 하나씩 끄면서 GPU 시간 확인). 그다음 품질 단계마다 렌더 픽셀 총량에 상한을 두고, 피사계 심도·AO·블룸은 절반 해상도로, 가장 높은 단계에서도 MSAA는 끄고, 전후 프레임 시간을 보고해줘."
           },
-          "why": "무거운 건 대개 모델이 아니라 전체 화면 후처리 × 레티나 픽셀 수예요. 우리도 '로우폴리로 바꿀까' 했다가 측정해 보니 후처리가 2/3였어요."
+          "why": "무거운 건 대개 모델이 아니라 전체 화면 후처리에 레티나 픽셀 수를 곱한 양이에요. 우리도 \"로우폴리로 바꿀까\" 했다가 재 보니 후처리가 2/3였어요."
         },
         {
           "id": "perf-flicker",
@@ -1391,7 +1528,7 @@
           "labelEn": "flickers",
           "fix": {
             "en": "The scene flickers. Stop automatic quality from flipping up and down: only step down, only during a short window after start-up, and never rebuild heavy objects in response.",
-            "ko": "장면이 깜빡여. 자동 품질이 오르내리지 않게: 내리기만, 시작 직후 짧은 시간에만, 그리고 그에 따라 무거운 오브젝트를 다시 만들지 않게."
+            "ko": "장면이 깜빡여. 자동 품질이 오르락내리락하지 않게 해줘: 내려가기만 하고, 시작 직후 짧은 시간에만 판단하고, 그에 따라 무거운 오브젝트를 다시 만들지 않게."
           }
         },
         {
@@ -1400,7 +1537,7 @@
           "labelEn": "long blank loading",
           "fix": {
             "en": "Loading is long and blank. Show a loading screen with progress from the first paint (plain HTML, before the bundle), preload the biggest assets, and fade it out after the first frames render.",
-            "ko": "로딩이 길고 빈 화면이야. 첫 화면부터 진행률 있는 로딩 화면(번들 전에 뜨는 순수 HTML)을 보여 주고, 큰 자산은 미리 받고, 첫 프레임이 그려지면 사라지게."
+            "ko": "로딩이 길고 빈 화면이 보여. 첫 화면부터 진행률이 보이는 로딩 화면(번들보다 먼저 뜨는 순수 HTML)을 보여 주고, 큰 자산은 미리 받고, 첫 프레임이 그려지면 사라지게 해줘."
           }
         }
       ]
@@ -1436,7 +1573,7 @@
       "label": "디테일 밀도",
       "text": {
         "en": "Match the level of detail of reference image {n} — no more, no less.",
-        "ko": "참고 이미지 {n}의 디테일 수준에 맞춰줘 — 더도 덜도 말고."
+        "ko": "참고 이미지 {n}의 디테일 수준에 맞춰줘. 더도 덜도 말고."
       }
     },
     {
@@ -1452,7 +1589,7 @@
       "label": "움직임",
       "text": {
         "en": "Match the kind of motion shown in reference {n}.",
-        "ko": "참고 {n}에 보이는 움직임의 종류에 맞춰줘."
+        "ko": "참고 이미지 {n}에 보이는 움직임과 같은 종류로 맞춰줘."
       }
     }
   ],

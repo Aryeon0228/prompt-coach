@@ -4,7 +4,7 @@ type Lang = 'en' | 'ko'
 
 const DELEGATE: Localized = {
   en: 'Decide this yourself in a way that fits the rest of the brief.',
-  ko: '이 부분은 나머지 요구사항에 어울리게 네가 정해줘.',
+  ko: '이건 나머지 내용과 어울리게 네가 정해줘.',
 }
 
 /** The decisions grouped, in template order. */
@@ -76,7 +76,7 @@ export function assembleBrief(t: Template, p: Project, lang: Lang): string {
     let body = ''
     if (s.auto === 'references') {
       if (!p.references.length) {
-        body = lang === 'en' ? 'No reference images are attached; work from the written brief.' : '참고 이미지는 첨부하지 않았으니 글로 된 요구사항으로 작업해줘.'
+        body = lang === 'en' ? 'No reference images are attached; work from the written brief.' : '참고 이미지는 없어. 아래 글만 보고 작업해줘.'
       } else {
         body = p.references
           .map((r, i) => {
@@ -85,7 +85,7 @@ export function assembleBrief(t: Template, p: Project, lang: Lang): string {
             return r.note ? `${line} ${r.note}` : line
           })
           .join('\n')
-        body += lang === 'en' ? '\n(Attach the images in this order.)' : '\n(이미지를 이 순서대로 첨부하세요.)'
+        body += lang === 'en' ? '\n(Attach the images in this order.)' : '\n(이미지는 이 순서대로 첨부했어.)'
       }
     } else if (s.auto === 'undecided') {
       const list = undecided(t, p)
@@ -93,13 +93,13 @@ export function assembleBrief(t: Template, p: Project, lang: Lang): string {
       body =
         (lang === 'en'
           ? 'I have not decided the following. For each one, propose two concrete options with a one-line reason each, pick one provisionally so work can continue, and ask me before polishing it:\n'
-          : '다음은 아직 정하지 못했어. 각 항목마다 구체적인 안 두 개를 한 줄 이유와 함께 제시하고, 작업이 멈추지 않게 하나를 임시로 고르되 다듬기 전에 나에게 물어봐줘:\n') +
+          : '아래 항목은 아직 못 정했어. 항목마다 구체적인 안을 두 개씩 한 줄 이유와 함께 내고, 작업이 멈추지 않게 하나를 일단 골라서 진행하되, 마무리 다듬기 전에 나한테 물어봐줘:\n') +
         list.map((d) => `- ${lang === 'en' ? d.labelEn ?? d.id : d.label}`).join('\n')
     } else if (s.auto === 'checklist') {
-      body = (lang === 'en' ? 'Treat each of these as a bug if it is not true:\n' : '다음이 지켜지지 않으면 버그로 보고 고쳐줘:\n') + numbered(checklist(t, p, lang))
+      body = (lang === 'en' ? 'Treat each of these as a bug if it is not true:\n' : '아래 항목 중 하나라도 어긋나면 버그로 보고 고쳐줘:\n') + numbered(checklist(t, p, lang))
     } else if (s.auto === 'locks') {
       if (!p.locks.length) continue
-      body = (lang === 'en' ? 'Do not change these; they are already right:\n' : '다음은 이미 마음에 드니 바꾸지 마:\n') + p.locks.map((l) => `- ${l}`).join('\n')
+      body = (lang === 'en' ? 'Do not change these; they are already right:\n' : '아래는 이미 마음에 들어. 바꾸지 마:\n') + p.locks.map((l) => `- ${l}`).join('\n')
     } else if (s.auto === 'process') {
       body = numbered(t.process.map((x) => x[lang]))
     } else {
@@ -135,9 +135,9 @@ export function assembleFix(
   const where = it.region
     ? lang === 'en'
       ? ` (marked in the attached screenshot, roughly ${Math.round(it.region.x * 100)}–${Math.round((it.region.x + it.region.w) * 100)}% from the left, ${Math.round(it.region.y * 100)}–${Math.round((it.region.y + it.region.h) * 100)}% from the top)`
-      : ` (첨부한 스크린샷에 표시, 왼쪽에서 약 ${Math.round(it.region.x * 100)}~${Math.round((it.region.x + it.region.w) * 100)}%, 위에서 ${Math.round(it.region.y * 100)}~${Math.round((it.region.y + it.region.h) * 100)}%)`
+      : ` (첨부한 스크린샷에 표시한 부분, 왼쪽에서 약 ${Math.round(it.region.x * 100)}~${Math.round((it.region.x + it.region.w) * 100)}%, 위에서 ${Math.round(it.region.y * 100)}~${Math.round((it.region.y + it.region.h) * 100)}% 자리)`
     : ''
-  lines.push(lang === 'en' ? `Problem: ${target}${where} — ${sym.labelEn || sym.label}.` : `문제: ${target}${where} — ${sym.label}.`)
+  lines.push(lang === 'en' ? `Problem: ${target}${where} — ${sym.labelEn || sym.label}.` : `문제: ${target}${where}. ${sym.label}.`)
   const fix = sym.fix[lang].replace(/\{target\}/g, target)
   // a target like "the cliffs" can start the sentence: capitalise it
   lines.push(lang === 'en' ? fix.charAt(0).toUpperCase() + fix.slice(1) : fix)
@@ -152,7 +152,7 @@ export function assembleFix(
   lines.push(
     lang === 'en'
       ? 'When done, show a before/after screenshot from the same camera angle as my screenshot and re-check the acceptance checklist.'
-      : '끝나면 내 스크린샷과 같은 카메라 각도로 전후 스크린샷을 보여 주고, 검수 기준을 다시 확인해줘.',
+      : '다 되면 내 스크린샷과 같은 카메라 각도로 전후 스크린샷을 보여주고, 검수 기준도 다시 확인해줘.',
   )
   return lines.join('\n')
 }

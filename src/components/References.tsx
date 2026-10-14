@@ -26,7 +26,7 @@ export function References() {
   return (
     <div className="stack">
       <div className="note">
-        참고 이미지는 글보다 힘이 세요. <b>역할</b>을 꼭 고르세요 — "구도용"인지 "색감용"인지 "이 생물처럼"인지 모르면 AI는 이미지 전체를 따라 하려다 엉뚱한 걸 가져옵니다. 프롬프트에는 "이미지 2는 구름 스타일 참고" 처럼 번호와 역할이 적히고, 코딩 AI에는 같은 순서로 직접 첨부하세요.
+        참고 이미지 한 장이 긴 설명보다 힘이 세요. 다만 <b>역할</b>을 꼭 골라 주세요. 구도를 보라는 건지, 색감을 보라는 건지, 이 생물 모양만 보라는 건지 알려 주지 않으면 AI는 이미지 전체를 따라 하려다 엉뚱한 것까지 가져와요. 프롬프트에는 "이미지 2는 구름 모양만 참고"처럼 번호와 역할이 적혀요. 코딩 AI에 붙여넣을 때 이미지도 같은 순서로 첨부하세요.
       </div>
       <label className="upload">
         <input ref={input} type="file" accept="image/png,image/jpeg,image/webp" multiple onChange={(e) => add(e.target.files)} />
@@ -34,7 +34,7 @@ export function References() {
           + 이미지 추가 (여러 장 가능)
           <br />
           <span className="small" style={{ fontWeight: 400 }}>
-            PNG · JPG · WebP · 기기에서 줄여서 저장
+            PNG · JPG · WebP, 기기 안에서 작게 줄여 저장해요
           </span>
         </span>
       </label>
@@ -64,7 +64,7 @@ export function References() {
           </div>
         ))}
       </div>
-      {!project.references.length && <p className="small muted">아직 없어요. 없어도 프롬프트는 만들어지지만, 한 장이라도 있으면 결과가 크게 달라져요.</p>}
+      {!project.references.length && <p className="small muted">아직 참고 이미지가 없어요. 없어도 프롬프트는 만들어지지만, 한 장만 있어도 결과가 크게 달라져요.</p>}
     </div>
   )
 }

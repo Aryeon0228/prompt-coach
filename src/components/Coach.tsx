@@ -69,7 +69,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
         { id: uid(), createdAt: Date.now(), screenshot: shot, region, target: finalTarget, targetEn: finalTargetEn, categoryId, symptomId, compareId: compareId || undefined, referenceId: referenceId || undefined, note: note.trim() || undefined, promptEn: en, promptKo: ko },
       ],
     }))
-    toast('기록에 저장했어요. 결과가 오면 별점을 남기세요.')
+    toast('기록에 저장했어요. 결과가 나오면 별점을 남겨 주세요.')
     setStep('shot')
     setShot(undefined)
     setRegion(undefined)
@@ -95,8 +95,8 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
 
       {step === 'shot' && (
         <section className="card stack">
-          <h2>결과 화면을 올리세요</h2>
-          <p className="small muted">코딩 AI가 만든 결과의 스크린샷(모바일이면 화면 캡처). 없으면 건너뛰어도 되지만, 있으면 "어디가"를 정확히 가리킬 수 있어요.</p>
+          <h2>결과 화면을 올려 주세요</h2>
+          <p className="small muted">코딩 AI가 만든 화면을 캡처해서 올려 주세요. 없어도 진행할 수 있지만, 있으면 어디가 이상한지 손가락으로 바로 짚을 수 있어요.</p>
           <label className="upload">
             <input
               type="file"
@@ -117,7 +117,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
             <span>+ 스크린샷 선택</span>
           </label>
           <div className="card stack" style={{ background: 'var(--pale)' }}>
-            <b className="small">말로 먼저 찾기 — "느낌 사전"</b>
+            <b className="small">느낌 사전: 말로 먼저 찾아보기</b>
             <input type="text" placeholder="예: 플라스틱 같아요 / 밋밋해요 / 가짜 같아요" value={query} onChange={(e) => setQuery(e.target.value)} />
             {hits.length > 0 && (
               <div className="stack" style={{ gap: 6 }}>
@@ -143,7 +143,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
           </div>
           <div className="row">
             <button className="secondary" onClick={() => setStep('where')}>
-              스크린샷 없이 진행
+              스크린샷 없이 진행하기
             </button>
           </div>
         </section>
@@ -154,11 +154,11 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
           <h2>어디가 어색한가요?</h2>
           {shot ? (
             <>
-              <p className="small muted">사진 위에서 손가락이나 마우스로 네모를 그려 표시하세요. 전체가 문제면 그냥 넘어가도 돼요.</p>
+              <p className="small muted">사진 위에 손가락이나 마우스로 네모를 그려 주세요. 화면 전체가 문제라면 그리지 않고 넘어가도 돼요.</p>
               <RegionPicker src={shot} region={region} onChange={setRegion} />
             </>
           ) : null}
-          <p className="small muted">그 자리에 있는 것은?</p>
+          <p className="small muted">거기에 있는 게 뭔가요?</p>
           <div className="choices">
             {template.targets.map((t) => (
               <button key={t.ko} className={`choice ${target === t.ko ? 'on' : ''}`} onClick={() => setTarget(t.ko)}>
@@ -184,7 +184,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
       {step === 'what' && (
         <section className="card stack">
           <h2>무엇이 문제인가요?</h2>
-          <p className="small muted">딱 하나만 고르세요. 두 가지가 다 거슬리면 두 번에 나눠서 — 한 번에 하나씩 고쳐야 AI가 다른 걸 망가뜨리지 않아요.</p>
+          <p className="small muted">하나만 고르세요. 두 가지가 다 거슬리면 두 번에 나눠서 요청하세요. 한 번에 하나씩 고쳐야 AI가 다른 데를 건드리지 않아요.</p>
           <div className="symptom-list">
             {template.diagnosis.map((c) => (
               <button
@@ -211,7 +211,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
 
       {step === 'how' && category && (
         <section className="card stack">
-          <h2>{category.label} — 어떻게 어색한가요?</h2>
+          <h2>{category.label}: 어떻게 이상한가요?</h2>
           <div className="symptom-list">
             {category.symptoms.map((s) => (
               <SymptomButton key={s.id} s={s} on={symptomId === s.id} onPick={() => setSymptomId(s.id)} />
@@ -230,8 +230,8 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
 
       {step === 'compare' && (
         <section className="card stack">
-          <h2>참고 이미지와 비교하면?</h2>
-          <p className="small muted">건너뛰어도 되지만, "참고 이미지 N처럼"이 붙으면 AI가 훨씬 정확히 잡아요.</p>
+          <h2>참고 이미지와 비교하면 어떤가요?</h2>
+          <p className="small muted">건너뛰어도 되지만, "참고 이미지 N처럼"이라는 한마디가 붙으면 AI가 훨씬 정확하게 잡아요.</p>
           {project.references.length > 0 ? (
             <>
               <div className="choices">
@@ -242,7 +242,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
                   </button>
                 ))}
               </div>
-              <p className="small muted">가장 다른 점 하나:</p>
+              <p className="small muted">참고와 가장 다른 점을 하나만 고르면:</p>
               <div className="choices">
                 {template.compareAxes.map((a) => (
                   <button key={a.id} className={`choice ${compareId === a.id ? 'on' : ''}`} onClick={() => setCompareId(compareId === a.id ? '' : a.id)}>
@@ -255,7 +255,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
             <p className="small muted">참고 이미지가 없어요. "참고" 탭에서 추가하면 여기서 비교할 수 있어요.</p>
           )}
           <label className="stack" style={{ gap: 6 }}>
-            <span className="small muted">덧붙일 말 (선택) — 구체적인 수치나 예시가 있으면 적으세요</span>
+            <span className="small muted">덧붙일 말 (선택). 구체적인 수치나 예시가 있으면 적어 주세요.</span>
             <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="예: 바위 높이는 지금의 절반 정도면 좋겠어" />
           </label>
           <div className="row">
@@ -270,11 +270,11 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
       {step === 'result' && symptom && (
         <section className="stack">
           <div className="note">
-            학생의 말 "{finalTarget} 어색해요" 가 아래 문장이 됐어요. 핵심은 <b>위치 · 증상 · 원하는 상태 · 바꾸지 말 것 · 확인 방법</b> 다섯 가지가 다 들어 있다는 점이에요.
+            "{finalTarget} 쪽이 이상해요"라는 한마디가 아래 문장으로 바뀌었어요. <b>어디가 · 무엇이 · 어떻게 바꿀지 · 바꾸지 말 것 · 확인 방법</b>, 이 다섯 가지가 다 들어 있는 게 핵심이에요.
           </div>
           {symptom.why ? (
             <div className="why">
-              <b>왜 이런 일이 생기나</b> — {symptom.why}
+              <b>왜 이렇게 되는 걸까요?</b> {symptom.why}
             </div>
           ) : null}
           <PromptBox en={en} ko={ko} filename={`${project.name}-fix-${project.iterations.length + 1}.txt`} />
@@ -282,7 +282,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
             <button className="secondary" onClick={() => setStep('compare')}>
               뒤로
             </button>
-            <button onClick={save}>기록에 저장하고 다음 반복으로</button>
+            <button onClick={save}>기록에 저장하고 다음으로</button>
           </div>
         </section>
       )}
@@ -377,7 +377,7 @@ function RegionPicker({ src, region, onChange }: { src: string; region?: Region;
         {box && f ? <div className="region-box" style={{ left: f.ox + box.x * f.w, top: f.oy + box.y * f.h, width: box.w * f.w, height: box.h * f.h }} /> : null}
       </div>
       <div className="row" style={{ justifyContent: 'space-between' }}>
-        <span className="small muted">{box && box.w > 0.02 ? '표시했어요. 다시 그리면 바뀝니다.' : '아직 표시 안 함 (전체)'}</span>
+        <span className="small muted">{box && box.w > 0.02 ? '표시했어요. 다시 그리면 바뀌어요.' : '표시 안 함 (화면 전체)'}</span>
         {box ? (
           <button className="ghost" onClick={() => { setBox(undefined); onChange(undefined) }}>
             표시 지우기

@@ -75,14 +75,14 @@ export function PromptBox({ en, ko, filename }: { en: string; ko: string; filena
       <div className="row" style={{ justifyContent: 'space-between' }}>
         <div className="tabs">
           <button className={lang === 'en' ? 'on' : ''} onClick={() => setLang('en')}>
-            ENGLISH · AI에 입력
+            영어 · AI에 붙여넣기
           </button>
           <button className={lang === 'ko' ? 'on' : ''} onClick={() => setLang('ko')}>
-            한국어 · 같은 뜻
+            한국어 · 뜻 확인용
           </button>
         </div>
         <div className="row">
-          <button onClick={async () => toast((await copyText(text)) ? (lang === 'en' ? '영어 요청문을 복사했어요. 코딩 AI에 붙여넣으세요.' : '한글 뜻을 복사했어요.') : '복사가 막혀 있어요. 텍스트를 직접 선택해 복사하세요.')}>
+          <button onClick={async () => toast((await copyText(text)) ? (lang === 'en' ? '영어 프롬프트를 복사했어요. 코딩 AI에 붙여넣으세요.' : '한국어 번역을 복사했어요.') : '복사할 수 없어요. 글을 직접 선택해서 복사해 주세요.')}>
             복사
           </button>
           <button className="secondary" onClick={() => downloadText(filename, `=== ENGLISH ===\n\n${en}\n\n=== 한국어 ===\n\n${ko}\n`)}>

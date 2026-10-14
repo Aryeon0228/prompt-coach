@@ -14,11 +14,11 @@ export function Start() {
     <div className="stack">
       <section className="card stack">
         <div>
-          <div className="eyebrow">이 도구는</div>
-          <h1>두 번 돕습니다</h1>
+          <div className="eyebrow">프롬프트 코치</div>
+          <h1>프롬프트를 만들고, 고치는 연습</h1>
         </div>
         <p className="muted">
-          ① <b>결정</b>을 하나씩 내리면 빠짐없는 <b>첫 프롬프트</b>가 나오고, ② 결과가 어색할 때 <b>코치</b>가 "어디가 · 무엇이 · 어떻게"를 물어 <b>고치는 프롬프트</b>로 바꿔 줍니다. 모든 내용은 이 기기에만 저장되고, 과제 제출은 JSON 내보내기로 합니다.
+          먼저 <b>결정</b> 탭에서 항목을 하나씩 정하면 빠진 것 없는 <b>첫 프롬프트</b>가 만들어져요. 결과가 어딘가 어색하면 <b>코치</b> 탭에서 어디가, 무엇이, 어떻게 이상한지 고르기만 하면 <b>고치는 프롬프트</b>가 나와요. 내용은 전부 이 기기에만 저장되고, 과제는 JSON 파일로 내보내서 제출해요.
         </p>
       </section>
 
@@ -32,7 +32,7 @@ export function Start() {
               <div className="grow">
                 <div className="name">{p.name}</div>
                 <div className="small muted">
-                  {index.find((e) => e.id === p.templateId)?.name ?? p.templateId} · 수정 {new Date(p.updatedAt).toLocaleDateString()} · 반복 {p.iterations.length}회
+                  {index.find((e) => e.id === p.templateId)?.name ?? p.templateId} · 마지막 수정 {new Date(p.updatedAt).toLocaleDateString()} · 수정 요청 {p.iterations.length}회
                 </div>
               </div>
               <button className="secondary" onClick={() => openProject(p.id)}>
@@ -42,7 +42,7 @@ export function Start() {
                 className="ghost"
                 aria-label="삭제"
                 onClick={() => {
-                  if (confirm(`"${p.name}"을(를) 지울까요? 되돌릴 수 없어요.`)) deleteProject(p.id)
+                  if (confirm(`"${p.name}" 프로젝트를 지울까요? 되돌릴 수 없어요.`)) deleteProject(p.id)
                 }}
               >
                 ✕
@@ -55,7 +55,7 @@ export function Start() {
       <section className="card stack">
         <div className="section-title">
           <h2>새 프로젝트</h2>
-          <span className="small muted">템플릿을 고르세요</span>
+          <span className="small muted">과제 템플릿을 고르세요</span>
         </div>
         <div className="stack">
           {index.map((e) => (
@@ -68,8 +68,8 @@ export function Start() {
         </div>
         {picked && (
           <div className="row">
-            <input type="text" placeholder={`프로젝트 이름 (기본: ${picked.name})`} value={name} onChange={(e) => setName(e.target.value)} style={{ flex: 1, minWidth: 200 }} />
-            <button onClick={() => createProject(picked, name.trim())}>시작</button>
+            <input type="text" placeholder={`프로젝트 이름 (비우면 "${picked.name}")`} value={name} onChange={(e) => setName(e.target.value)} style={{ flex: 1, minWidth: 200 }} />
+            <button onClick={() => createProject(picked, name.trim())}>시작하기</button>
           </div>
         )}
       </section>
@@ -77,7 +77,7 @@ export function Start() {
       <section className="card row" style={{ justifyContent: 'space-between' }}>
         <div>
           <h3>저장한 프로젝트 불러오기</h3>
-          <p className="small muted">내보낸 JSON 파일(참고 이미지·기록 포함)을 엽니다.</p>
+          <p className="small muted">전에 내보낸 JSON 파일을 열어요. 참고 이미지와 기록까지 그대로 돌아와요.</p>
         </div>
         <button className="secondary" onClick={() => file.current?.click()}>
           JSON 열기

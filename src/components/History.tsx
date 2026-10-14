@@ -20,9 +20,9 @@ export function History() {
       {stats.total > 0 && (
         <section className="card stack">
           <div className="section-title">
-            <h2>패턴</h2>
+            <h2>자주 틀리는 패턴</h2>
             <span className="small muted">
-              {stats.total}회 반복 · 해결 {stats.resolved}
+              수정 요청 {stats.total}회 · 해결 {stats.resolved}회
             </span>
           </div>
           <div className="stack" style={{ gap: 8 }}>
@@ -40,14 +40,14 @@ export function History() {
           </div>
           {stats.symptoms.length > 0 && (
             <p className="small muted">
-              자주 나온 증상: {stats.symptoms.map((s) => `${s.label}(${s.n})`).join(', ')}. 같은 증상이 반복되면 첫 프롬프트의 해당 결정을 더 구체적으로 적거나 참고 이미지를 추가하는 게 빠릅니다.
+              자주 나온 증상: {stats.symptoms.map((s) => `${s.label}(${s.n})`).join(', ')}. 같은 증상이 계속 나오면 첫 프롬프트에서 그 부분의 결정을 더 구체적으로 적거나 참고 이미지를 한 장 더 넣는 게 빨라요.
             </p>
           )}
         </section>
       )}
 
       {project.iterations.length === 0 && (
-        <div className="note">아직 기록이 없어요. "코치" 탭에서 결과 화면을 진단하면 여기에 쌓이고, 반복이 쌓이면 자주 틀리는 패턴을 보여 줘요.</div>
+        <div className="note">아직 기록이 없어요. "코치" 탭에서 수정 프롬프트를 만들면 여기에 쌓이고, 몇 번 쌓이면 자주 틀리는 패턴을 보여 줘요.</div>
       )}
 
       {[...project.iterations].reverse().map((it, idx) => {
@@ -85,7 +85,7 @@ export function History() {
                   <button className="ghost" onClick={() => setOpen(open === it.id ? null : it.id)}>
                     {open === it.id ? '프롬프트 접기' : '프롬프트 보기'}
                   </button>
-                  <button className="ghost" onClick={async () => toast((await copyText(it.promptEn)) ? '영어 프롬프트를 복사했어요.' : '복사가 막혀 있어요.')}>
+                  <button className="ghost" onClick={async () => toast((await copyText(it.promptEn)) ? '영어 프롬프트를 복사했어요.' : '복사할 수 없어요. 글을 직접 선택해서 복사해 주세요.')}>
                     영어 복사
                   </button>
                   <button
