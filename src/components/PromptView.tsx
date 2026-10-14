@@ -1,0 +1,70 @@
+import { useState } from 'react'
+import { assembleBrief, checklist, undecided } from '../lib/assemble'
+import { useStore } from '../store'
+import { PromptBox } from './ui'
+
+/** The first prompt, plus the two things a beginner cannot see: what is missing, and what counts as done. */
+export function PromptView({ onGoBrief }: { onGoBrief: () => void }) {
+  const { project, template, updateProject } = useStore()
+  const [lock, setLock] = useState('')
+  if (!project || !template) return null
+  const missing = undecided(template, project)
+  const en = assembleBrief(template, project, 'en')
+  const ko = assembleBrief(template, project, 'ko')
+
+  return (
+    <div className="stack">
+      {missing.length > 0 && (
+        <div className="note warn row" style={{ justifyContent: 'space-between' }}>
+          <span>
+            <b>아직 말하지 않은 것 {missing.length}개</b>: {missing.map((d) => d.label).join(', ')}
+          </span>
+          <button className="secondary" onClick={onGoBrief}>
+            결정하러 가기
+          </button>
+        </div>
+      )}
+      <PromptBox en={en} ko={ko} filename={`${project.name}-first-prompt.txt`} />
+
+      <details className="card">
+        <summary style={{ cursor: 'pointer', fontWeight: 700 }}>검수 기준 {checklist(template, project, 'ko').length}개 (프롬프트에 포함됨)</summary>
+        <ol className="small" style={{ margin: '10px 0 0', paddingLeft: 20, lineHeight: 1.7 }}>
+          {checklist(template, project, 'ko').map((c, i) => (
+            <li key={i}>{c}</li>
+          ))}
+        </ol>
+        <p className="small muted" style={{ marginTop: 8 }}>
+          선택을 바꾸면 기준도 따라 바뀌어요. AI는 이 목록을 "지켜지지 않으면 버그"로 받아요.
+        </p>
+      </details>
+
+      <section className="card stack">
+        <div>
+          <h3>잠금 — 이미 마음에 드는 것</h3>
+          <p className="small muted">결과를 본 뒤에 채우는 칸이에요. 여기 적힌 건 첫 프롬프트와 모든 수정 프롬프트 끝에 "바꾸지 마"로 붙어요. 고치다가 다른 게 망가지는 걸 막아 줍니다.</p>
+        </div>
+        {project.locks.map((l, i) => (
+          <div className="row" key={i} style={{ justifyContent: 'space-between' }}>
+            <span>🔒 {l}</span>
+            <button className="ghost" onClick={() => updateProject((p) => ({ ...p, locks: p.locks.filter((_, k) => k !== i) }))}>
+              해제
+            </button>
+          </div>
+        ))}
+        <div className="row">
+          <input type="text" value={lock} placeholder="예: 섬의 색과 야자수 모양" onChange={(e) => setLock(e.target.value)} style={{ flex: 1, minWidth: 200 }} />
+          <button
+            className="secondary"
+            disabled={!lock.trim()}
+            onClick={() => {
+              updateProject((p) => ({ ...p, locks: [...p.locks, lock.trim()] }))
+              setLock('')
+            }}
+          >
+            잠그기
+          </button>
+        </div>
+      </section>
+    </div>
+  )
+}

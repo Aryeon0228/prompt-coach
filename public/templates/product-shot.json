@@ -1,0 +1,588 @@
+{
+  "id": "product-shot",
+  "name": "제품 연출 장면 · 3D 웹",
+  "description": "물건 하나를 돋보이게 하는 3D 제품 연출 장면.",
+  "version": 1,
+  "targets": [
+    {
+      "ko": "제품",
+      "en": "the product"
+    },
+    {
+      "ko": "바닥",
+      "en": "the floor"
+    },
+    {
+      "ko": "배경",
+      "en": "the backdrop"
+    },
+    {
+      "ko": "그림자",
+      "en": "the shadow"
+    },
+    {
+      "ko": "반사",
+      "en": "the reflections"
+    },
+    {
+      "ko": "조명",
+      "en": "the lighting"
+    },
+    {
+      "ko": "카메라 구도",
+      "en": "the camera framing"
+    },
+    {
+      "ko": "전체",
+      "en": "the whole scene"
+    }
+  ],
+  "referenceRoles": [
+    {
+      "id": "composition",
+      "label": "구도·분위기",
+      "text": {
+        "en": "Image {n}: reference for composition and mood.",
+        "ko": "이미지 {n}: 구도와 분위기 참고."
+      }
+    },
+    {
+      "id": "material",
+      "label": "재질·색감",
+      "text": {
+        "en": "Image {n}: reference for materials and colour only.",
+        "ko": "이미지 {n}: 재질과 색감만 참고."
+      }
+    },
+    {
+      "id": "avoid",
+      "label": "이렇게는 말 것",
+      "text": {
+        "en": "Image {n}: an example of what to avoid.",
+        "ko": "이미지 {n}: 피해야 할 예."
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "id": "product",
+      "group": "제품",
+      "label": "어떤 제품인가",
+      "labelEn": "the product",
+      "kind": "text",
+      "importance": "core",
+      "placeholder": "예: 유리 향수병, 둥근 어깨, 금색 뚜껑",
+      "text": {
+        "en": "The product is: {value}.",
+        "ko": "제품은 {value}."
+      }
+    },
+    {
+      "id": "style",
+      "group": "제품",
+      "label": "연출 스타일",
+      "labelEn": "staging style",
+      "kind": "choice",
+      "importance": "core",
+      "default": "clean",
+      "options": [
+        {
+          "value": "clean",
+          "label": "깨끗한 스튜디오",
+          "text": {
+            "en": "Clean studio look: seamless backdrop, soft gradient lighting, nothing in the scene but the product.",
+            "ko": "깨끗한 스튜디오 연출: 이음새 없는 배경, 부드러운 그라데이션 조명, 제품 말고는 아무것도 없게."
+          }
+        },
+        {
+          "value": "nature",
+          "label": "자연 소재와 함께",
+          "text": {
+            "en": "Natural staging: stone, wood or water elements around the product, warm daylight.",
+            "ko": "자연 소재 연출: 돌·나무·물 요소를 제품 주변에, 따뜻한 낮빛."
+          }
+        },
+        {
+          "value": "bold",
+          "label": "강한 색 블록",
+          "text": {
+            "en": "Bold graphic staging: flat coloured blocks and shapes, hard light, strong shadows.",
+            "ko": "강한 그래픽 연출: 단색 블록과 도형, 강한 빛, 또렷한 그림자."
+          }
+        }
+      ]
+    },
+    {
+      "id": "motion",
+      "group": "움직임",
+      "label": "제품 움직임",
+      "labelEn": "product motion",
+      "kind": "choice",
+      "default": "turntable",
+      "options": [
+        {
+          "value": "turntable",
+          "label": "천천히 회전",
+          "text": {
+            "en": "The product turns slowly on a turntable; dragging rotates it manually.",
+            "ko": "제품이 턴테이블처럼 천천히 돌고, 드래그하면 직접 돌릴 수 있게."
+          },
+          "checklist": [
+            {
+              "en": "The rotation never stutters or jumps when the drag ends.",
+              "ko": "드래그를 놓을 때 회전이 끊기거나 튀지 않는다."
+            }
+          ]
+        },
+        {
+          "value": "float",
+          "label": "떠서 살랑임",
+          "text": {
+            "en": "The product floats and sways gently as if weightless.",
+            "ko": "제품이 무중력처럼 떠서 살랑살랑 흔들리게."
+          }
+        },
+        {
+          "value": "still",
+          "label": "고정",
+          "text": {
+            "en": "The product stays still; only the camera orbits.",
+            "ko": "제품은 고정, 카메라만 돈다."
+          }
+        }
+      ]
+    },
+    {
+      "id": "lighting",
+      "group": "화면 연출",
+      "label": "조명",
+      "labelEn": "lighting",
+      "kind": "choice",
+      "default": "soft",
+      "options": [
+        {
+          "value": "soft",
+          "label": "부드러운 스튜디오 조명",
+          "text": {
+            "en": "Soft three-point studio lighting with an HDRI for reflections.",
+            "ko": "부드러운 3점 스튜디오 조명에 반사용 HDRI."
+          }
+        },
+        {
+          "value": "dramatic",
+          "label": "극적인 측광",
+          "text": {
+            "en": "Dramatic side light with deep shadows and a rim light.",
+            "ko": "깊은 그림자와 림라이트가 있는 극적인 측광."
+          }
+        }
+      ]
+    },
+    {
+      "id": "post",
+      "group": "화면 연출",
+      "label": "후처리",
+      "labelEn": "post-processing",
+      "kind": "multi",
+      "default": [
+        "dof",
+        "bloom"
+      ],
+      "options": [
+        {
+          "value": "dof",
+          "label": "피사계 심도",
+          "text": {
+            "en": "Add depth of field focused on the product.",
+            "ko": "제품에 초점을 맞춘 피사계 심도."
+          }
+        },
+        {
+          "value": "bloom",
+          "label": "은은한 빛 번짐",
+          "text": {
+            "en": "Add subtle bloom on highlights.",
+            "ko": "하이라이트에 은은한 빛 번짐."
+          }
+        },
+        {
+          "value": "grain",
+          "label": "필름 그레인",
+          "text": {
+            "en": "Add a touch of film grain.",
+            "ko": "필름 그레인 약간."
+          }
+        }
+      ]
+    },
+    {
+      "id": "extra",
+      "group": "그 밖에",
+      "label": "꼭 넣고 싶은 것",
+      "labelEn": "must-haves",
+      "kind": "text",
+      "importance": "nice",
+      "placeholder": "예: 제품 아래에 물방울, 배경에 브랜드 색",
+      "text": {
+        "en": "Also: {value}",
+        "ko": "그리고: {value}"
+      }
+    }
+  ],
+  "sections": [
+    {
+      "id": "scene",
+      "title": {
+        "en": "Scene",
+        "ko": "만들 장면"
+      },
+      "intro": {
+        "en": "Create an interactive 3D product scene for the web.",
+        "ko": "웹용 인터랙티브 3D 제품 연출 장면을 만들어줘."
+      },
+      "decisions": [
+        "product",
+        "style"
+      ]
+    },
+    {
+      "id": "refs",
+      "title": {
+        "en": "Reference images",
+        "ko": "참고 이미지"
+      },
+      "auto": "references"
+    },
+    {
+      "id": "motion",
+      "title": {
+        "en": "Motion and interaction",
+        "ko": "움직임과 상호작용"
+      },
+      "decisions": [
+        "motion"
+      ]
+    },
+    {
+      "id": "look",
+      "title": {
+        "en": "Lighting and post-processing",
+        "ko": "조명과 후처리"
+      },
+      "decisions": [
+        "lighting",
+        "post",
+        "extra"
+      ]
+    },
+    {
+      "id": "stack",
+      "title": {
+        "en": "Technology",
+        "ko": "기술 구성"
+      },
+      "intro": {
+        "en": "Vite + React + TypeScript, three, @react-three/fiber, drei, postprocessing, leva for a control panel. The product may be a procedural model or a glTF I provide.",
+        "ko": "Vite + React + TypeScript, three, @react-three/fiber, drei, postprocessing, 조절 패널은 leva. 제품은 절차 생성 모델이거나 내가 주는 glTF."
+      }
+    },
+    {
+      "id": "undecided",
+      "title": {
+        "en": "Not decided yet",
+        "ko": "아직 정하지 않은 것"
+      },
+      "auto": "undecided"
+    },
+    {
+      "id": "checklist",
+      "title": {
+        "en": "Acceptance checklist",
+        "ko": "검수 기준"
+      },
+      "auto": "checklist"
+    },
+    {
+      "id": "locks",
+      "title": {
+        "en": "Do not change",
+        "ko": "바꾸지 말 것"
+      },
+      "auto": "locks"
+    },
+    {
+      "id": "process",
+      "title": {
+        "en": "How to work",
+        "ko": "작업 방식"
+      },
+      "auto": "process"
+    }
+  ],
+  "checklistBase": [
+    {
+      "en": "The product sits on the floor: no gap under it, no sinking into it.",
+      "ko": "제품이 바닥에 제대로 놓인다: 아래에 틈이 없고 파묻히지도 않는다."
+    },
+    {
+      "en": "The product is never clipped by the frame in the default view.",
+      "ko": "기본 화면에서 제품이 프레임에 잘리지 않는다."
+    },
+    {
+      "en": "Reflections and shadows come from the same light direction.",
+      "ko": "반사와 그림자의 빛 방향이 일치한다."
+    },
+    {
+      "en": "60 fps on a laptop; cap the render resolution on retina screens.",
+      "ko": "노트북에서 60fps; 레티나 화면에서는 렌더 해상도에 상한을 둔다."
+    }
+  ],
+  "process": [
+    {
+      "en": "Build in stages: product → floor and lighting → motion → post-processing.",
+      "ko": "단계별로: 제품 → 바닥과 조명 → 움직임 → 후처리."
+    },
+    {
+      "en": "After each stage, take screenshots from the default view and one low angle and compare them with the references.",
+      "ko": "단계마다 기본 뷰와 낮은 각도에서 스크린샷을 찍어 참고 이미지와 비교할 것."
+    },
+    {
+      "en": "Ask before any large structural change. Reply in Korean.",
+      "ko": "큰 구조 변경 전에는 물어볼 것. 답은 한국어로."
+    }
+  ],
+  "diagnosis": [
+    {
+      "id": "shape",
+      "label": "형태",
+      "hint": "실루엣, 비율, 디테일",
+      "symptoms": [
+        {
+          "id": "shape-blobby",
+          "label": "뭉개져 보임",
+          "labelEn": "reads as a shapeless blob",
+          "hint": "모서리가 없고 전부 둥글둥글",
+          "fix": {
+            "en": "Give {target} crisper form: defined edges where the reference has them, clear separation between parts.",
+            "ko": "{target}의 형태를 또렷하게: 참고처럼 모서리가 살아 있고 부분 사이가 분명히 나뉘게."
+          },
+          "why": "절차 생성·스무딩이 과하면 모든 면이 둥글어져요. '모서리를 살려라'가 기술 용어로는 경계 선명도예요."
+        },
+        {
+          "id": "shape-proportion",
+          "label": "비율이 이상함",
+          "labelEn": "proportions / scale are off",
+          "hint": "너무 길거나 납작하거나 뚱뚱함",
+          "fix": {
+            "en": "Fix the proportions of {target} to match the reference; measure width/height/depth ratios from it.",
+            "ko": "{target}의 비율을 참고 이미지에 맞춰: 가로·세로·깊이 비를 참고에서 재서 적용."
+          }
+        }
+      ]
+    },
+    {
+      "id": "material",
+      "label": "재질",
+      "hint": "플라스틱 같음, 번들거림, 밋밋함",
+      "symptoms": [
+        {
+          "id": "mat-plastic",
+          "label": "플라스틱처럼 보임",
+          "labelEn": "looks like shiny plastic",
+          "hint": "균일하게 번들거리고 두께감 없음",
+          "fix": {
+            "en": "Make the material of {target} read as the real thing: correct roughness, a hint of surface imperfection, and reflections that match the environment.",
+            "ko": "{target}의 재질이 실제처럼 읽히게: 러프니스를 맞추고 표면에 미세한 불규칙함을 주고 환경 반사를 맞춰줘."
+          },
+          "why": "거칠기(러프니스) 값이 한 가지뿐이면 플라스틱처럼 보여요. 실제 물체는 표면마다 거칠기가 다릅니다."
+        },
+        {
+          "id": "mat-flat",
+          "label": "밋밋함",
+          "labelEn": "flat, no texture",
+          "hint": "질감이 없고 종이 같음",
+          "fix": {
+            "en": "Add texture to {target}: a normal/roughness map or fine procedural detail, visible at the default zoom.",
+            "ko": "{target}에 질감을: 노멀·러프니스 맵이나 미세한 절차적 디테일을 기본 줌에서 보이게."
+          }
+        }
+      ]
+    },
+    {
+      "id": "light",
+      "label": "빛·그림자",
+      "hint": "너무 어둡거나 밝음, 그림자가 이상함",
+      "symptoms": [
+        {
+          "id": "light-shadow",
+          "label": "그림자가 이상함",
+          "labelEn": "shadow is wrong",
+          "hint": "방향이 안 맞거나 없거나 너무 진함",
+          "fix": {
+            "en": "Fix the shadow under {target}: one consistent light direction, soft contact shadow where it touches the floor, no detached or doubled shadows.",
+            "ko": "{target} 아래 그림자를 고쳐줘: 빛 방향 하나로 통일, 바닥과 닿는 곳에 부드러운 접촉 그림자, 떨어져 있거나 겹친 그림자 없이."
+          },
+          "why": "접촉 그림자가 없으면 물체가 떠 보여요. '가짜 같다'의 가장 흔한 원인이에요."
+        },
+        {
+          "id": "light-blown",
+          "label": "하얗게 날아감",
+          "labelEn": "highlights blown out",
+          "hint": "밝은 부분에 디테일이 사라짐",
+          "fix": {
+            "en": "Reduce the exposure/light intensity on {target} so highlights keep detail; use a filmic tone mapping.",
+            "ko": "{target}의 노출·광량을 줄여 하이라이트에 디테일이 남게; 필름 톤매핑을 써줘."
+          }
+        }
+      ]
+    },
+    {
+      "id": "composition",
+      "label": "구도·배치",
+      "hint": "작게 보임, 치우침, 여백",
+      "symptoms": [
+        {
+          "id": "comp-small",
+          "label": "너무 작게 보임",
+          "labelEn": "too small in frame",
+          "fix": {
+            "en": "Frame {target} larger: move the camera closer and lower the field of view so it fills about two thirds of the frame.",
+            "ko": "{target}을 더 크게: 카메라를 가까이, 화각을 좁혀 프레임의 2/3쯤 차게."
+          }
+        },
+        {
+          "id": "comp-offcenter",
+          "label": "치우쳐 보임",
+          "labelEn": "off-centre",
+          "fix": {
+            "en": "Re-center {target} on the main axis of the frame, leaving slightly more space above than below.",
+            "ko": "{target}을 프레임 중심축에 맞추고, 위 여백을 아래보다 조금 더 남겨줘."
+          }
+        }
+      ]
+    },
+    {
+      "id": "motion",
+      "label": "움직임",
+      "hint": "끊김, 너무 빠름, 튐",
+      "symptoms": [
+        {
+          "id": "motion-jerky",
+          "label": "끊기거나 튐",
+          "labelEn": "jumps or stutters",
+          "fix": {
+            "en": "Smooth the motion of {target}: ease in/out, damp the drag release, and never snap.",
+            "ko": "{target}의 움직임을 부드럽게: 가속·감속을 넣고 드래그를 놓을 때 감쇠시키고, 절대 툭 튀지 않게."
+          }
+        },
+        {
+          "id": "motion-fast",
+          "label": "너무 빠름",
+          "labelEn": "too fast",
+          "fix": {
+            "en": "Slow the motion of {target} to about half its current speed.",
+            "ko": "{target}의 움직임을 지금의 절반 속도로."
+          }
+        }
+      ]
+    },
+    {
+      "id": "perf",
+      "label": "성능",
+      "hint": "버벅임, 발열",
+      "symptoms": [
+        {
+          "id": "perf-slow",
+          "label": "버벅임",
+          "labelEn": "runs slowly",
+          "fix": {
+            "en": "Profile the frame: cap the render pixel count, run post-processing at half resolution, and reduce whatever costs most.",
+            "ko": "프레임을 측정해서: 렌더 픽셀 수에 상한, 후처리는 절반 해상도, 제일 비싼 것부터 줄여줘."
+          },
+          "why": "무거운 건 대개 모델이 아니라 전체 화면 후처리와 레티나 픽셀 수예요."
+        }
+      ]
+    }
+  ],
+  "compareAxes": [
+    {
+      "id": "silhouette",
+      "label": "실루엣",
+      "text": {
+        "en": "Match the silhouette of reference image {n}.",
+        "ko": "참고 이미지 {n}의 실루엣에 맞춰줘."
+      }
+    },
+    {
+      "id": "colour",
+      "label": "색",
+      "text": {
+        "en": "Match the colours of reference image {n}.",
+        "ko": "참고 이미지 {n}의 색에 맞춰줘."
+      }
+    },
+    {
+      "id": "light",
+      "label": "빛",
+      "text": {
+        "en": "Match the lighting direction and softness of reference image {n}.",
+        "ko": "참고 이미지 {n}의 빛 방향과 부드러움에 맞춰줘."
+      }
+    },
+    {
+      "id": "composition",
+      "label": "구도",
+      "text": {
+        "en": "Match the framing of reference image {n}.",
+        "ko": "참고 이미지 {n}의 구도에 맞춰줘."
+      }
+    }
+  ],
+  "feelDictionary": [
+    {
+      "phrase": "플라스틱",
+      "symptoms": [
+        "mat-plastic"
+      ],
+      "term": "러프니스·반사"
+    },
+    {
+      "phrase": "가짜",
+      "symptoms": [
+        "light-shadow",
+        "mat-plastic"
+      ],
+      "term": "접촉 그림자·재질"
+    },
+    {
+      "phrase": "밋밋",
+      "symptoms": [
+        "mat-flat",
+        "light-shadow"
+      ],
+      "term": "질감·대비"
+    },
+    {
+      "phrase": "떠 있",
+      "symptoms": [
+        "light-shadow"
+      ],
+      "term": "접촉 그림자"
+    },
+    {
+      "phrase": "작아",
+      "symptoms": [
+        "comp-small"
+      ],
+      "term": "화각·거리"
+    },
+    {
+      "phrase": "끊",
+      "symptoms": [
+        "motion-jerky",
+        "perf-slow"
+      ],
+      "term": "이징·성능"
+    }
+  ]
+}
