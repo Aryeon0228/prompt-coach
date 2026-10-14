@@ -15,11 +15,12 @@ export function Start() {
       <section className="card stack">
         <div>
           <div className="eyebrow">프롬프트 코치</div>
-          <h1>프롬프트를 만들고, 고치는 연습</h1>
+          <h1>만들고 싶은 장면을 프롬프트로</h1>
         </div>
         <p className="muted">
-          먼저 <b>결정</b> 탭에서 항목을 하나씩 정하면 빠진 것 없는 <b>첫 프롬프트</b>가 만들어져요. 결과가 어딘가 어색하면 <b>코치</b> 탭에서 어디가, 무엇이, 어떻게 이상한지 고르기만 하면 <b>고치는 프롬프트</b>가 나와요. 내용은 전부 이 기기에만 저장되고, 과제는 JSON 파일로 내보내서 제출해요.
+          <b>결정</b> 탭에서 원하는 장면을 구체화하고 <b>첫 프롬프트</b>를 만들어 보세요. 결과가 어딘가 어색하면 <b>코치</b> 탭에서 어디를, 어떻게 바꾸고 싶은지 골라 <b>수정 프롬프트</b>로 다듬을 수 있어요.
         </p>
+        <p className="small muted">내용은 이 기기에 저장돼요. 프로젝트를 JSON 파일로 내보내면 보관하거나 다른 기기에서 이어갈 수 있어요.</p>
       </section>
 
       {projects.length > 0 && (
@@ -55,7 +56,7 @@ export function Start() {
       <section className="card stack">
         <div className="section-title">
           <h2>새 프로젝트</h2>
-          <span className="small muted">과제 템플릿을 고르세요</span>
+          <span className="small muted">만들고 싶은 장면을 고르세요</span>
         </div>
         <div className="stack">
           {index.map((e) => (

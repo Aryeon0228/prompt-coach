@@ -13,7 +13,7 @@ export default defineConfig({
       manifest: {
         name: '프롬프트 코치',
         short_name: '프롬프트 코치',
-        description: '첫 프롬프트를 만들고, 결과를 보며 고치는 법을 익히는 수업 도구',
+        description: '원하는 장면을 구체화하고, 결과를 보며 프롬프트를 다듬는 인터랙티브 도구',
         lang: 'ko',
         display: 'standalone',
         background_color: '#f4f1e9',

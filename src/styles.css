@@ -16,6 +16,7 @@ h1,h2,h3{letter-spacing:-.02em;line-height:1.3;margin:0}h1{font-size:24px}h2{fon
 .app{min-height:100dvh;display:grid;grid-template-rows:auto 1fr}
 .topbar{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:12px;min-height:57px}
 .topbar .title{font-weight:800;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.topbar .grow{flex:1;min-width:0}
+.portfolio-link{display:inline-flex;align-items:center;min-height:44px;padding:8px 10px;flex-shrink:0;font-size:13px;font-weight:700;text-decoration:none;border-radius:10px}.portfolio-link:hover{background:var(--pale);text-decoration:underline}
 .content{padding:16px 16px calc(var(--nav-h) + 24px);max-width:980px;width:100%;margin:0 auto}
 .nav{position:fixed;bottom:0;left:0;right:0;z-index:5;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
 .nav button{position:relative;flex:1;min-height:var(--nav-h);background:transparent;border:0;border-radius:0;color:var(--muted);font-size:11px;font-weight:700;display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;padding:6px 2px}

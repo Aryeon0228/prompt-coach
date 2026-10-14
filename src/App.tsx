@@ -44,8 +44,9 @@ export function App() {
           ) : null}
           <div className="grow">
             <div className="title">{project ? project.name : '프롬프트 코치'}</div>
-            {project && template ? <div className="small muted">{template.name}</div> : <div className="small muted">첫 프롬프트를 만들고, 결과를 보면서 고쳐 나가는 연습 도구</div>}
+            {project && template ? <div className="small muted">{template.name}</div> : <div className="small muted">원하는 장면을 구체화하고, 결과를 보며 프롬프트를 다듬는 도구</div>}
           </div>
+          <a className="portfolio-link" href="https://studio-penumbra.com/#lab" aria-label="Studio Penumbra Lab으로 돌아가기">← Lab</a>
         </header>
 
         {project && template ? (

@@ -21,8 +21,8 @@ export function Settings() {
       </section>
 
       <section className="card stack">
-        <h2>내보내기 · 제출</h2>
-        <p className="small muted">결정, 참고 이미지, 잠금, 수정 기록이 전부 한 파일에 담겨요. 과제를 제출하거나 다른 기기로 옮길 때 쓰세요. 시작 화면의 "JSON 열기"로 다시 불러올 수 있어요.</p>
+        <h2>프로젝트 보관 · 내보내기</h2>
+        <p className="small muted">결정, 참고 이미지, 잠금, 수정 기록이 전부 한 파일에 담겨요. 작업을 보관하거나 다른 기기에서 이어갈 때 쓰세요. 시작 화면의 "JSON 열기"로 다시 불러올 수 있어요.</p>
         <div className="row">
           <button
             onClick={() => {
@@ -36,9 +36,9 @@ export function Settings() {
       </section>
 
       <section className="card stack">
-        <h2>템플릿 바꾸기 · 만들기</h2>
+        <h2>장면별 템플릿</h2>
         <p className="small muted">
-          템플릿은 <code>public/templates/</code>의 JSON 파일이에요. 결정 항목, 프롬프트 문장(영어·한국어), 검수 기준, 진단 목록, 느낌 사전이 모두 그 안에 있어서, 코드를 건드리지 않고 다른 과제용 템플릿을 추가할 수 있어요. <code>index.json</code>에 한 줄 등록하면 시작 화면에 나타나요.
+          새 프로젝트에서 미니어처 섬이나 제품 연출처럼 만들고 싶은 장면을 골라 시작하세요. 템플릿마다 결정할 항목과 결과를 살펴볼 기준이 준비되어 있어요.
         </p>
       </section>
 
