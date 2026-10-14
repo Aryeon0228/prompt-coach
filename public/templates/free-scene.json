@@ -1,0 +1,157 @@
+{
+  "id": "free-scene",
+  "name": "자유 장면",
+  "description": "원하는 장면을 직접 적고, 이미지·영상·3D 웹에 맞는 프롬프트로 다듬어요.",
+  "version": 1,
+  "targets": [
+    { "ko": "주요 대상", "en": "the main subject" },
+    { "ko": "배경", "en": "the background" },
+    { "ko": "구도와 배치", "en": "the composition and layout" },
+    { "ko": "색과 분위기", "en": "the colours and mood" },
+    { "ko": "움직임과 흐름", "en": "the movement and sequence" },
+    { "ko": "상호작용", "en": "the interaction" },
+    { "ko": "전체", "en": "the overall result" }
+  ],
+  "referenceRoles": [
+    {
+      "id": "composition",
+      "label": "구도·배치",
+      "text": { "ko": "이미지 {n}: 구도와 배치만 참고해 주세요.", "en": "Image {n}: reference for composition and layout only." }
+    },
+    {
+      "id": "appearance",
+      "label": "색·재질·분위기",
+      "text": { "ko": "이미지 {n}: 색, 재질과 분위기를 참고해 주세요.", "en": "Image {n}: reference for colours, materials and mood." }
+    },
+    {
+      "id": "subject",
+      "label": "대상·형태",
+      "text": { "ko": "이미지 {n}: 대상의 형태와 특징을 참고해 주세요.", "en": "Image {n}: reference for the subject's form and characteristics." }
+    },
+    {
+      "id": "motion",
+      "label": "움직임",
+      "text": { "ko": "이미지 {n}: 자세와 움직임의 방향을 참고해 주세요.", "en": "Image {n}: reference for poses and the direction of movement." }
+    },
+    {
+      "id": "avoid",
+      "label": "피할 표현",
+      "text": { "ko": "이미지 {n}: 메모에 적은 표현을 피하기 위한 참고입니다.", "en": "Image {n}: an example of what to avoid, as specified in the accompanying note." }
+    }
+  ],
+  "decisions": [],
+  "sections": [],
+  "checklistBase": [],
+  "process": [],
+  "diagnosis": [
+    {
+      "id": "intent",
+      "label": "내용과 조건",
+      "hint": "대상이 빠졌거나 요청하지 않은 것이 들어간 경우",
+      "symptoms": [
+        {
+          "id": "intent-missing",
+          "label": "요청한 요소가 빠짐",
+          "labelEn": "a requested element is missing",
+          "hint": "넣기로 한 대상이나 중요한 특징이 보이지 않아요.",
+          "fix": {
+            "ko": "{target}에서 빠진 요청을 아래 메모와 원래 조건에 맞춰 반영해 주세요. 이미 맞는 요소는 유지해 주세요.",
+            "en": "Restore the missing requirement in {target}, following my note and the original brief. Preserve the elements that already match."
+          },
+          "why": "빠진 대상의 이름과 필요한 특징을 함께 적으면, 수정할 범위를 분명하게 전달할 수 있어요."
+        },
+        {
+          "id": "intent-extra",
+          "label": "불필요한 요소가 추가됨",
+          "labelEn": "unwanted elements have been added",
+          "hint": "원하지 않은 대상이나 장식이 눈에 띄어요.",
+          "fix": {
+            "ko": "{target}에서 아래 메모에 지정한 불필요한 요소만 없애 주세요. 원래 요청한 대상과 관계는 유지해 주세요.",
+            "en": "Remove only the unwanted elements specified in my note from {target}. Preserve the requested subjects and their relationships."
+          }
+        }
+      ]
+    },
+    {
+      "id": "clarity",
+      "label": "전달과 구성",
+      "hint": "주요 대상, 배치, 흐름이 의도대로 읽히는지",
+      "symptoms": [
+        {
+          "id": "clarity-focus",
+          "label": "중요한 부분이 잘 안 보임",
+          "labelEn": "the intended focus is unclear",
+          "hint": "무엇을 먼저 봐야 하는지 알기 어려워요.",
+          "fix": {
+            "ko": "{target}에서 가장 먼저 보여야 할 부분을 아래 메모에 맞춰 분명하게 해 주세요. 주변 요소가 그 부분을 가리지 않도록 배치와 대비를 조정해 주세요.",
+            "en": "Make the intended focus of {target} clear according to my note. Adjust layout and contrast so surrounding elements do not obscure it."
+          },
+          "why": "무엇이 중요한지와 주변 요소와의 관계를 함께 적어야, 단순히 모든 것을 크고 강하게 만드는 수정을 피할 수 있어요."
+        },
+        {
+          "id": "clarity-relation",
+          "label": "배치나 순서가 의도와 다름",
+          "labelEn": "the arrangement or sequence differs from the brief",
+          "hint": "대상의 위치, 크기 관계나 장면의 순서가 달라요.",
+          "fix": {
+            "ko": "{target}의 배치 또는 순서를 아래 메모에 적은 관계대로 조정해 주세요. 바꿀 위치나 순서를 명시한 범위 안에서만 수정해 주세요.",
+            "en": "Adjust the arrangement or sequence of {target} to the relationships specified in my note. Limit the change to the specified positions or order."
+          }
+        }
+      ]
+    },
+    {
+      "id": "consistency",
+      "label": "표현의 일관성",
+      "hint": "분위기, 형태, 색이나 움직임이 서로 맞는지",
+      "symptoms": [
+        {
+          "id": "consistency-style",
+          "label": "분위기나 표현이 맞지 않음",
+          "labelEn": "the mood or visual treatment does not match",
+          "hint": "요청한 표현과 결과 사이에 차이가 있어요.",
+          "fix": {
+            "ko": "{target}의 표현을 원래 조건과 아래 메모에 맞춰 조정해 주세요. 바뀌어야 할 색, 빛, 재질 또는 형태에만 집중해 주세요.",
+            "en": "Align the treatment of {target} with the original brief and my note. Focus on the specified changes to colour, lighting, material or form."
+          }
+        },
+        {
+          "id": "consistency-change",
+          "label": "유지할 특징이 달라짐",
+          "labelEn": "a feature that should remain consistent has changed",
+          "hint": "대상의 특징이나 정한 규칙이 부분마다 달라요.",
+          "fix": {
+            "ko": "{target}에서 유지하기로 한 특징을 원래 조건과 아래 메모에 맞춰 통일해 주세요. 의도한 변화와 유지할 특징을 구분해 주세요.",
+            "en": "Keep the specified features of {target} consistent with the original brief and my note. Distinguish intended variation from features that must remain unchanged."
+          }
+        }
+      ]
+    }
+  ],
+  "compareAxes": [
+    {
+      "id": "composition",
+      "label": "구도·배치",
+      "text": { "ko": "참고 이미지 {n}에서 지정한 구도와 배치를 기준으로 차이를 조정해 주세요.", "en": "Adjust the specified composition and layout against reference image {n}." }
+    },
+    {
+      "id": "appearance",
+      "label": "색·분위기",
+      "text": { "ko": "참고 이미지 {n}에서 지정한 색과 분위기를 기준으로 차이를 조정해 주세요.", "en": "Adjust the specified colours and mood against reference image {n}." }
+    },
+    {
+      "id": "subject",
+      "label": "대상·형태",
+      "text": { "ko": "참고 이미지 {n}에서 지정한 대상의 형태와 특징을 기준으로 차이를 조정해 주세요.", "en": "Adjust the specified subject's form and characteristics against reference image {n}." }
+    }
+  ],
+  "feelDictionary": [
+    { "phrase": "빠졌", "symptoms": ["intent-missing"], "term": "누락된 요구사항" },
+    { "phrase": "불필요", "symptoms": ["intent-extra"], "term": "불필요한 요소" },
+    { "phrase": "복잡", "symptoms": ["clarity-focus", "intent-extra"], "term": "강조와 정보량" },
+    { "phrase": "안 보", "symptoms": ["clarity-focus", "intent-missing"], "term": "초점과 가시성" },
+    { "phrase": "배치", "symptoms": ["clarity-relation"], "term": "위치와 관계" },
+    { "phrase": "분위기", "symptoms": ["consistency-style"], "term": "표현의 방향" },
+    { "phrase": "달라", "symptoms": ["consistency-change", "consistency-style"], "term": "특징의 일관성" }
+  ]
+}

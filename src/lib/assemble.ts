@@ -1,4 +1,4 @@
-import { CUSTOM, type Decision, type DecisionAnswer, type Iteration, type Localized, type Project, type Template } from '../types'
+import { CUSTOM, type Decision, type DecisionAnswer, type Iteration, type Localized, type Project, type Template } from '../types.ts'
 
 type Lang = 'en' | 'ko'
 
@@ -144,12 +144,18 @@ export function assembleFix(
   const cat = t.diagnosis.find((c) => c.id === it.categoryId)
   const sym = cat?.symptoms.find((s) => s.id === it.symptomId)
   if (!cat || !sym) return ''
+  const freeMode = t.id === 'free-scene' ? p.freeform?.mode ?? 'image' : undefined
   const target = (lang === 'en' ? it.targetEn || it.target : it.target) || (lang === 'en' ? 'the marked area' : '표시한 부분')
   const lines: string[] = []
+  const imageLabel = freeMode === 'video'
+    ? { en: 'representative frame', ko: '대표 프레임' }
+    : freeMode === 'image'
+      ? { en: 'result image', ko: '결과 이미지' }
+      : { en: 'screenshot', ko: '스크린샷' }
   const where = it.region
     ? lang === 'en'
-      ? ` (marked in the attached screenshot, roughly ${Math.round(it.region.x * 100)}–${Math.round((it.region.x + it.region.w) * 100)}% from the left, ${Math.round(it.region.y * 100)}–${Math.round((it.region.y + it.region.h) * 100)}% from the top)`
-      : ` (첨부한 스크린샷에 표시한 부분, 왼쪽에서 약 ${Math.round(it.region.x * 100)}~${Math.round((it.region.x + it.region.w) * 100)}%, 위에서 ${Math.round(it.region.y * 100)}~${Math.round((it.region.y + it.region.h) * 100)}% 자리)`
+      ? ` (marked in the attached ${imageLabel.en}, roughly ${Math.round(it.region.x * 100)}–${Math.round((it.region.x + it.region.w) * 100)}% from the left, ${Math.round(it.region.y * 100)}–${Math.round((it.region.y + it.region.h) * 100)}% from the top)`
+      : ` (첨부한 ${imageLabel.ko}에 표시한 부분, 왼쪽에서 약 ${Math.round(it.region.x * 100)}~${Math.round((it.region.x + it.region.w) * 100)}%, 위에서 ${Math.round(it.region.y * 100)}~${Math.round((it.region.y + it.region.h) * 100)}% 자리)`
     : ''
   lines.push(lang === 'en' ? `Problem: ${target}${where} — ${sym.labelEn || sym.label}.` : `문제: ${target}${where}. ${sym.label}.`)
   const fix = sym.fix[lang].replace(/\{target\}/g, target)
@@ -158,16 +164,35 @@ export function assembleFix(
   if (it.compareId) {
     const axis = t.compareAxes.find((a) => a.id === it.compareId)
     const refIndex = p.references.findIndex((r) => r.id === it.referenceId)
-    if (axis) lines.push(axis.text[lang].replace('{n}', refIndex >= 0 ? String(refIndex + 1) : '1'))
+    if (axis && (!freeMode || refIndex >= 0)) lines.push(axis.text[lang].replace('{n}', refIndex >= 0 ? String(refIndex + 1) : '1'))
   }
   if (it.note?.trim()) lines.push(it.note.trim())
   lines.push(lang === 'en' ? 'Change only this; leave everything else as it is.' : '이것만 바꾸고 나머지는 그대로 둬.')
   if (p.locks.length) lines.push((lang === 'en' ? 'In particular, do not touch: ' : '특히 다음은 건드리지 마: ') + p.locks.join('; ') + '.')
-  lines.push(
-    lang === 'en'
-      ? 'When done, show a before/after screenshot from the same camera angle as my screenshot and re-check the acceptance checklist.'
-      : '다 되면 내 스크린샷과 같은 카메라 각도로 전후 스크린샷을 보여주고, 검수 기준도 다시 확인해줘.',
-  )
+  if (freeMode) {
+    if (p.freeform?.success.trim()) lines.push((lang === 'en' ? 'Result criteria:\n' : '결과 확인 기준:\n') + p.freeform.success)
+    const verification: Record<typeof freeMode, Localized> = {
+      image: {
+        en: 'Compare the revised image with the previous result: check that the requested change is visible and the features to preserve remain unchanged. State any criteria you could not actually verify.',
+        ko: '수정한 이미지와 이전 결과를 비교해서, 요청한 변경이 보이는지와 유지할 부분이 그대로인지 확인해 주세요. 실제로 확인하지 못한 기준은 확인하지 못했다고 알려 주세요.',
+      },
+      video: {
+        en: 'Review the revised video at the times specified in my note, including the action before and after those moments. Check motion, timing and continuity, not just a still frame. State what you could not verify if you cannot play the video or do not have the source footage.',
+        ko: '메모에 적은 시간대와 그 앞뒤의 동작을 영상에서 확인해 주세요. 정지 화면만 보지 말고 움직임, 타이밍과 이어짐을 확인해 주세요. 영상을 재생할 수 없거나 원본 영상이 없어 확인하지 못한 부분은 분명히 알려 주세요.',
+      },
+      web: {
+        en: 'Run the revised 3D web scene and check the requested interactions and resulting states. Compare the changed and preserved parts. State which actions you actually tested and what you could not verify; do not describe untested behaviour as confirmed.',
+        ko: '수정한 3D 웹 장면을 실행해서 요청한 조작과 그 뒤의 상태를 확인해 주세요. 변경할 부분과 유지할 부분을 비교하고, 실제로 시험한 조작과 확인하지 못한 항목을 구분해 알려 주세요. 시험하지 못한 동작을 확인한 것처럼 말하지 마세요.',
+      },
+    }
+    lines.push(verification[freeMode][lang])
+  } else {
+    lines.push(
+      lang === 'en'
+        ? 'When done, show a before/after screenshot from the same camera angle as my screenshot and re-check the acceptance checklist.'
+        : '다 되면 내 스크린샷과 같은 카메라 각도로 전후 스크린샷을 보여주고, 검수 기준도 다시 확인해줘.',
+    )
+  }
   return lines.join('\n')
 }
 

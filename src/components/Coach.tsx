@@ -45,6 +45,9 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
   }, [query, template])
 
   if (!project || !template) return null
+  const isFreeScene = template.id === 'free-scene'
+  const isVideo = isFreeScene && project.freeform?.mode === 'video'
+  const isImage = isFreeScene && project.freeform?.mode === 'image'
   const category = template.diagnosis.find((c) => c.id === categoryId)
   const symptom = category?.symptoms.find((s) => s.id === symptomId)
   const finalTarget = target === '__custom' ? customTarget.trim() : target
@@ -99,8 +102,8 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
 
       {step === 'shot' && (
         <section className="card stack">
-          <h2>결과 화면을 올려 주세요</h2>
-          <p className="small muted">화면을 올리면 고칠 부분을 직접 표시할 수 있어요. 이미지 없이도 시작할 수 있습니다.</p>
+          <h2>{isVideo ? '영상의 대표 프레임을 올려 주세요' : isImage ? '결과 이미지를 올려 주세요' : '결과 화면을 올려 주세요'}</h2>
+          <p className="small muted">{isVideo ? '고칠 순간을 캡처한 이미지 한 장을 올려 주세요. 움직임은 이 이미지로 알 수 없으니, 뒤의 메모에 시간대와 달라져야 할 동작을 적어 주세요. 이미지 없이도 시작할 수 있어요.' : '이미지를 올리면 고칠 부분을 직접 표시할 수 있어요. 이미지 없이도 시작할 수 있습니다.'}</p>
           <label className="upload">
             <input
               type="file"
@@ -118,7 +121,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
                 e.target.value = ''
               }}
             />
-            <span>+ 스크린샷 선택</span>
+            <span>{isVideo ? '+ 대표 프레임 이미지 선택' : isImage ? '+ 결과 이미지 선택' : '+ 스크린샷 선택'}</span>
           </label>
           <div className="row step-actions">
             <button className="secondary" onClick={() => setStep('where')}>
@@ -130,7 +133,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
             <div className="stack">
               <label className="stack">
                 <span className="small muted">느낌 사전</span>
-                <input type="search" placeholder="예: 플라스틱 같아요 / 밋밋해요" value={query} onChange={(e) => setQuery(e.target.value)} />
+                <input type="search" placeholder={isFreeScene ? '예: 복잡해요 / 분위기가 달라요' : '예: 플라스틱 같아요 / 밋밋해요'} value={query} onChange={(e) => setQuery(e.target.value)} />
               </label>
               {hits.length > 0 && (
                 <div className="stack" aria-live="polite">
@@ -182,7 +185,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
           {target === '__custom' && (
             <label className="stack">
               <span className="small muted">고칠 대상</span>
-              <input type="text" placeholder="예: 왼쪽 위 바위" value={customTarget} onChange={(e) => setCustomTarget(e.target.value)} />
+              <input type="text" placeholder={isVideo ? '예: 00:03에 등장하는 인물의 손' : isFreeScene ? '예: 화면 오른쪽의 주요 대상' : '예: 왼쪽 위 바위'} value={customTarget} onChange={(e) => setCustomTarget(e.target.value)} />
             </label>
           )}
           <div className="row step-actions">
@@ -254,7 +257,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
       {step === 'compare' && (
         <section className="card stack">
           <h2>참고 이미지와 비교하면 어떤가요?</h2>
-          <p className="small muted">참고 이미지와 다른 점을 더할 수 있어요. 선택하지 않아도 다음으로 넘어갈 수 있습니다.</p>
+          <p className="small muted">{isVideo ? '참고 이미지로 비교할 수 있는 구도·색·형태를 고르세요. 움직임이나 타이밍의 차이는 아래 메모에 적어 주세요.' : '참고 이미지와 다른 점을 더할 수 있어요. 선택하지 않아도 다음으로 넘어갈 수 있습니다.'}</p>
           {project.references.length > 0 ? (
             <>
               <div className="choices">
@@ -278,8 +281,8 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
             <p className="small muted">참고 이미지가 없어요. "참고 이미지"에서 추가하면 여기서 비교할 수 있어요.</p>
           )}
           <label className="stack" style={{ gap: 6 }}>
-            <span className="small muted">덧붙일 말 (선택). 구체적인 수치나 예시가 있으면 적어 주세요.</span>
-            <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="예: 바위 높이는 지금의 절반 정도면 좋겠어" />
+            <span className="small muted">{isVideo ? '시간대와 바꿀 동작 (선택). 언제 어떤 모습이 되는지 적어 주세요.' : '덧붙일 말 (선택). 구체적인 수치나 예시가 있으면 적어 주세요.'}</span>
+            <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder={isVideo ? '예: 00:03~00:05에 손이 갑자기 튀어요. 같은 경로를 따라 서서히 올라가게 해 주세요.' : isFreeScene ? '예: 주요 대상은 유지하고, 오른쪽 여백을 화면 너비의 1/3 정도로 늘려 주세요.' : '예: 바위 높이는 지금의 절반 정도면 좋겠어'} />
           </label>
           <div className="row step-actions">
             <button className="secondary" onClick={() => setStep('how')}>
@@ -300,7 +303,8 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
               <b>왜 이렇게 되는 걸까요?</b> {symptom.why}
             </div>
           ) : null}
-          <PromptBox en={en} ko={ko} filename={`${project.name}-fix-${project.iterations.length + 1}.txt`} />
+          {isFreeScene && <p className="small muted">{isVideo ? '대표 프레임과 참고 이미지는 복사한 글에 포함되지 않아요. 사용할 AI에 함께 첨부하고, 영상 업로드를 지원하면 문제가 있는 원본 영상도 전달해 주세요.' : '결과 이미지와 참고 이미지는 복사한 글에 포함되지 않아요. 사용할 AI에 함께 첨부해 주세요.'}</p>}
+          <PromptBox en={en} ko={ko} filename={`${project.name}-fix-${project.iterations.length + 1}.txt`} initialLang={isFreeScene ? 'ko' : 'en'} />
           <div className="row step-actions">
             <button className="secondary" onClick={() => setStep('compare')}>
               뒤로

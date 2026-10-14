@@ -1,5 +1,11 @@
 [
   {
+    "id": "free-scene",
+    "name": "자유 장면",
+    "description": "이미지·영상·3D 웹 장면을 자유롭게 적고, 필요한 조건을 더해 요청문을 만들어요.",
+    "file": "free-scene.json"
+  },
+  {
     "id": "miniature-island",
     "name": "미니어처 섬 · 3D 웹 장면",
     "description": "투명한 젤리 블록 안의 미니어처 섬. 지형, 물, 생물, 날씨, 상호작용을 정하고 결과를 진단해요.",

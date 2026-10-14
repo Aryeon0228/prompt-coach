@@ -1,3 +1,5 @@
+import type { FreePromptBrief } from './lib/free-prompt'
+
 /** Text that goes to the coding AI (en) and its meaning for the student (ko). */
 export interface Localized {
   en: string
@@ -177,6 +179,8 @@ export interface Project {
   name: string
   createdAt: number
   updatedAt: number
+  /** The user's own scene brief; omitted by existing template-based projects. */
+  freeform?: FreePromptBrief
   decisions: Record<string, DecisionAnswer>
   references: Reference[]
   /** things that are already right and must not change */

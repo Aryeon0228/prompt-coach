@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import { FreeBrief } from './components/FreeBrief'
+import { FreePromptView } from './components/FreePromptView'
+import './free-prompt.css'
 import { Brief } from './components/Brief'
 import { Coach } from './components/Coach'
 import { History } from './components/History'
@@ -13,7 +16,7 @@ type Tab = 'brief' | 'refs' | 'prompt' | 'coach' | 'history' | 'settings'
 const TABS: Array<{ id: Tab; label: string; description: string; group: string }> = [
   { id: 'brief', label: '장면 설정', description: '원하는 장면의 조건을 하나씩 정해 보세요.', group: '첫 프롬프트 만들기' },
   { id: 'refs', label: '참고 이미지', description: '무엇을 참고할 이미지인지 역할을 정해 주세요. 선택 사항이에요.', group: '첫 프롬프트 만들기' },
-  { id: 'prompt', label: '첫 프롬프트', description: '정리된 요청문을 복사해 코딩 AI에 붙여 넣으세요.', group: '첫 프롬프트 만들기' },
+  { id: 'prompt', label: '첫 프롬프트', description: '정리된 요청문을 복사해 사용하는 AI 도구에 붙여 넣으세요.', group: '첫 프롬프트 만들기' },
   { id: 'coach', label: '수정 코치', description: '결과에서 아쉬운 부분을 짚고, 한 가지씩 수정 요청을 만드세요.', group: '결과 다듬기' },
   { id: 'history', label: '수정 기록', description: '어떤 요청이 효과가 있었는지 결과를 비교해 보세요.', group: '결과 다듬기' },
   { id: 'settings', label: '보관 · 설정', description: '프로젝트 이름을 바꾸거나 작업을 파일로 보관하세요.', group: '프로젝트' },
@@ -27,6 +30,7 @@ export function App() {
     return TABS.find(t => t.id === stored)?.id ?? 'brief'
   })
   const heading = useRef<HTMLHeadingElement>(null)
+  const isFree = project?.templateId === 'free-scene'
   const current = TABS.find(t => t.id === tab)!
   useEffect(() => { localStorage.setItem('prompt-coach:tab', tab) }, [tab])
   useEffect(() => { window.scrollTo({ top: 0 }) }, [tab, project?.id])
@@ -72,9 +76,9 @@ export function App() {
             <main className="content" id="main-content" tabIndex={-1}>
               <header className="page-heading"><span className="page-number" aria-hidden="true">{String(TABS.indexOf(current) + 1).padStart(2, '0')}</span><div><h1 ref={heading} tabIndex={-1}>{current.label}</h1><p>{current.description}</p></div></header>
               {error ? <div className="note warn" role="alert">{error}</div> : null}
-              <div hidden={tab !== 'brief'} key={`brief-${project.id}`}><Brief /></div>
+              <div hidden={tab !== 'brief'} key={`brief-${project.id}`}>{isFree ? <FreeBrief onPreview={() => navigate('prompt')} /> : <Brief />}</div>
               {tab === 'refs' && <References />}
-              {tab === 'prompt' && <PromptView onGoBrief={() => navigate('brief')} />}
+              {tab === 'prompt' && (isFree ? <FreePromptView key={project.id} onEdit={() => navigate('brief')} /> : <PromptView onGoBrief={() => navigate('brief')} />)}
               <div hidden={tab !== 'coach'} key={`coach-${project.id}`}><Coach onSaved={() => navigate('history')} /></div>
               {tab === 'history' && <History />}
               {tab === 'settings' && <Settings />}

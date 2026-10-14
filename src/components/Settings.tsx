@@ -22,7 +22,7 @@ export function Settings() {
 
       <section className="card stack">
         <h2>프로젝트 보관 · 내보내기</h2>
-        <p className="small muted">결정, 참고 이미지, 잠금, 수정 기록이 전부 한 파일에 담겨요. 작업을 보관하거나 다른 기기에서 이어갈 때 쓰세요. 시작 화면의 "JSON 열기"로 다시 불러올 수 있어요.</p>
+        <p className="small muted">장면 설명, 설정, 참고 이미지, 유지할 내용, 수정 기록이 전부 한 파일에 담겨요. 작업을 보관하거나 다른 기기에서 이어갈 때 쓰세요. 시작 화면의 "JSON 열기"로 다시 불러올 수 있어요.</p>
         <div className="row">
           <button
             onClick={() => {
@@ -38,7 +38,7 @@ export function Settings() {
       <section className="card stack">
         <h2>장면별 템플릿</h2>
         <p className="small muted">
-          새 프로젝트에서 미니어처 섬이나 제품 연출처럼 만들고 싶은 장면을 골라 시작하세요. 템플릿마다 결정할 항목과 결과를 살펴볼 기준이 준비되어 있어요.
+          이미지·영상·3D 웹 장면을 자유롭게 입력하거나, 미니어처 섬과 제품 연출 예시로 시작할 수 있어요. 장면 설정에서 작성 원칙과 구체적인 예시를 살펴보세요.
         </p>
       </section>
 
