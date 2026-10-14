@@ -4,6 +4,7 @@ import { buildCoachingRequest, coachingSource, createPromptCoaching, isPromptCoa
 import { createFreeBrief } from '../src/lib/free-prompt.ts'
 import type { FreePromptBrief, FreePromptMode } from '../src/lib/free-prompt.ts'
 import type { Reference } from '../src/types.ts'
+import { createGuidedSession, guidedBrief } from '../src/lib/coach-conversation.ts'
 
 const reference: Reference = { id: 'reference-1', role: 'composition', name: 'private-filename.jpg', dataUrl: 'data:image/jpeg;base64,PRIVATE_IMAGE_BYTES', note: '  왼쪽 여백만 참고\n색은 따르지 않기  ' }
 
@@ -136,4 +137,67 @@ test('validator rejects malformed, oversized and misleading imported state', () 
     { ...state, accepted: { text: '완성', source: 'source', acceptedAt: 1, unknown: true } },
   ]
   for (const value of invalid) assert.equal(isPromptCoaching(value), false)
+})
+
+test('legacy coaching state remains valid alongside a fully preserved guided session', () => {
+  const legacy = createPromptCoaching()
+  assert.equal(isPromptCoaching(legacy), true)
+  const brief = createFreeBrief('바다')
+  const session = createGuidedSession(brief, coachingSource(brief, [], []))
+  session.answers.purpose = { status: 'answered', text: '  포트폴리오 표지  ' }
+  session.answers.style = { status: 'deferred', text: '' }
+  session.drafts.style = '  정하지 않은 색\n'
+  const state = { ...legacy, session }
+  const before = JSON.stringify(state)
+  assert.equal(isPromptCoaching(state), true)
+  assert.equal(JSON.stringify(state), before)
+  assert.equal(isPromptCoaching({ ...legacy, session: null }), false)
+  assert.equal(isPromptCoaching({ ...legacy, session: { ...session, source: '' } }), false)
+  assert.equal(isPromptCoaching({ ...legacy, session: { ...session, drafts: { style: 'x'.repeat(5_001) } } }), false)
+  assert.equal(isPromptCoaching(Object.assign(Object.create({ session }), legacy)), false)
+  assert.equal(isPromptCoaching({ ...legacy, [Symbol('hidden')]: true }), false)
+})
+
+test('source snapshots include confirmed and deferred answers in canonical order, excluding unsent state', () => {
+  const brief = createFreeBrief('바다')
+  const legacySource = coachingSource(brief, [], [])
+  const session = createGuidedSession(brief, legacySource)
+  assert.equal(coachingSource(brief, [], [], session), legacySource)
+  session.drafts.style = '보라색일까?'
+  session.completed = true
+  assert.equal(coachingSource(brief, [], [], session), legacySource)
+  session.answers.style = { status: 'deferred', text: '' }
+  const deferredSource = coachingSource(brief, [], [], session)
+  assert.notEqual(deferredSource, legacySource)
+  session.answers.purpose = { status: 'answered', text: '  표지  ' }
+  const answeredSource = coachingSource(brief, [], [], session)
+  assert.notEqual(answeredSource, deferredSource)
+  assert.deepEqual(JSON.parse(answeredSource).guidedAnswers, [
+    { field: 'purpose', status: 'answered', text: '  표지  ' },
+    { field: 'style', status: 'deferred', text: '' },
+  ])
+  assert.equal(coachingSource(brief, [], [], { ...session, drafts: { purpose: '변경 중' }, completed: false }), answeredSource)
+  assert.equal(coachingSource(brief, [], [], { ...session, answers: { purpose: session.answers.purpose, style: session.answers.style } }), answeredSource)
+  assert.notEqual(coachingSource(brief, [], [], { ...session, answers: { ...session.answers, purpose: { status: 'answered', text: '새 목적' } } }), answeredSource)
+  assert.equal(coachingSource(brief, [], [], { ...session, mode: 'web' }), legacySource)
+})
+
+test('handoff includes only confirmed guided text and tells the AI to respect deferred topics', () => {
+  const brief = createFreeBrief('바다')
+  const source = coachingSource(brief, [], [])
+  const session = createGuidedSession(brief, source)
+  session.answers.purpose = { status: 'answered', text: '  포트폴리오 표지  ' }
+  session.answers.style = { status: 'deferred', text: '' }
+  session.drafts.style = '미확정 보라색'
+  session.drafts.details = '아직 보내지 않은 특징'
+  const effective = guidedBrief(brief, session, source)
+  const request = buildCoachingRequest(effective, [], [], session)
+  assert.ok(request.includes('[목적과 보는 사람]\n  포트폴리오 표지  '))
+  assert.ok(request.includes('[사용자가 보류한 주제]\n- 분위기와 표현'))
+  assert.ok(request.includes('임의로 채우거나 같은 주제를 다시 묻지 말고 미정으로'))
+  assert.equal(request.includes(session.drafts.style), false)
+  assert.equal(request.includes(session.drafts.details), false)
+  assert.equal(buildCoachingRequest(effective, [], []).includes('[사용자가 보류한 주제]'), false)
+  assert.equal(buildCoachingRequest({ ...effective, style: '원문에 새로 정한 스타일' }, [], [], session).includes('[사용자가 보류한 주제]'), false)
+  assert.equal(buildCoachingRequest(effective, [], [], { ...session, mode: 'web' }).includes('[사용자가 보류한 주제]'), false)
 })

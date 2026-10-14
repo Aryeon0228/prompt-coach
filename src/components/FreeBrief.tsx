@@ -52,7 +52,7 @@ export function FreeBrief({ onPreview, onRefine }: { onPreview: () => void; onRe
         <div className="row step-actions"><span className="small muted">{i === 0 ? '장면 아이디어만 있어도 시작할 수 있어요.' : '이 항목들이 필요하지 않으면 다음으로 넘어가도 돼요.'}</span>{i < groups.length - 1 ? <button className="secondary" onClick={() => {setOpened(i + 1); requestAnimationFrame(() => document.getElementById(`free-${groups[i + 1].fields[0].id}`)?.focus())}}>다음 조건 →</button> : <button onClick={onPreview} disabled={!brief.idea.trim()}>프롬프트 확인하기 →</button>}</div>
       </div>
     </section>)}
-    <section className="card stack free-coaching-entry"><h2>어떤 조건을 더 정하면 좋을까요?</h2><p className="small muted">지금 쓴 내용을 바탕으로 내 ChatGPT에서 질문을 주고받아요. 무엇이 부족한지, 왜 필요한지 함께 짚어 볼 수 있어요.</p><div className="row"><button onClick={onRefine} disabled={!brief.idea.trim()}>질문으로 구체화하기 →</button><button className="ghost" onClick={onPreview} disabled={!brief.idea.trim()}>지금 내용으로 프롬프트 보기</button></div></section>
+    <section className="card stack free-coaching-entry"><h2>어떤 조건을 더 정하면 좋을까요?</h2><p className="small muted">코칭 시작문을 복사해 본인 ChatGPT나 Claude에서 질문받아 보세요. 필요한 조건과 그 이유를 함께 알아갈 수 있어요. 사이트의 준비된 질문으로 먼저 정리해도 좋아요.</p><div className="row"><button onClick={onRefine} disabled={!brief.idea.trim()}>질문으로 구체화하기 →</button><button className="ghost" onClick={onPreview} disabled={!brief.idea.trim()}>지금 내용으로 프롬프트 보기</button></div></section>
     {!brief.idea.trim() && <p className="small muted" role="status">‘만들고 싶은 장면’을 먼저 한 문장 적어 주세요.</p>}
   </div>
 }

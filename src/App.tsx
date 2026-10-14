@@ -18,7 +18,7 @@ type Tab = 'brief' | 'refs' | 'refine' | 'prompt' | 'coach' | 'history' | 'setti
 const TABS: Array<{ id: Tab; label: string; description: string; group: string }> = [
   { id: 'brief', label: '장면 설정', description: '원하는 장면의 조건을 하나씩 정해 보세요.', group: '첫 프롬프트 만들기' },
   { id: 'refs', label: '참고 이미지', description: '무엇을 참고할 이미지인지 역할을 정해 주세요. 선택 사항이에요.', group: '첫 프롬프트 만들기' },
-  { id: 'refine', label: '질문으로 구체화', description: '내 ChatGPT에서 질문에 답하고, 조건이 필요한 이유를 알아보세요.', group: '첫 프롬프트 만들기' },
+  { id: 'refine', label: '질문으로 구체화', description: '한 번에 하나씩 답하고, 그 조건이 필요한 이유를 알아보세요.', group: '첫 프롬프트 만들기' },
   { id: 'prompt', label: '첫 프롬프트', description: '정리된 요청문을 복사해 사용하는 AI 도구에 붙여 넣으세요.', group: '첫 프롬프트 만들기' },
   { id: 'coach', label: '수정 코치', description: '결과에서 아쉬운 부분을 짚고, 한 가지씩 수정 요청을 만드세요.', group: '결과 다듬기' },
   { id: 'history', label: '수정 기록', description: '어떤 요청이 효과가 있었는지 결과를 비교해 보세요.', group: '결과 다듬기' },

@@ -5,6 +5,7 @@ import vm from 'node:vm'
 import ts from 'typescript'
 import { createPromptCoaching, isPromptCoaching } from '../src/lib/coach-handoff.ts'
 import { createFreeBrief } from '../src/lib/free-prompt.ts'
+import { createGuidedSession } from '../src/lib/coach-conversation.ts'
 import type { Project, TemplateIndexEntry } from '../src/types.ts'
 
 interface TestStore {
@@ -148,4 +149,42 @@ test('an in-progress coaching draft is saved before switching projects and does 
   assert.equal(harness.records.get(first.id)!.promptCoaching!.notes, '첫 프로젝트 메모')
   assert.equal(harness.records.get(second.id)!.promptCoaching!.draft, '다른 초안')
   assert.equal(harness.records.get(second.id)!.promptCoaching!.notes, '')
+})
+
+test('guided answers, deferred drafts and completion survive export, import and project switches', async () => {
+  const original = project()
+  const session = createGuidedSession(original.freeform!, 'the original scene snapshot')
+  session.answers = { purpose: { status: 'answered', text: '  표지용\n큰 여백  ' }, style: { status: 'deferred', text: '' } }
+  session.drafts = { style: '아직 결정하지 않은 빛', subject: '입력 중인 대상' }
+  session.completed = true
+  original.promptCoaching = { ...createPromptCoaching(), session }
+  const harness = storageHarness()
+  await harness.render().importProject(JSON.stringify(original))
+  assert.deepEqual(structuredClone(harness.render().project!.promptCoaching!.session), session)
+  const firstId = harness.render().project!.id
+  harness.render().updateProject(current => ({ ...current, promptCoaching: { ...current.promptCoaching!, session: { ...session, drafts: { ...session.drafts, subject: '방금 더 쓴 답변' } } } }))
+  await harness.render().openProject(null)
+  assert.equal(harness.records.get(firstId)!.promptCoaching!.session!.drafts.subject, '방금 더 쓴 답변')
+  await harness.render().openProject(firstId)
+  const backup = JSON.stringify(harness.render().project)
+  await harness.render().importProject(backup)
+  assert.equal(harness.render().project!.promptCoaching!.session!.drafts.subject, '방금 더 쓴 답변')
+  assert.deepEqual(structuredClone(harness.render().project!.promptCoaching!.session!.answers), session.answers)
+  assert.equal(harness.render().project!.freeform!.purpose, '')
+})
+
+test('malformed guided sessions are rejected before saving imported projects', async () => {
+  const p = project()
+  const session = createGuidedSession(p.freeform!, 'source')
+  const harness = storageHarness()
+  for (const malformed of [
+    { ...session, mode: 'audio' },
+    { ...session, drafts: { purpose: 'x'.repeat(5001) } },
+    { ...session, answers: { idea: { status: 'answered', text: 'unsupported field' } } },
+    { ...session, answers: { purpose: { status: 'answered', text: '' } } },
+    { ...session, answers: { style: { status: 'deferred', text: 'must not become a confirmed condition' } } },
+  ]) {
+    await assert.rejects(harness.render().importProject(JSON.stringify({ ...p, promptCoaching: { ...createPromptCoaching(), session: malformed } })), /코칭 기록의 형식/)
+    assert.equal(harness.records.size, 0)
+  }
 })

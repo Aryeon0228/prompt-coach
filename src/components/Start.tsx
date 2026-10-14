@@ -4,6 +4,7 @@ import type { TemplateIndexEntry } from '../types'
 import { createFreeBrief, type FreePromptMode } from '../lib/free-prompt'
 import { FREE_MODES } from '../lib/free-modes'
 import { useToast } from './ui'
+import { CoachConnection } from './CoachConnection'
 
 export function Start({ onCreated }: { onCreated: () => void }) {
   const { index, projects, createProject, openProject, importProject } = useStore()
@@ -23,10 +24,12 @@ export function Start({ onCreated }: { onCreated: () => void }) {
         <p className="muted">이미지부터 영상, 3D 웹까지. 아이디어를 적고, 필요한 조건을 배우며 요청문을 만들어 보세요.</p>
         <ol className="start-steps" aria-label="사용 흐름">
           <li><span>01</span><div><strong>아이디어 적기</strong><p>만들고 싶은 장면을 자유롭게 적어요.</p></div></li>
-          <li><span>02</span><div><strong>조건 구체화하기</strong><p>예시와 ChatGPT의 질문으로 조건을 더해요.</p></div></li>
+          <li><span>02</span><div><strong>조건 구체화하기</strong><p>내 ChatGPT나 Claude에서 질문에 답하며 조건을 더해요.</p></div></li>
           <li><span>03</span><div><strong>요청문 확인하기</strong><p>AI 도구에 전달하고 결과를 다듬어요.</p></div></li>
         </ol>
       </section>
+
+      <CoachConnection collapsed />
 
       <section className="card stack free-start">
         <div className="section-title"><h2>어떤 장면을 만들고 싶나요?</h2><span className="small muted">한 문장으로 시작해도 좋아요</span></div>

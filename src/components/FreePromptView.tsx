@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { assembleFreePrompt, createFreeBrief, reviewFreeBrief } from '../lib/free-prompt'
-import { coachingSource } from '../lib/coach-handoff'
+import { assembleFreePrompt, reviewFreeBrief } from '../lib/free-prompt'
+import { coachingContext } from '../lib/coaching-context'
 import { useStore } from '../store'
 import { copyText, downloadText, useToast } from './ui'
 import { FREE_MODES } from '../lib/free-modes'
@@ -8,8 +8,7 @@ import { FREE_MODES } from '../lib/free-modes'
 export function FreePromptView({ onEdit, onRefine }: { onEdit: () => void; onRefine: () => void }) {
   const { project, updateProject } = useStore()
   const [lock, setLock] = useState('')
-  const brief = project?.freeform ?? createFreeBrief()
-  const source = coachingSource(brief, project?.references ?? [], project?.locks ?? [])
+  const { brief, source, sessionStale, answerCount } = coachingContext(project ?? { references: [], locks: [] })
   const accepted = project?.promptCoaching?.accepted
   const isStale = Boolean(accepted && accepted.source !== source)
   const [version, setVersion] = useState<'original' | 'coached'>(() => accepted && !isStale ? 'coached' : 'original')
@@ -24,17 +23,18 @@ export function FreePromptView({ onEdit, onRefine }: { onEdit: () => void; onRef
   const mode = FREE_MODES.find(m => m.id === brief.mode)!
 
   return <div className="stack">
-    <div className="note"><b>{mode.label}용 요청문</b> · {showingCoached ? 'ChatGPT에서 다듬고 직접 가져온 프롬프트예요. 정한 조건과 맞는지 읽어 보세요.' : '장면 설정에 쓴 내용을 항목별로 정리했어요. 사용하는 AI 도구에 붙여 넣어 제작을 이어가세요.'}</div>
+    <div className="note"><b>{mode.label}용 요청문</b> · {showingCoached ? '내 AI에서 다듬고 직접 가져온 프롬프트예요. 정한 조건과 맞는지 읽어 보세요.' : answerCount ? `장면 설정과 질문에 저장한 답변 ${answerCount}개를 함께 정리했어요. AI가 다시 쓴 문장은 아니에요.` : '장면 설정에 쓴 내용을 항목별로 정리했어요. 사용하는 AI 도구에 붙여 넣어 제작을 이어가세요.'}</div>
+    {sessionStale && <div className="note warn stack" role="status"><p>장면이 바뀌어 이전 질문 답변은 제외했어요. 원래 답변은 보관되어 있습니다.</p><button className="secondary" onClick={onRefine}>질문 답변 확인하기 →</button></div>}
     {accepted ? <>
       <div className="tabs prompt-version-tabs" role="group" aria-label="프롬프트 버전">
         <button className={!showingCoached ? 'on' : ''} aria-pressed={!showingCoached} onClick={() => setVersion('original')}>직접 작성한 내용</button>
         <button className={showingCoached ? 'on' : ''} aria-pressed={showingCoached} onClick={() => setVersion('coached')}>코칭으로 다듬은 내용</button>
       </div>
       {isStale && <div className="note warn stack" role="status"><p>장면 설정·참고 이미지·유지할 내용이 바뀌었어요. 이전 코칭 프롬프트는 보관되어 있으니, 현재 조건과 비교한 뒤 다시 적용해 주세요.</p><button className="secondary" onClick={onRefine}>코칭 내용 다시 확인하기 →</button></div>}
-    </> : <div className="row"><p className="small muted grow">더 구체화하고 싶다면, 내 ChatGPT에서 부족한 조건을 함께 짚어 보세요.</p><button className="secondary" onClick={onRefine} disabled={!brief.idea.trim()}>질문으로 구체화하기 →</button></div>}
+    </> : <div className="row"><p className="small muted grow">본인 ChatGPT나 Claude에서 부족한 부분을 함께 짚거나, 사이트의 준비된 질문으로 조건을 더해 보세요.</p><button className="secondary" onClick={onRefine} disabled={!brief.idea.trim()}>질문으로 구체화하기 →</button></div>}
     <details className="card prompt-review" open={!brief.idea.trim()}>
       <summary>{showingCoached ? '처음 작성한 조건 확인' : '보내기 전, 조건 확인'} <span className="small muted">{missing.length ? `비워 둔 항목 ${missing.length}개` : '모든 항목에 입력이 있어요'}</span></summary>
-      <p className="small muted">장면 설정의 입력 여부를 확인하는 목록이에요. 코칭 결과의 정확성이나 완성도 점수가 아니며, 필요한 항목만 채우면 됩니다.</p>
+      <p className="small muted">장면 설정과 저장한 답변의 입력 여부를 확인해요. 코칭 결과의 정확성이나 완성도 점수가 아니며, 필요한 항목만 채우면 됩니다.</p>
       <ul>{checks.map(check => <li key={check.id}><span aria-label={check.filled ? '입력 있음' : '비워 둠'}>{check.filled ? '✓' : '○'}</span><div><strong>{check.label}</strong><p className="small muted">{check.hint}</p></div></li>)}</ul>
       <button className="secondary" onClick={onEdit}>장면 설정 보기 →</button>
     </details>

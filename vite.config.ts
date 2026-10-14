@@ -20,7 +20,11 @@ export default defineConfig({
         theme_color: '#000000',
         icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
       },
-      workbox: { globPatterns: ['**/*.{js,css,html,svg,json}'] },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,json}'],
+        // Connection addresses must reflect the current deployment, even in installed apps.
+        globIgnores: ['**/coach-connection.json'],
+      },
     }),
   ],
 })
