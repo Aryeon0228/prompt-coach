@@ -129,7 +129,12 @@ export type DecisionState = 'set' | 'delegate' | 'unknown'
 export interface DecisionAnswer {
   state: DecisionState
   value?: string | string[]
+  /** free text the student wrote instead of (choice) or on top of (multi) the preset options */
+  custom?: string
 }
+
+/** the value a choice decision takes when the student writes their own answer */
+export const CUSTOM = '__custom'
 
 export interface Reference {
   id: string

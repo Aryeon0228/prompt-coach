@@ -1,6 +1,6 @@
 import { answerFor, groupDecisions, undecided } from '../lib/assemble'
 import { useStore } from '../store'
-import type { Decision, DecisionAnswer, DecisionState } from '../types'
+import { CUSTOM, type Decision, type DecisionAnswer, type DecisionState } from '../types'
 import { Segmented } from './ui'
 
 /**
@@ -58,11 +58,17 @@ export function Brief() {
                 {a.state === 'set' && d.kind === 'choice' && (
                   <div className="choices">
                     {d.options!.map((o) => (
-                      <button key={o.value} className={`choice ${a.value === o.value ? 'on' : ''}`} onClick={() => set(d, { state: 'set', value: o.value })} title={o.text.ko}>
+                      <button key={o.value} className={`choice ${a.value === o.value ? 'on' : ''}`} onClick={() => set(d, { state: 'set', value: o.value, custom: a.custom })} title={o.text.ko}>
                         {o.label}
                       </button>
                     ))}
+                    <button className={`choice ${a.value === CUSTOM ? 'on' : ''}`} onClick={() => set(d, { state: 'set', value: CUSTOM, custom: a.custom ?? '' })}>
+                      직접 쓰기
+                    </button>
                   </div>
+                )}
+                {a.state === 'set' && d.kind === 'choice' && a.value === CUSTOM && (
+                  <CustomBox d={d} value={a.custom ?? ''} onChange={(custom) => set(d, { ...a, custom })} />
                 )}
                 {a.state === 'set' && d.kind === 'multi' && (
                   <div className="choices">
@@ -76,7 +82,13 @@ export function Brief() {
                         </button>
                       )
                     })}
+                    <button className={`choice ${a.custom !== undefined ? 'on' : ''}`} onClick={() => set(d, { ...a, state: 'set', custom: a.custom === undefined ? '' : undefined })}>
+                      {a.custom !== undefined ? '✓ ' : ''}직접 덧붙이기
+                    </button>
                   </div>
+                )}
+                {a.state === 'set' && d.kind === 'multi' && a.custom !== undefined && (
+                  <CustomBox d={d} value={a.custom} onChange={(custom) => set(d, { ...a, custom })} />
                 )}
                 {a.state === 'set' && d.kind === 'text' && (
                   <textarea value={typeof a.value === 'string' ? a.value : ''} placeholder={d.placeholder} onChange={(e) => set(d, { state: 'set', value: e.target.value })} />
@@ -88,6 +100,16 @@ export function Brief() {
           })}
         </section>
       ))}
+    </div>
+  )
+}
+
+/** The student's own words for a decision; they go into the prompt as "<decision>: <text>". */
+function CustomBox({ d, value, onChange }: { d: Decision; value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="stack" style={{ gap: 4 }}>
+      <textarea value={value} placeholder="원하는 걸 자유롭게 적어 주세요. 쓴 그대로 프롬프트에 들어가요." onChange={(e) => onChange(e.target.value)} />
+      <span className="small muted">프롬프트에는 "{d.label}: (적은 내용)"으로 들어가요. 한국어로 써도 괜찮아요.</span>
     </div>
   )
 }

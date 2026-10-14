@@ -1,4 +1,4 @@
-import type { Decision, DecisionAnswer, Iteration, Localized, Project, Template } from '../types'
+import { CUSTOM, type Decision, type DecisionAnswer, type Iteration, type Localized, type Project, type Template } from '../types'
 
 type Lang = 'en' | 'ko'
 
@@ -22,10 +22,21 @@ export function answerFor(d: Decision, p: Project): DecisionAnswer {
   return p.decisions[d.id] ?? { state: 'set', value: d.default ?? (d.kind === 'multi' ? [] : d.kind === 'text' ? '' : d.options?.[0]?.value) }
 }
 
+/** Free text the student wrote, phrased as "<decision>: <text>" so the AI knows what it answers. */
+function customText(d: Decision, a: DecisionAnswer, lang: Lang): string | null {
+  const v = a.custom?.trim()
+  if (!v) return null
+  const label = lang === 'en' ? d.labelEn ?? d.label : d.label
+  // end the sentence so it does not run into the next option's text
+  const end = /[.!?。]$/.test(v) ? '' : '.'
+  return `${label.charAt(0).toUpperCase() + label.slice(1)}: ${v}${end}`
+}
+
 /** What one decision says to the AI (null when it says nothing yet). */
 export function decisionText(d: Decision, a: DecisionAnswer, lang: Lang): string | null {
   if (a.state === 'delegate') return (d.delegateText ?? DELEGATE)[lang]
   if (a.state === 'unknown') return null
+  if (d.kind === 'choice' && a.value === CUSTOM) return customText(d, a, lang)
   if (d.kind === 'text') {
     const v = typeof a.value === 'string' ? a.value.trim() : ''
     if (!v) return null
@@ -34,6 +45,8 @@ export function decisionText(d: Decision, a: DecisionAnswer, lang: Lang): string
   if (d.kind === 'multi') {
     const vals = Array.isArray(a.value) ? a.value : []
     const texts = vals.map((v) => d.options?.find((o) => o.value === v)?.text[lang]).filter(Boolean)
+    const extra = customText(d, a, lang)
+    if (extra) texts.push(extra)
     return texts.length ? texts.join(' ') : null
   }
   const o = d.options?.find((x) => x.value === a.value)
@@ -47,7 +60,8 @@ export function undecided(t: Template, p: Project) {
     if (a.state === 'unknown') return true
     // an empty optional free-text field is not a missing decision
     if (a.state === 'set' && d.kind === 'text') return d.importance !== 'nice' && !(typeof a.value === 'string' && a.value.trim())
-    if (a.state === 'set' && d.kind === 'multi') return !(Array.isArray(a.value) && a.value.length)
+    if (a.state === 'set' && d.kind === 'multi') return !(Array.isArray(a.value) && a.value.length) && !a.custom?.trim()
+    if (a.state === 'set' && d.kind === 'choice' && a.value === CUSTOM) return !a.custom?.trim()
     return false
   })
 }
