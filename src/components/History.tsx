@@ -20,7 +20,7 @@ export function History() {
       {stats.total > 0 && (
         <section className="card stack">
           <div className="section-title">
-            <h2>자주 틀리는 패턴</h2>
+            <h2>자주 수정한 부분</h2>
             <span className="small muted">
               수정 요청 {stats.total}회 · 해결 {stats.resolved}회
             </span>
@@ -47,7 +47,7 @@ export function History() {
       )}
 
       {project.iterations.length === 0 && (
-        <div className="note">아직 기록이 없어요. "코치" 탭에서 수정 프롬프트를 만들면 여기에 쌓이고, 몇 번 쌓이면 자주 틀리는 패턴을 보여 줘요.</div>
+        <div className="note">아직 기록이 없어요. "수정 코치"에서 수정 프롬프트를 만들면 여기에 쌓이고, 몇 번 쌓이면 자주 수정한 부분을 보여 줘요.</div>
       )}
 
       {[...project.iterations].reverse().map((it, idx) => {
@@ -71,7 +71,7 @@ export function History() {
                 <div className="row" style={{ justifyContent: 'space-between' }}>
                   <div className="stars" aria-label="결과 만족도">
                     {[1, 2, 3, 4, 5].map((k) => (
-                      <button key={k} className={(it.rating ?? 0) >= k ? 'on' : ''} aria-label={`${k}점`} onClick={() => updateProject((p) => ({ ...p, iterations: p.iterations.map((x) => (x.id === it.id ? { ...x, rating: k } : x)) }))}>
+                      <button key={k} aria-pressed={it.rating === k} className={(it.rating ?? 0) >= k ? 'on' : ''} aria-label={`${k}점`} onClick={() => updateProject((p) => ({ ...p, iterations: p.iterations.map((x) => (x.id === it.id ? { ...x, rating: k } : x)) }))}>
                         ★
                       </button>
                     ))}

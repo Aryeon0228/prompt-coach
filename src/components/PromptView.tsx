@@ -20,7 +20,7 @@ export function PromptView({ onGoBrief }: { onGoBrief: () => void }) {
             <b>아직 정하지 않은 항목 {missing.length}개</b>: {missing.map((d) => d.label).join(', ')}
           </span>
           <button className="secondary" onClick={onGoBrief}>
-            결정하러 가기
+            장면 설정으로
           </button>
         </div>
       )}
@@ -45,14 +45,14 @@ export function PromptView({ onGoBrief }: { onGoBrief: () => void }) {
         </div>
         {project.locks.map((l, i) => (
           <div className="row" key={i} style={{ justifyContent: 'space-between' }}>
-            <span>🔒 {l}</span>
+            <span>잠금 · {l}</span>
             <button className="ghost" onClick={() => updateProject((p) => ({ ...p, locks: p.locks.filter((_, k) => k !== i) }))}>
               해제
             </button>
           </div>
         ))}
         <div className="row">
-          <input type="text" value={lock} placeholder="예: 섬의 색과 야자수 모양" onChange={(e) => setLock(e.target.value)} style={{ flex: 1, minWidth: 200 }} />
+          <input type="text" aria-label="유지할 내용" value={lock} placeholder="예: 섬의 색과 야자수 모양" onChange={(e) => setLock(e.target.value)} style={{ flex: 1, minWidth: 200 }} />
           <button
             className="secondary"
             disabled={!lock.trim()}

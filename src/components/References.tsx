@@ -45,14 +45,14 @@ export function References() {
               <span className="num">{i + 1}</span>
               <img src={r.dataUrl} alt={r.name} />
             </div>
-            <select value={r.role} onChange={(e) => updateProject((p) => ({ ...p, references: p.references.map((x) => (x.id === r.id ? { ...x, role: e.target.value } : x)) }))}>
+            <select aria-label={`참고 이미지 ${i + 1}의 역할`} value={r.role} onChange={(e) => updateProject((p) => ({ ...p, references: p.references.map((x) => (x.id === r.id ? { ...x, role: e.target.value } : x)) }))}>
               {template.referenceRoles.map((role) => (
                 <option key={role.id} value={role.id}>
                   {role.label}
                 </option>
               ))}
             </select>
-            <input type="text" placeholder="메모 (예: 구름 모양만)" value={r.note ?? ''} onChange={(e) => updateProject((p) => ({ ...p, references: p.references.map((x) => (x.id === r.id ? { ...x, note: e.target.value } : x)) }))} />
+            <input aria-label={`참고 이미지 ${i + 1} 메모`} type="text" placeholder="메모 (예: 구름 모양만)" value={r.note ?? ''} onChange={(e) => updateProject((p) => ({ ...p, references: p.references.map((x) => (x.id === r.id ? { ...x, note: e.target.value } : x)) }))} />
             <div className="row" style={{ padding: '0 8px', justifyContent: 'space-between' }}>
               <span className="small muted" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 90 }}>
                 {r.name}

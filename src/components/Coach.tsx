@@ -8,17 +8,17 @@ import { PromptBox, useToast } from './ui'
 
 type Step = 'shot' | 'where' | 'what' | 'how' | 'compare' | 'result'
 const STEPS: Array<{ id: Step; label: string }> = [
-  { id: 'shot', label: '① 결과 화면' },
-  { id: 'where', label: '② 어디가' },
-  { id: 'what', label: '③ 무엇이' },
-  { id: 'how', label: '④ 어떻게' },
-  { id: 'compare', label: '⑤ 참고와 비교' },
-  { id: 'result', label: '⑥ 수정 프롬프트' },
+  { id: 'shot', label: '결과 화면' },
+  { id: 'where', label: '어디가' },
+  { id: 'what', label: '무엇이' },
+  { id: 'how', label: '어떻게' },
+  { id: 'compare', label: '참고와 비교' },
+  { id: 'result', label: '수정 프롬프트' },
 ]
 
 /**
  * The coach turns "something looks off" into a precise fix request: point at it, pick the
- * category, pick the symptom, say how it differs from the reference. The student never has to
+ * category, pick the symptom, say how it differs from the reference. The user never has to
  * find the technical word — the template carries it.
  */
 export function Coach({ onSaved }: { onSaved: () => void }) {
@@ -35,6 +35,14 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
   const [referenceId, setReferenceId] = useState('')
   const [note, setNote] = useState('')
   const [query, setQuery] = useState('')
+  const [dictionaryChoice, setDictionaryChoice] = useState(false)
+
+  // The feel dictionary turns familiar words into more specific symptoms.
+  const hits = useMemo(() => {
+    const q = query.trim()
+    if (!q || !template) return []
+    return template.feelDictionary.filter((f) => f.phrase.includes(q) || q.includes(f.phrase) || f.term.includes(q)).slice(0, 6)
+  }, [query, template])
 
   if (!project || !template) return null
   const category = template.diagnosis.find((c) => c.id === categoryId)
@@ -45,19 +53,13 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
   const en = symptom ? assembleFix(template, project, draft, 'en') : ''
   const ko = symptom ? assembleFix(template, project, draft, 'ko') : ''
 
-  // the feel dictionary: lay words → symptoms
-  const hits = useMemo(() => {
-    const q = query.trim()
-    if (!q) return []
-    return template.feelDictionary.filter((f) => f.phrase.includes(q) || q.includes(f.phrase) || f.term.includes(q)).slice(0, 6)
-  }, [query, template])
-
   const pickSymptom = (sid: string) => {
     const cat = template.diagnosis.find((c) => c.symptoms.some((s) => s.id === sid))
     if (!cat) return
     setCategoryId(cat.id)
     setSymptomId(sid)
-    setStep('compare')
+    setDictionaryChoice(!finalTarget)
+    setStep(finalTarget ? 'compare' : 'where')
   }
 
   const save = () => {
@@ -85,18 +87,20 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
 
   return (
     <div className="stack">
-      <div className="steps" aria-label="진단 단계">
+      <ol className="steps" aria-label="수정 프롬프트 만들기 단계">
         {STEPS.map((s, i) => (
-          <span key={s.id} className={s.id === step ? 'on' : i < stepIndex ? 'done' : ''}>
-            {s.label}
-          </span>
+          <li key={s.id} className={s.id === step ? 'on' : i < stepIndex ? 'done' : ''} aria-current={s.id === step ? 'step' : undefined}>
+            <span className="step-number" aria-hidden="true">{i + 1}</span>
+            <span className="step-label">{s.label}</span>
+            {i < stepIndex && <span className="sr-only"> · 지난 단계</span>}
+          </li>
         ))}
-      </div>
+      </ol>
 
       {step === 'shot' && (
         <section className="card stack">
           <h2>결과 화면을 올려 주세요</h2>
-          <p className="small muted">코딩 AI가 만든 화면을 캡처해서 올려 주세요. 없어도 진행할 수 있지만, 있으면 어디가 이상한지 손가락으로 바로 짚을 수 있어요.</p>
+          <p className="small muted">화면을 올리면 고칠 부분을 직접 표시할 수 있어요. 이미지 없이도 시작할 수 있습니다.</p>
           <label className="upload">
             <input
               type="file"
@@ -116,36 +120,42 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
             />
             <span>+ 스크린샷 선택</span>
           </label>
-          <div className="card stack" style={{ background: 'var(--pale)' }}>
-            <b className="small">느낌 사전: 말로 먼저 찾아보기</b>
-            <input type="text" placeholder="예: 플라스틱 같아요 / 밋밋해요 / 가짜 같아요" value={query} onChange={(e) => setQuery(e.target.value)} />
-            {hits.length > 0 && (
-              <div className="stack" style={{ gap: 6 }}>
-                {hits.map((h) => (
-                  <div key={h.phrase} className="row" style={{ justifyContent: 'space-between' }}>
-                    <span className="small">
-                      "{h.phrase}" → <b>{h.term}</b>
-                    </span>
-                    <div className="row">
-                      {h.symptoms.map((sid) => {
-                        const s = template.diagnosis.flatMap((c) => c.symptoms).find((x) => x.id === sid)
-                        return s ? (
-                          <button key={sid} className="secondary" style={{ minHeight: 34, padding: '4px 10px', fontSize: 13 }} onClick={() => pickSymptom(sid)}>
-                            {s.label}
-                          </button>
-                        ) : null
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="row">
+          <div className="row step-actions">
             <button className="secondary" onClick={() => setStep('where')}>
-              스크린샷 없이 진행하기
+              이미지 없이 시작하기
             </button>
           </div>
+          <details className="feel-dictionary">
+            <summary>무엇이 어색한지 말로 찾고 싶다면</summary>
+            <div className="stack">
+              <label className="stack">
+                <span className="small muted">느낌 사전</span>
+                <input type="search" placeholder="예: 플라스틱 같아요 / 밋밋해요" value={query} onChange={(e) => setQuery(e.target.value)} />
+              </label>
+              {hits.length > 0 && (
+                <div className="stack" aria-live="polite">
+                  {hits.map((h) => (
+                    <div key={h.phrase} className="row" style={{ justifyContent: 'space-between' }}>
+                      <span className="small">
+                        "{h.phrase}" → <b>{h.term}</b>
+                      </span>
+                      <div className="row">
+                        {h.symptoms.map((sid) => {
+                          const s = template.diagnosis.flatMap((c) => c.symptoms).find((x) => x.id === sid)
+                          return s ? (
+                            <button key={sid} className="secondary" onClick={() => pickSymptom(sid)}>
+                              {s.label}
+                            </button>
+                          ) : null
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {query.trim() && hits.length === 0 && <p className="small muted" role="status">맞는 표현이 없어요. 다른 말로 검색하거나, 이미지 없이 시작해 하나씩 골라 보세요.</p>}
+            </div>
+          </details>
         </section>
       )}
 
@@ -158,23 +168,35 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
               <RegionPicker src={shot} region={region} onChange={setRegion} />
             </>
           ) : null}
-          <p className="small muted">거기에 있는 게 뭔가요?</p>
-          <div className="choices">
+          <p className="small muted" id="coach-target-label">고칠 대상을 하나 골라 주세요.</p>
+          <div className="choices" role="group" aria-labelledby="coach-target-label">
             {template.targets.map((t) => (
-              <button key={t.ko} className={`choice ${target === t.ko ? 'on' : ''}`} onClick={() => setTarget(t.ko)}>
+              <button key={t.ko} className={`choice ${target === t.ko ? 'on' : ''}`} aria-pressed={target === t.ko} onClick={() => setTarget(t.ko)}>
                 {t.ko}
               </button>
             ))}
-            <button className={`choice ${target === '__custom' ? 'on' : ''}`} onClick={() => setTarget('__custom')}>
+            <button className={`choice ${target === '__custom' ? 'on' : ''}`} aria-pressed={target === '__custom'} onClick={() => setTarget('__custom')}>
               직접 쓰기
             </button>
           </div>
-          {target === '__custom' && <input type="text" placeholder="예: 왼쪽 위 바위" value={customTarget} onChange={(e) => setCustomTarget(e.target.value)} />}
-          <div className="row">
+          {target === '__custom' && (
+            <label className="stack">
+              <span className="small muted">고칠 대상</span>
+              <input type="text" placeholder="예: 왼쪽 위 바위" value={customTarget} onChange={(e) => setCustomTarget(e.target.value)} />
+            </label>
+          )}
+          <div className="row step-actions">
             <button className="secondary" onClick={() => setStep('shot')}>
               뒤로
             </button>
-            <button disabled={!finalTarget} onClick={() => setStep('what')}>
+            <button
+              className="primary"
+              disabled={!finalTarget}
+              onClick={() => {
+                setStep(dictionaryChoice ? 'compare' : 'what')
+                setDictionaryChoice(false)
+              }}
+            >
               다음
             </button>
           </div>
@@ -184,12 +206,13 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
       {step === 'what' && (
         <section className="card stack">
           <h2>무엇이 문제인가요?</h2>
-          <p className="small muted">하나만 고르세요. 두 가지가 다 거슬리면 두 번에 나눠서 요청하세요. 한 번에 하나씩 고쳐야 AI가 다른 데를 건드리지 않아요.</p>
-          <div className="symptom-list">
+          <p className="small muted">먼저 고칠 문제를 하나 골라 주세요. 한 번에 하나씩 요청하면 바뀐 결과를 비교하기 쉬워요.</p>
+          <div className="symptom-list category-grid">
             {template.diagnosis.map((c) => (
               <button
                 key={c.id}
                 className={`choice big ${categoryId === c.id ? 'on' : ''}`}
+                aria-pressed={categoryId === c.id}
                 onClick={() => {
                   setCategoryId(c.id)
                   setSymptomId('')
@@ -201,7 +224,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
               </button>
             ))}
           </div>
-          <div className="row">
+          <div className="row step-actions">
             <button className="secondary" onClick={() => setStep('where')}>
               뒤로
             </button>
@@ -217,11 +240,11 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
               <SymptomButton key={s.id} s={s} on={symptomId === s.id} onPick={() => setSymptomId(s.id)} />
             ))}
           </div>
-          <div className="row">
+          <div className="row step-actions">
             <button className="secondary" onClick={() => setStep('what')}>
               뒤로
             </button>
-            <button disabled={!symptomId} onClick={() => setStep('compare')}>
+            <button className="primary" disabled={!symptomId} onClick={() => setStep('compare')}>
               다음
             </button>
           </div>
@@ -231,12 +254,12 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
       {step === 'compare' && (
         <section className="card stack">
           <h2>참고 이미지와 비교하면 어떤가요?</h2>
-          <p className="small muted">건너뛰어도 되지만, "참고 이미지 N처럼"이라는 한마디가 붙으면 AI가 훨씬 정확하게 잡아요.</p>
+          <p className="small muted">참고 이미지와 다른 점을 더할 수 있어요. 선택하지 않아도 다음으로 넘어갈 수 있습니다.</p>
           {project.references.length > 0 ? (
             <>
               <div className="choices">
                 {project.references.map((r, i) => (
-                  <button key={r.id} className={`choice ${referenceId === r.id ? 'on' : ''}`} onClick={() => setReferenceId(referenceId === r.id ? '' : r.id)} style={{ padding: 4 }}>
+                  <button key={r.id} className={`choice ${referenceId === r.id ? 'on' : ''}`} aria-label={`참고 이미지 ${i + 1}`} aria-pressed={referenceId === r.id} onClick={() => setReferenceId(referenceId === r.id ? '' : r.id)} style={{ padding: 4 }}>
                     <img src={r.dataUrl} alt="" style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 6, display: 'block' }} />
                     <span className="small">#{i + 1}</span>
                   </button>
@@ -245,24 +268,24 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
               <p className="small muted">참고와 가장 다른 점을 하나만 고르면:</p>
               <div className="choices">
                 {template.compareAxes.map((a) => (
-                  <button key={a.id} className={`choice ${compareId === a.id ? 'on' : ''}`} onClick={() => setCompareId(compareId === a.id ? '' : a.id)}>
+                  <button key={a.id} className={`choice ${compareId === a.id ? 'on' : ''}`} aria-pressed={compareId === a.id} onClick={() => setCompareId(compareId === a.id ? '' : a.id)}>
                     {a.label}
                   </button>
                 ))}
               </div>
             </>
           ) : (
-            <p className="small muted">참고 이미지가 없어요. "참고" 탭에서 추가하면 여기서 비교할 수 있어요.</p>
+            <p className="small muted">참고 이미지가 없어요. "참고 이미지"에서 추가하면 여기서 비교할 수 있어요.</p>
           )}
           <label className="stack" style={{ gap: 6 }}>
             <span className="small muted">덧붙일 말 (선택). 구체적인 수치나 예시가 있으면 적어 주세요.</span>
             <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="예: 바위 높이는 지금의 절반 정도면 좋겠어" />
           </label>
-          <div className="row">
+          <div className="row step-actions">
             <button className="secondary" onClick={() => setStep('how')}>
               뒤로
             </button>
-            <button onClick={() => setStep('result')}>프롬프트 만들기</button>
+            <button className="primary" onClick={() => setStep('result')}>프롬프트 만들기</button>
           </div>
         </section>
       )}
@@ -278,11 +301,11 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
             </div>
           ) : null}
           <PromptBox en={en} ko={ko} filename={`${project.name}-fix-${project.iterations.length + 1}.txt`} />
-          <div className="row">
+          <div className="row step-actions">
             <button className="secondary" onClick={() => setStep('compare')}>
               뒤로
             </button>
-            <button onClick={save}>기록에 저장하고 다음으로</button>
+            <button className="primary" onClick={save}>기록에 저장</button>
           </div>
         </section>
       )}
@@ -293,7 +316,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
 function SymptomButton({ s, on, onPick }: { s: Symptom; on: boolean; onPick: () => void }) {
   return (
     <div className="stack" style={{ gap: 6 }}>
-      <button className={`choice big ${on ? 'on' : ''}`} onClick={onPick}>
+      <button className={`choice big ${on ? 'on' : ''}`} aria-pressed={on} onClick={onPick}>
         {s.label}
         {s.hint ? <span className="hint">{s.hint}</span> : null}
       </button>
