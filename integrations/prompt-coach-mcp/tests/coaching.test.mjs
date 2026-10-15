@@ -34,10 +34,13 @@ test('main coaching instructions require contextual questions, reasons, deferral
 
 test('setup uses chat while app compatibility is unresolved and keeps explicit screen requests available', () => {
   for (const instructions of [COACHING_INSTRUCTIONS, ...MODE_VALUES.map(medium => getGuide(medium).entryFlow)]) {
-    for (const rule of ['기본 코칭 시작은 현재 AI 대화에서 일반 채팅', '명시적으로 요청한 경우에만', '호환 확인 중', 'open_prompt_coach', 'show_prompt_coach', '시작 메뉴나 갈림길을 제안하지 마세요', '규칙 검토를 명시적으로 요청한 경우에만', '매체만 빠졌다면 이미지·영상·3D 웹 중 원하는 종류만 물으세요', '일반 채팅 코칭', '복사·붙여넣기나 홈페이지 방문을 요구하지 마세요', '자동 전송·저장·동기화되는 연결은 아닙니다']) assert.ok(instructions.includes(rule), rule);
+    for (const rule of ['기본 코칭 시작은 현재 AI 대화에서 일반 채팅', '명시적으로 요청한 경우에만', '호환 확인 중', 'open_prompt_coach', 'show_prompt_coach', '시작 메뉴나 갈림길을 제안하지 마세요', '규칙 검토를 명시적으로 요청한 경우에만', '번호나 이름으로 답하거나 원하는 경험을 자유롭게 설명해도', '일반 채팅 코칭', '복사·붙여넣기나 홈페이지 방문을 요구하지 마세요', '자동 전송·저장·동기화되는 연결은 아닙니다']) assert.ok(instructions.includes(rule), rule);
     assert.equal(instructions.includes('웹에서 장면 작성하기'), false);
   }
   assert.ok(COACHING_INSTRUCTIONS.includes(ENTRY_FLOW_INSTRUCTIONS));
+  assert.ok(COACHING_INSTRUCTIONS.includes('실제 코치 화면에서 진행 중일 때만 show_prompt_coach'));
+  assert.ok(COACHING_INSTRUCTIONS.includes('일반 채팅을 마무리하기 위해 코치 화면을 새로 열거나 화면의 확정 버튼을 요구하지 마세요'));
+  assert.ok(COACHING_INSTRUCTIONS.includes('충분히 구체적이면 검토본을 보여 확인받으세요'));
   for (const text of ['코칭 시작하기 — 장면 입력·질문·답변', '홈페이지 도움말', '같은 대화', '홈페이지와 자동으로 동기화되지', '대화를 서버에 저장하지']) assert.ok(COACH_USAGE_GUIDE.includes(text), text);
   assert.equal(COACH_USAGE_GUIDE.includes('state'), false, 'user help does not expose internal host instructions');
   assert.equal(COACH_USAGE_GUIDE.includes('show_prompt_coach'), false);

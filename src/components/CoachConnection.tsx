@@ -90,12 +90,12 @@ export function CoachConnection({ collapsed = false, setupOnly = false }: { coll
           <p className="small muted">사용법은 이 홈페이지의 도움말에서 확인하세요. 예전 ‘사용 방법 보기’나 ‘coaching-rules’가 남아 있다면 연결 목록을 새로 고치고 새 대화에서 시작하세요.</p>
         </div>
         <details className="coach-connection-desktop">
-          <summary>Medium · Idea 입력창이 뜬다면</summary>
+          <summary>코칭은 이렇게 시작해요</summary>
           <div className="stack small">
-            <p><b>Medium은 만들 결과물</b>이에요. 3D 웹 장면은 <code>web</code>, 한 장의 이미지는 <code>image</code>, 영상은 <code>video</code>를 입력하세요.</p>
-            <p><b>Idea는 장면 아이디어</b>예요. 한국어로 적어도 괜찮아요.<br />예: “유리구 속 작은 섬을 드래그해서 둘러보는 3D 웹 장면을 만들고 싶어.”</p>
-            <p>입력 후 <b>프롬프트 추가</b>를 누르면 채팅창에 요청문이 들어가요. 이어서 <b>메시지를 전송</b>해야 코칭이 시작됩니다.</p>
-            <p className="muted">입력창이 불편하면 닫고, 대화에 “프롬프트 코치로 3D 웹 장면 만들기를 도와줘”라고 말해도 돼요. 이어서 원하는 장면을 설명하세요.</p>
+            <p><b>코칭 시작하기</b>를 추가하고 메시지를 보내세요. AI가 결과물 종류를 물으면 번호나 한국어로 골라 주세요.</p>
+            <p><b>① 2D 이미지</b> — 한 장의 그림 · 3D 제작 전 참고 이미지<br /><b>② 3D 웹</b> — 회전·클릭하며 살펴보는 장면</p>
+            <p>장면은 평소 쓰는 <b>채팅 입력칸</b>에 자유롭게 적으세요.<br />예: “유리구 속 작은 섬을 드래그해서 둘러보고 싶어.”<br />이미 종류와 장면을 말했다면 바로 다음 질문으로 이어가요. 영상을 원하면 그렇게 말해도 돼요.</p>
+            <p className="muted">예전 Medium · Idea 입력칸이 보이면 연결 목록을 새로 고치고 새 대화에서 시작하세요. 메뉴를 쓰지 않고 “프롬프트 코치로 3D 웹 장면 만들기를 도와줘”라고 말해도 됩니다.</p>
           </div>
         </details>
         <p className="small muted coach-connection-account-note">{!setupOnly && <>본인 AI 계정의 이용 한도가 적용돼요. </>}계정·조직에 따라 연결 메뉴나 MCP 도구를 지원하지 않을 수 있어요. 연결 메뉴가 없다면 코칭 요청문으로 대화를 이어갈 수 있습니다.</p>

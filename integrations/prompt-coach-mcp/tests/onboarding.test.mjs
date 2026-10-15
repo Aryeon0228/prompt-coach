@@ -36,7 +36,7 @@ test('distinguishes registration from tool success and prepares contextual coach
   assert.match(result, /MCP 재연결·새 대화·재시작/);
   assert.match(result, /모든 앱을 완전히 종료해야 한다고 단정하지 마세요/);
   assert.match(result, /로컬 명령을 실행할 수 없다면 위 CLI 명령을 실행했다고 말하지/);
-  assert.match(result, /매체만 빠졌다면 이미지·영상·3D 웹 중 원하는 종류만 물으세요/);
+  assert.match(result, /번호나 이름으로 답하거나 원하는 경험을 자유롭게 설명해도/);
   assert.match(result, /get_prompt_coaching_guide/);
   assert.match(result, /정상 결과를 확인한 뒤에만/);
   assert.match(result, /한 번에 질문 하나만/);

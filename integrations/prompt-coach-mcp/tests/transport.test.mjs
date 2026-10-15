@@ -124,8 +124,8 @@ test('stdio SDK initializes, lists and executes tools, prompts and resources', {
 
   const { prompts } = await client.listPrompts();
   assert.deepEqual(prompts.map(({ name }) => name), ['coach-scene']);
-  const prompt = await client.getPrompt({ name: 'coach-scene', arguments: { medium: 'web', idea: '드래그하면 회전하는 유리 정원' } });
-  assert.match(prompt.messages[0].content.text, /드래그하면 회전하는 유리 정원/);
+  const prompt = await client.getPrompt({ name: 'coach-scene', arguments: {} });
+  assert.match(prompt.messages[0].content.text, /② 3D 웹/);
   assert.match(prompt.messages[0].content.text, /get_prompt_coaching_guide/);
   const { resources } = await client.listResources();
   assert.ok(resources.every(({ uri }) => uri.startsWith('ui://prompt-coach/')), 'Only app display resources remain; no attachable help document');

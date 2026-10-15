@@ -201,3 +201,25 @@ test('setup prioritizes chat coaching while UI compatibility is unresolved and k
   assert.equal(text.includes('get_prompt_coaching_guide를 해당 medium으로 실제 호출한 뒤에만'), false)
   assert.equal(text.includes('prompt-coach://rules'), false)
 })
+
+test('setup starts with Korean result choices and a normal chat field without re-asking supplied scene details', () => {
+  const text = buildMcpSetup(endpoint)
+  for (const instruction of [
+    '결과물 종류가 없을 때만',
+    '① 2D 이미지 — 한 장의 그림·3D 제작 전 참고 이미지',
+    '② 3D 웹 — 회전·클릭하며 살펴보는 장면',
+    '번호·한국어 이름·자유로운 설명 모두 답으로',
+    'web·image·video 값을 입력하라고 요구하지',
+    '평소 쓰는 채팅 입력칸에 한국어로 자유롭게',
+    '이미 알려 준 종류나 장면은 다시 묻지',
+    '확정 조건·답변·보류를 그대로 이어받으세요',
+    '영상은 사용자가 원할 때',
+    '인수 없이 시작하는 요청',
+    '메뉴에서 추가한 뒤 메시지를 보내면',
+    '예전 Medium·Idea 입력칸이 보인다면 연결 목록을 새로 고치고',
+  ]) assert.ok(text.includes(instruction), instruction)
+
+  const starter = buildMcpStarter({ medium: 'web', idea: '유리구 안의 섬', requestText: '이미 정한 장면과 조건' })
+  assert.ok(starter.includes('장면과 결과물 종류가 이미 있으므로 다시 입력하게 하거나 코칭 시작 여부를 묻지'))
+  assert.equal(starter.includes('① 2D 이미지'), false, 'An existing scene handoff must not restart result selection')
+})

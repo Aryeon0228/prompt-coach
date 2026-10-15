@@ -52,8 +52,8 @@ test('Workers handler completes the actual SDK initialize, tools, prompts and re
   assert.equal(final.prompt.includes('처음 빨간 꽃'), false)
   assert.equal(final.originalIdea, '처음 빨간 꽃')
   assert.deepEqual((await client.listPrompts()).prompts.map(prompt => prompt.name), ['coach-scene'])
-  const prompt = await client.getPrompt({ name: 'coach-scene', arguments: { medium: 'web', idea: '드래그로 회전하는 정원' } })
-  assert.match(prompt.messages[0].content.text, /드래그로 회전하는 정원/)
+  const prompt = await client.getPrompt({ name: 'coach-scene', arguments: {} })
+  assert.match(prompt.messages[0].content.text, /① 2D 이미지/)
   assert.deepEqual((await client.listResources()).resources.map(resource => resource.uri), [COACH_UI_URI])
   const successfulPosts = responses.filter(response => response.method === 'POST' && response.status === 200)
   assert.ok(successfulPosts.length >= 10)
@@ -197,7 +197,7 @@ test('MCP Apps discovery and real tool transitions expose an offline UI and pres
   assert.equal(legacy.mimeType, resource.mimeType);
   const menu = (await client.listPrompts()).prompts.find(x => x.name === 'coach-scene');
   assert.match(menu.title, /코칭 시작하기/);
-  assert.ok(menu.arguments.every(x => !x.required));
+  assert.deepEqual(menu.arguments ?? [], [], 'starter has no fields to fill in');
   assert.deepEqual((await client.listResources()).resources.map(resource => resource.uri), [COACH_UI_URI]);
   let current = data(await client.callTool({ name: 'open_prompt_coach', arguments: {} }));
   assert.equal(current.coach.medium, null);
@@ -242,8 +242,11 @@ test('connector menus offer coaching start without an attachable rules document 
   const { client } = await connect(t, 'coaching-start-menu');
   const prompts = (await client.listPrompts()).prompts;
   assert.deepEqual(prompts.map(prompt => prompt.name), ['coach-scene']);
+  assert.deepEqual(prompts[0].arguments ?? [], [], 'no Medium or Idea form is advertised');
   const start = await client.getPrompt({ name: 'coach-scene', arguments: {} });
-  assert.match(start.messages[0].content.text, /코칭/);
+  assert.match(start.messages[0].content.text, /① 2D 이미지/);
+  assert.match(start.messages[0].content.text, /② 3D 웹/);
+  assert.match(start.messages[0].content.text, /이미 정한 내용은 다시 입력하거나 선택하게 하지 마세요/);
   assert.match(start.messages[0].content.text, /시작 메뉴나 갈림길을 제안하지 마세요/);
   const resources = (await client.listResources()).resources;
   assert.deepEqual(resources.map(resource => resource.uri), [COACH_UI_URI]);

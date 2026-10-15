@@ -90,9 +90,8 @@ export function createCoachServer() {
   }, ({ userConfirmed: _confirmed, ...brief }) => result(assemblePrompt(brief)))
   server.registerPrompt('coach-scene', {
     title: '코칭 시작하기 — 장면 입력·질문·답변',
-    description: '현재 AI 대화에서 장면·질문·답변을 이어갑니다. 별도 코치 화면은 호환 확인 중이며 명시적으로 시험을 요청할 때만 엽니다.',
-    argsSchema: { medium: medium.optional(), idea: z.string().max(10000).optional() },
-  }, ({ medium, idea }) => ({ messages: [{ role: 'user', content: { type: 'text', text: buildCoachingPrompt(medium, idea) } }] }))
+    description: '채팅에서 2D 이미지·3D 웹 중 원하는 결과물을 고르고, 장면을 자유롭게 설명해요. 이미 설명했다면 바로 다음 질문으로 이어갑니다.',
+  }, () => ({ messages: [{ role: 'user', content: { type: 'text', text: buildCoachingPrompt() } }] }))
   return server
 }
 
