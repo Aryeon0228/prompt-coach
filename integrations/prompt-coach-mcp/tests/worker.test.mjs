@@ -51,10 +51,10 @@ test('Workers handler completes the actual SDK initialize, tools, prompts and re
   assert.match(final.prompt, /나중에 확정한 파란 꽃/)
   assert.equal(final.prompt.includes('처음 빨간 꽃'), false)
   assert.equal(final.originalIdea, '처음 빨간 꽃')
-  assert.ok((await client.listPrompts()).prompts.some(prompt => prompt.name === 'coach-scene'))
+  assert.deepEqual((await client.listPrompts()).prompts.map(prompt => prompt.name), ['coach-scene'])
   const prompt = await client.getPrompt({ name: 'coach-scene', arguments: { medium: 'web', idea: '드래그로 회전하는 정원' } })
   assert.match(prompt.messages[0].content.text, /드래그로 회전하는 정원/)
-  assert.match((await client.readResource({ uri: 'prompt-coach://rules' })).contents[0].text, /이유와 예시/)
+  assert.deepEqual((await client.listResources()).resources.map(resource => resource.uri), [COACH_UI_URI])
   const successfulPosts = responses.filter(response => response.method === 'POST' && response.status === 200)
   assert.ok(successfulPosts.length >= 10)
   assert.ok(successfulPosts.every(response => response.headers.get('Content-Type').startsWith('application/json')))
@@ -198,8 +198,7 @@ test('MCP Apps discovery and real tool transitions expose an offline UI and pres
   const menu = (await client.listPrompts()).prompts.find(x => x.name === 'coach-scene');
   assert.match(menu.title, /코칭 시작하기/);
   assert.ok(menu.arguments.every(x => !x.required));
-  const help = (await client.listResources()).resources.find(x => x.uri === 'prompt-coach://rules');
-  assert.match(help.title, /사용 방법 보기/);
+  assert.deepEqual((await client.listResources()).resources.map(resource => resource.uri), [COACH_UI_URI]);
   let current = data(await client.callTool({ name: 'open_prompt_coach', arguments: {} }));
   assert.equal(current.coach.medium, null);
   current = data(await client.callTool({ name: 'submit_prompt_coach_input', arguments: { state: current.state, action: 'start', medium: 'image', idea: '꽃과 유리구' } }));
@@ -236,4 +235,20 @@ test('previous UI hashes resolve current HTML without listing aliases or accepti
   ]) {
     await assert.rejects(client.readResource({ uri }), error => error.code === -32602);
   }
+});
+
+
+test('connector menus offer coaching start without an attachable rules document or hidden help template', async t => {
+  const { client } = await connect(t, 'coaching-start-menu');
+  const prompts = (await client.listPrompts()).prompts;
+  assert.deepEqual(prompts.map(prompt => prompt.name), ['coach-scene']);
+  const start = await client.getPrompt({ name: 'coach-scene', arguments: {} });
+  assert.match(start.messages[0].content.text, /코칭/);
+  assert.match(start.messages[0].content.text, /시작 메뉴나 갈림길을 제안하지 마세요/);
+  const resources = (await client.listResources()).resources;
+  assert.deepEqual(resources.map(resource => resource.uri), [COACH_UI_URI]);
+  const templates = (await client.listResourceTemplates()).resourceTemplates;
+  assert.ok(templates.every(template => template.uriTemplate.startsWith('ui://prompt-coach/')));
+  assert.equal(JSON.stringify([...resources, ...templates]).includes('coaching-rules'), false);
+  await assert.rejects(() => client.readResource({ uri: 'prompt-coach://rules' }), /not found/);
 });

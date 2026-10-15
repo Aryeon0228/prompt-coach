@@ -38,7 +38,7 @@ test('setup uses chat while app compatibility is unresolved and keeps explicit s
     assert.equal(instructions.includes('웹에서 장면 작성하기'), false);
   }
   assert.ok(COACHING_INSTRUCTIONS.includes(ENTRY_FLOW_INSTRUCTIONS));
-  for (const text of ['코칭 시작하기 — 장면 입력·질문·답변', '사용 방법 보기 — 코치 이용 안내', '같은 대화', '홈페이지와 자동으로 동기화되지', '대화를 서버에 저장하지']) assert.ok(COACH_USAGE_GUIDE.includes(text), text);
+  for (const text of ['코칭 시작하기 — 장면 입력·질문·답변', '홈페이지 도움말', '같은 대화', '홈페이지와 자동으로 동기화되지', '대화를 서버에 저장하지']) assert.ok(COACH_USAGE_GUIDE.includes(text), text);
   assert.equal(COACH_USAGE_GUIDE.includes('state'), false, 'user help does not expose internal host instructions');
   assert.equal(COACH_USAGE_GUIDE.includes('show_prompt_coach'), false);
 });

@@ -83,11 +83,11 @@ export function CoachConnection({ collapsed = false, setupOnly = false }: { coll
         </ol>
         {provider === 'claude' && <p className="small muted">전에 연결했다면 커넥터 설정의 ⋯ → ‘도구 목록 새로 고침’을 누른 뒤 새 대화에서 Prompt Coach를 켜 주세요. 기존 대화에는 예전 도구 목록이 남아 있을 수 있어요.</p>}
         <div className="coach-connection-menu-guide">
-          <h3>연결 메뉴의 두 항목</h3>
+          <h3>연결 후 코칭 시작하기</h3>
           <dl>
             <div><dt>코칭 시작하기 — 장면 입력·질문·답변</dt><dd>내 장면에 필요한 질문을 받는 메뉴예요. “프롬프트 코치 화면 열어줘”라고 요청하면 시험 중인 화면을 시도합니다.</dd></div>
-            <div><dt>사용 방법 보기 — 코치 이용 안내</dt><dd>설명을 읽는 메뉴예요. 이것만 열면 코칭은 시작되지 않아요.</dd></div>
           </dl>
+          <p className="small muted">사용법은 이 홈페이지의 도움말에서 확인하세요. 예전 ‘사용 방법 보기’나 ‘coaching-rules’가 남아 있다면 연결 목록을 새로 고치고 새 대화에서 시작하세요.</p>
         </div>
         <details className="coach-connection-desktop">
           <summary>Medium · Idea 입력창이 뜬다면</summary>

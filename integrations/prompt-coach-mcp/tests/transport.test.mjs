@@ -123,16 +123,13 @@ test('stdio SDK initializes, lists and executes tools, prompts and resources', {
   assert.equal(final.originalIdea, '처음에는 빨간 화분');
 
   const { prompts } = await client.listPrompts();
-  assert.ok(prompts.some(({ name }) => name === 'coach-scene'));
+  assert.deepEqual(prompts.map(({ name }) => name), ['coach-scene']);
   const prompt = await client.getPrompt({ name: 'coach-scene', arguments: { medium: 'web', idea: '드래그하면 회전하는 유리 정원' } });
   assert.match(prompt.messages[0].content.text, /드래그하면 회전하는 유리 정원/);
   assert.match(prompt.messages[0].content.text, /get_prompt_coaching_guide/);
   const { resources } = await client.listResources();
-  assert.ok(resources.some(({ uri }) => uri === 'prompt-coach://rules'));
-  assert.equal(resources.find(({ uri }) => uri === 'prompt-coach://rules').title, '사용 방법 보기 — 코치 이용 안내');
-  const resource = await client.readResource({ uri: 'prompt-coach://rules' });
-  assert.equal(resource.contents[0].mimeType, 'text/plain');
-  assert.match(resource.contents[0].text, /이유와 예시/);
+  assert.ok(resources.every(({ uri }) => uri.startsWith('ui://prompt-coach/')), 'Only app display resources remain; no attachable help document');
+  await assert.rejects(() => client.readResource({ uri: 'prompt-coach://rules' }), /not found/);
   assert.equal(stderr, '', 'stdio server keeps diagnostics and stdout protocol clean');
 });
 

@@ -190,8 +190,7 @@ test('setup prioritizes chat coaching while UI compatibility is unresolved and k
     '도구 호출이 성공해도 화면이 렌더링됐다고 단정하지',
     '일반 AI 대화로 코칭을 이어가세요',
     '코칭 시작하기 — 장면 입력·질문·답변',
-    '사용 방법 보기 — 코치 이용 안내',
-    '이 자료만 열었다고 코칭을 시작했거나 화면을 열었다고 말하지',
+    '사용 안내는 홈페이지 도움말에서 확인합니다',
     '사용자가 따로 규칙 검토 등을 명시적으로 요청하면',
     '홈페이지에 저장한 프로젝트는 자동으로 가져오거나 덮어쓰지',
     'AI 서비스 안에 열리는 화면',
@@ -200,4 +199,5 @@ test('setup prioritizes chat coaching while UI compatibility is unresolved and k
   ]) assert.ok(text.includes(instruction), instruction)
   assert.equal(text.includes('https://studio-penumbra.com/prompt-coach/#scene'), false)
   assert.equal(text.includes('get_prompt_coaching_guide를 해당 medium으로 실제 호출한 뒤에만'), false)
+  assert.equal(text.includes('prompt-coach://rules'), false)
 })

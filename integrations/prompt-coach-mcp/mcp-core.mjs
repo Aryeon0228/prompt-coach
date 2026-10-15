@@ -2,7 +2,7 @@ import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mc
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js'
 import { z } from 'zod'
 import { registerAppTool, registerAppResource, RESOURCE_MIME_TYPE, EXTENSION_ID } from '@modelcontextprotocol/ext-apps/server'
-import { MODE_VALUES, FIELD_LABELS, COACHING_INSTRUCTIONS, COACH_USAGE_GUIDE, getGuide, reviewBrief, assemblePrompt, buildCoachingPrompt } from './coaching.mjs'
+import { MODE_VALUES, FIELD_LABELS, COACHING_INSTRUCTIONS, getGuide, reviewBrief, assemblePrompt, buildCoachingPrompt } from './coaching.mjs'
 import { COACH_UI_HTML } from './generated/coach-ui.mjs'
 import { COACH_UI_URI, CoachStateError, openCoachSchema, submitCoachSchema, showCoachSchema, openCoach, submitCoachInput, showCoach } from './coach-session.mjs'
 
@@ -93,7 +93,6 @@ export function createCoachServer() {
     description: '현재 AI 대화에서 장면·질문·답변을 이어갑니다. 별도 코치 화면은 호환 확인 중이며 명시적으로 시험을 요청할 때만 엽니다.',
     argsSchema: { medium: medium.optional(), idea: z.string().max(10000).optional() },
   }, ({ medium, idea }) => ({ messages: [{ role: 'user', content: { type: 'text', text: buildCoachingPrompt(medium, idea) } }] }))
-  server.registerResource('coaching-rules', 'prompt-coach://rules', { title: '사용 방법 보기 — 코치 이용 안내', mimeType: 'text/plain' }, async () => ({ contents: [{ uri: 'prompt-coach://rules', mimeType: 'text/plain', text: COACH_USAGE_GUIDE }] }))
   return server
 }
 
