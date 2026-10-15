@@ -5,15 +5,15 @@ import { loadImage } from '../lib/image'
 import { useStore } from '../store'
 import type { Region, Symptom } from '../types'
 import { PromptBox, useToast } from './ui'
+import { LocksEditor } from './LocksEditor'
 
-type Step = 'shot' | 'where' | 'what' | 'how' | 'compare' | 'result'
+type Step = 'shot' | 'where' | 'problem' | 'change' | 'result'
 const STEPS: Array<{ id: Step; label: string }> = [
   { id: 'shot', label: '결과 화면' },
-  { id: 'where', label: '어디가' },
-  { id: 'what', label: '무엇이' },
-  { id: 'how', label: '어떻게' },
-  { id: 'compare', label: '참고와 비교' },
-  { id: 'result', label: '수정 프롬프트' },
+  { id: 'where', label: '고칠 대상' },
+  { id: 'problem', label: '문제 찾기' },
+  { id: 'change', label: '바꿀 내용' },
+  { id: 'result', label: '수정 요청문' },
 ]
 
 /**
@@ -36,6 +36,18 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
   const [note, setNote] = useState('')
   const [query, setQuery] = useState('')
   const [dictionaryChoice, setDictionaryChoice] = useState(false)
+  const stepHeading = useRef<HTMLHeadingElement>(null)
+  const previousStep = useRef(step)
+
+  useEffect(() => {
+    if (previousStep.current === step) return
+    previousStep.current = step
+    const heading = stepHeading.current
+    // The workspace keeps this draft mounted in a hidden tab; never steal its focus.
+    if (!heading?.getClientRects().length) return
+    heading.focus({ preventScroll: true })
+    heading.scrollIntoView({ block: 'start' })
+  }, [step])
 
   // The feel dictionary turns familiar words into more specific symptoms.
   const hits = useMemo(() => {
@@ -62,7 +74,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
     setCategoryId(cat.id)
     setSymptomId(sid)
     setDictionaryChoice(!finalTarget)
-    setStep(finalTarget ? 'compare' : 'where')
+    setStep(finalTarget ? 'change' : 'where')
   }
 
   const save = () => {
@@ -79,10 +91,14 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
     setShot(undefined)
     setRegion(undefined)
     setTarget('')
+    setCustomTarget('')
     setCategoryId('')
     setSymptomId('')
     setCompareId('')
+    setReferenceId('')
     setNote('')
+    setQuery('')
+    setDictionaryChoice(false)
     onSaved()
   }
 
@@ -102,8 +118,8 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
 
       {step === 'shot' && (
         <section className="card stack">
-          <h2>{isVideo ? '영상의 대표 프레임을 올려 주세요' : isImage ? '결과 이미지를 올려 주세요' : '결과 화면을 올려 주세요'}</h2>
-          <p className="small muted">{isVideo ? '고칠 순간을 캡처한 이미지 한 장을 올려 주세요. 움직임은 이 이미지로 알 수 없으니, 뒤의 메모에 시간대와 달라져야 할 동작을 적어 주세요. 이미지 없이도 시작할 수 있어요.' : '이미지를 올리면 고칠 부분을 직접 표시할 수 있어요. 이미지 없이도 시작할 수 있습니다.'}</p>
+          <h2 ref={stepHeading} tabIndex={-1} className="revision-step-heading">{isVideo ? '영상의 대표 프레임을 올려 주세요' : isImage ? '결과 이미지를 올려 주세요' : '결과 화면을 올려 주세요'}</h2>
+          <p className="small muted">{isVideo ? '고칠 순간을 캡처한 이미지 한 장을 올려 주세요. 움직임은 이 이미지로 알 수 없으니, ‘바꿀 내용’에 시간대와 달라져야 할 동작을 적어 주세요. 이미지 없이도 시작할 수 있어요.' : '이미지를 올리면 고칠 부분을 직접 표시할 수 있어요. 이미지 없이도 시작할 수 있습니다.'}</p>
           <label className="upload">
             <input
               type="file"
@@ -164,7 +180,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
 
       {step === 'where' && (
         <section className="card stack">
-          <h2>어디가 어색한가요?</h2>
+          <h2 ref={stepHeading} tabIndex={-1} className="revision-step-heading">어디가 어색한가요?</h2>
           {shot ? (
             <>
               <p className="small muted">사진 위에 손가락이나 마우스로 네모를 그려 주세요. 화면 전체가 문제라면 그리지 않고 넘어가도 돼요.</p>
@@ -196,30 +212,30 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
               className="primary"
               disabled={!finalTarget}
               onClick={() => {
-                setStep(dictionaryChoice ? 'compare' : 'what')
+                setStep(dictionaryChoice ? 'change' : 'problem')
                 setDictionaryChoice(false)
               }}
             >
-              다음
+              {dictionaryChoice ? '바꿀 내용 정하기' : '문제 찾기'}
             </button>
           </div>
         </section>
       )}
 
-      {step === 'what' && (
+      {step === 'problem' && (
         <section className="card stack">
-          <h2>무엇이 문제인가요?</h2>
-          <p className="small muted">먼저 고칠 문제를 하나 골라 주세요. 한 번에 하나씩 요청하면 바뀐 결과를 비교하기 쉬워요.</p>
-          <div className="symptom-list category-grid">
+          <h2 ref={stepHeading} tabIndex={-1} className="revision-step-heading">무엇이 문제인가요?</h2>
+          <p className="small muted">문제 종류를 고른 뒤, 가장 가까운 상태를 하나 선택해 주세요.</p>
+          <div className="symptom-list category-grid" role="group" aria-label="문제 종류">
             {template.diagnosis.map((c) => (
               <button
                 key={c.id}
                 className={`choice big ${categoryId === c.id ? 'on' : ''}`}
                 aria-pressed={categoryId === c.id}
                 onClick={() => {
+                  if (categoryId === c.id) return
                   setCategoryId(c.id)
                   setSymptomId('')
-                  setStep('how')
                 }}
               >
                 {c.label}
@@ -227,74 +243,87 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
               </button>
             ))}
           </div>
+          {category && (
+            <div className="revision-problem-options stack" role="group" aria-labelledby="coach-symptom-label">
+              <h3 id="coach-symptom-label">{category.label} — 어떤 상태인가요?</h3>
+              <div className="symptom-list">
+                {category.symptoms.map((s) => (
+                  <SymptomButton key={s.id} s={s} on={symptomId === s.id} onPick={() => setSymptomId(s.id)} />
+                ))}
+              </div>
+            </div>
+          )}
           <div className="row step-actions">
             <button className="secondary" onClick={() => setStep('where')}>
               뒤로
             </button>
-          </div>
-        </section>
-      )}
-
-      {step === 'how' && category && (
-        <section className="card stack">
-          <h2>{category.label}: 어떻게 이상한가요?</h2>
-          <div className="symptom-list">
-            {category.symptoms.map((s) => (
-              <SymptomButton key={s.id} s={s} on={symptomId === s.id} onPick={() => setSymptomId(s.id)} />
-            ))}
-          </div>
-          <div className="row step-actions">
-            <button className="secondary" onClick={() => setStep('what')}>
-              뒤로
-            </button>
-            <button className="primary" disabled={!symptomId} onClick={() => setStep('compare')}>
-              다음
+            <button className="primary" disabled={!symptom} onClick={() => setStep('change')}>
+              바꿀 내용 정하기
             </button>
           </div>
         </section>
       )}
 
-      {step === 'compare' && (
+      {step === 'change' && symptom && (
         <section className="card stack">
-          <h2>참고 이미지와 비교하면 어떤가요?</h2>
-          <p className="small muted">{isVideo ? '참고 이미지로 비교할 수 있는 구도·색·형태를 고르세요. 움직임이나 타이밍의 차이는 아래 메모에 적어 주세요.' : '참고 이미지와 다른 점을 더할 수 있어요. 선택하지 않아도 다음으로 넘어갈 수 있습니다.'}</p>
-          {project.references.length > 0 ? (
-            <>
-              <div className="choices">
-                {project.references.map((r, i) => (
-                  <button key={r.id} className={`choice ${referenceId === r.id ? 'on' : ''}`} aria-label={`참고 이미지 ${i + 1}`} aria-pressed={referenceId === r.id} onClick={() => setReferenceId(referenceId === r.id ? '' : r.id)} style={{ padding: 4 }}>
-                    <img src={r.dataUrl} alt="" style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 6, display: 'block' }} />
-                    <span className="small">#{i + 1}</span>
-                  </button>
-                ))}
+          <div>
+            <h2 ref={stepHeading} tabIndex={-1} className="revision-step-heading">어떻게 바꾸고, 무엇을 유지할까요?</h2>
+            <p className="small muted">{finalTarget} · {symptom.label}</p>
+          </div>
+          <div className="revision-change-grid">
+            <section className="revision-change-panel stack" aria-labelledby="revision-change-title">
+              <div>
+                <h3 id="revision-change-title">바꿀 내용</h3>
+                <p className="small muted">{isVideo ? '언제, 어떤 동작으로 바뀌면 좋을지 적어 주세요.' : '원하는 모습이나 수치를 더하면 요청이 구체적이 돼요.'}</p>
               </div>
-              <p className="small muted">참고와 가장 다른 점을 하나만 고르면:</p>
-              <div className="choices">
-                {template.compareAxes.map((a) => (
-                  <button key={a.id} className={`choice ${compareId === a.id ? 'on' : ''}`} aria-pressed={compareId === a.id} onClick={() => setCompareId(compareId === a.id ? '' : a.id)}>
-                    {a.label}
-                  </button>
-                ))}
-              </div>
-            </>
-          ) : (
-            <p className="small muted">참고 이미지가 없어요. "참고 이미지"에서 추가하면 여기서 비교할 수 있어요.</p>
-          )}
-          <label className="stack" style={{ gap: 6 }}>
-            <span className="small muted">{isVideo ? '시간대와 바꿀 동작 (선택). 언제 어떤 모습이 되는지 적어 주세요.' : '덧붙일 말 (선택). 구체적인 수치나 예시가 있으면 적어 주세요.'}</span>
-            <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder={isVideo ? '예: 00:03~00:05에 손이 갑자기 튀어요. 같은 경로를 따라 서서히 올라가게 해 주세요.' : isFreeScene ? '예: 주요 대상은 유지하고, 오른쪽 여백을 화면 너비의 1/3 정도로 늘려 주세요.' : '예: 바위 높이는 지금의 절반 정도면 좋겠어'} />
-          </label>
+              <label className="stack" htmlFor="revision-wanted-change">
+                <span className="small muted">원하는 변화 (선택)</span>
+                <textarea id="revision-wanted-change" value={note} onChange={(e) => setNote(e.target.value)} placeholder={isVideo ? '예: 00:03~00:05에 손이 갑자기 튀어요. 같은 경로를 따라 서서히 올라가게 해 주세요.' : isFreeScene ? '예: 오른쪽 여백을 화면 너비의 1/3 정도로 늘려 주세요.' : '예: 바위 높이를 지금의 절반 정도로 낮춰 주세요.'} />
+              </label>
+              <p className="small muted">비워 두면 선택한 문제에 맞는 수정 제안을 사용해요.</p>
+            </section>
+            <LocksEditor />
+          </div>
+          <details className="revision-comparison">
+            <summary>참고 이미지와 비교하기 <span className="small muted">선택{referenceId || compareId ? ' · 비교 조건 있음' : ''}</span></summary>
+            <div className="stack">
+              <p className="small muted">{isVideo ? '참고 이미지로 비교할 수 있는 구도·색·형태를 고르세요. 움직임이나 타이밍은 위의 ‘바꿀 내용’에 적어 주세요.' : '참고 이미지와 달라진 부분을 수정 요청에 덧붙일 수 있어요.'}</p>
+              {project.references.length > 0 ? (
+                <>
+                  <div className="choices" role="group" aria-label="비교할 참고 이미지">
+                    {project.references.map((r, i) => (
+                      <button type="button" key={r.id} className={`choice ${referenceId === r.id ? 'on' : ''}`} aria-label={`참고 이미지 ${i + 1}`} aria-pressed={referenceId === r.id} onClick={() => setReferenceId(referenceId === r.id ? '' : r.id)} style={{ padding: 4 }}>
+                        <img src={r.dataUrl} alt="" style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 6, display: 'block' }} />
+                        <span className="small">#{i + 1}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="small muted">참고와 가장 다른 점을 하나 골라 주세요.</p>
+                  <div className="choices" role="group" aria-label="참고 이미지와 다른 점">
+                    {template.compareAxes.map((a) => (
+                      <button type="button" key={a.id} className={`choice ${compareId === a.id ? 'on' : ''}`} aria-pressed={compareId === a.id} onClick={() => setCompareId(compareId === a.id ? '' : a.id)}>
+                        {a.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <p className="small muted">참고 이미지가 없어요. ‘참고 이미지’에서 추가하면 여기서 비교할 수 있어요.</p>
+              )}
+            </div>
+          </details>
           <div className="row step-actions">
-            <button className="secondary" onClick={() => setStep('how')}>
+            <button className="secondary" onClick={() => setStep('problem')}>
               뒤로
             </button>
-            <button className="primary" onClick={() => setStep('result')}>프롬프트 만들기</button>
+            <button className="primary" onClick={() => setStep('result')}>수정 요청문 보기</button>
           </div>
         </section>
       )}
 
       {step === 'result' && symptom && (
         <section className="stack">
+          <h2 ref={stepHeading} tabIndex={-1} className="revision-step-heading">수정 요청문</h2>
           <div className="note">
             "{finalTarget} 쪽이 이상해요"라는 한마디가 아래 문장으로 바뀌었어요. <b>어디가 · 무엇이 · 어떻게 바꿀지 · 바꾸지 말 것 · 확인 방법</b>, 이 다섯 가지가 다 들어 있는 게 핵심이에요.
           </div>
@@ -306,7 +335,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
           {isFreeScene && <p className="small muted">{isVideo ? '대표 프레임과 참고 이미지는 복사한 글에 포함되지 않아요. 사용할 AI에 함께 첨부하고, 영상 업로드를 지원하면 문제가 있는 원본 영상도 전달해 주세요.' : '결과 이미지와 참고 이미지는 복사한 글에 포함되지 않아요. 사용할 AI에 함께 첨부해 주세요.'}</p>}
           <PromptBox en={en} ko={ko} filename={`${project.name}-fix-${project.iterations.length + 1}.txt`} initialLang={isFreeScene ? 'ko' : 'en'} />
           <div className="row step-actions">
-            <button className="secondary" onClick={() => setStep('compare')}>
+            <button className="secondary" onClick={() => setStep('change')}>
               뒤로
             </button>
             <button className="primary" onClick={save}>기록에 저장</button>

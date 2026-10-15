@@ -1,13 +1,15 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { assembleFreePrompt, reviewFreeBrief } from '../lib/free-prompt'
 import { coachingContext } from '../lib/coaching-context'
 import { useStore } from '../store'
 import { copyText, downloadText, useToast } from './ui'
 import { FREE_MODES } from '../lib/free-modes'
+import { ImportedPromptEditor } from './ImportedPromptEditor'
 
-export function FreePromptView({ onEdit, onRefine }: { onEdit: () => void; onRefine: () => void }) {
-  const { project, updateProject } = useStore()
-  const [lock, setLock] = useState('')
+export function FreePromptView({ onEdit, onRefine, onRevise }: { onEdit: () => void; onRefine: () => void; onRevise: () => void }) {
+  const { project } = useStore()
+  const output = useRef<HTMLDivElement>(null)
+  const [editorOpen, setEditorOpen] = useState(() => Boolean(project?.promptCoaching?.draft.trim() && project.promptCoaching.draft !== project.promptCoaching.accepted?.text))
   const { brief, source, sessionStale, answerCount } = coachingContext(project ?? { references: [], locks: [] })
   const accepted = project?.promptCoaching?.accepted
   const isStale = Boolean(accepted && accepted.source !== source)
@@ -30,7 +32,7 @@ export function FreePromptView({ onEdit, onRefine }: { onEdit: () => void; onRef
         <button className={!showingCoached ? 'on' : ''} aria-pressed={!showingCoached} onClick={() => setVersion('original')}>직접 작성한 내용</button>
         <button className={showingCoached ? 'on' : ''} aria-pressed={showingCoached} onClick={() => setVersion('coached')}>코칭으로 다듬은 내용</button>
       </div>
-      {isStale && <div className="note warn stack" role="status"><p>장면 설정·참고 이미지·유지할 내용이 바뀌었어요. 이전 코칭 프롬프트는 보관되어 있으니, 현재 조건과 비교한 뒤 다시 적용해 주세요.</p><button className="secondary" onClick={onRefine}>코칭 내용 다시 확인하기 →</button></div>}
+      {isStale && <div className="note warn stack" role="status"><p>장면 설정·참고 이미지·유지할 내용이 바뀌었어요. 이전 코칭 프롬프트는 보관되어 있으니, 현재 조건과 비교한 뒤 다시 적용해 주세요.</p><button className="secondary" onClick={() => setEditorOpen(true)}>가져온 프롬프트 확인·편집하기 →</button></div>}
     </> : <div className="row"><p className="small muted grow">본인 ChatGPT나 Claude에서 부족한 부분을 함께 짚거나, 사이트의 준비된 질문으로 조건을 더해 보세요.</p><button className="secondary" onClick={onRefine} disabled={!brief.idea.trim()}>질문으로 구체화하기 →</button></div>}
     <details className="card prompt-review" open={!brief.idea.trim()}>
       <summary>{showingCoached ? '처음 작성한 조건 확인' : '보내기 전, 조건 확인'} <span className="small muted">{missing.length ? `비워 둔 항목 ${missing.length}개` : '모든 항목에 입력이 있어요'}</span></summary>
@@ -40,11 +42,15 @@ export function FreePromptView({ onEdit, onRefine }: { onEdit: () => void; onRef
     </details>
     {brief.idea.trim() ? <>
       <div className="row prompt-toolbar"><p className="small muted">{showingCoached ? '가져온 문장을 그대로 보여줘요. 원래 장면 설정도 보관돼 있어요.' : '내가 쓴 표현은 번역하거나 바꾸지 않고 유지해요.'}</p><div className="row prompt-actions"><button disabled={!canUsePrompt} onClick={async () => toast(await copyText(prompt) ? '프롬프트를 복사했어요.' : '복사할 수 없어요. 글을 선택해 복사해 주세요.')}>프롬프트 복사</button><button className="secondary" disabled={!canUsePrompt} onClick={() => downloadText(`${project.name.replace(/[\\/:*?"<>|]/g, '_')}-${showingCoached ? 'coached' : 'prompt'}.txt`, prompt)}>TXT 저장</button></div></div>
-      <div className="card mono free-prompt-output" tabIndex={0} aria-label={showingCoached ? '코칭으로 다듬은 프롬프트' : '직접 작성한 프롬프트'}>{prompt}</div>
-      {showingCoached && <button className="ghost" onClick={onRefine}>가져온 프롬프트 수정하기 →</button>}
+      <div ref={output} className="card mono free-prompt-output" tabIndex={0} aria-label={showingCoached ? '코칭으로 다듬은 프롬프트' : '직접 작성한 프롬프트'}>{prompt}</div>
       <p className="small muted">비율·길이·해상도는 사용하는 도구의 설정에서도 확인하세요. 참고 이미지는 같은 순서로 직접 첨부해야 해요.</p>
     </> : <div className="card stack"><p>만들고 싶은 장면을 적으면 요청문이 완성돼요.</p><button onClick={onEdit}>장면부터 적기 →</button></div>}
-    <details className="card"><summary>결과를 받은 다음에는</summary><ol className="small muted"><li>작성한 확인 기준과 실제 결과를 비교해 보세요.</li><li>아쉬운 부분 하나와 원하는 변화를 구체적으로 적어 보세요.</li><li>잘 나온 부분은 아래에 남겨 다음 수정에서 유지하세요.</li></ol><p className="small muted">같은 요청도 도구와 실행 조건에 따라 달라질 수 있어요. 한 번에 한 가지를 바꾸면 무엇이 영향을 주었는지 비교하기 쉬워요.</p></details>
-    <section className="card stack"><h2>유지할 내용</h2><p className="small muted">결과를 본 뒤 적으세요. 이후 수정 요청과 새 코칭 요청에 함께 들어갑니다. 가져온 코칭 프롬프트에 추가하려면 코칭 화면에서 직접 반영해 주세요.</p>{project.locks.map((item,i)=><div className="row" key={i}><span className="grow">{item}</span><button className="ghost" aria-label={`${item} 잠금 해제`} onClick={()=>updateProject(p=>({...p,locks:p.locks.filter((_,index)=>index!==i)}))}>해제</button></div>)}<form className="row" onSubmit={e=>{e.preventDefault();if(!lock.trim())return;updateProject(p=>({...p,locks:[...p.locks,lock.trim()]}));setLock('')}}><label className="grow"><span className="sr-only">유지할 내용</span><input type="text" value={lock} onChange={e=>setLock(e.target.value)} placeholder="예: 고양이의 표정과 우산 색" /></label><button className="secondary" disabled={!lock.trim()}>유지하기</button></form></section>
+    <ImportedPromptEditor open={editorOpen} onOpenChange={setEditorOpen} onEdit={onEdit} onApplied={() => {
+      setVersion('coached')
+      setEditorOpen(false)
+      requestAnimationFrame(() => output.current?.focus())
+    }} />
+    <details className="card"><summary>결과를 받은 다음에는</summary><ol className="small muted"><li>작성한 확인 기준과 실제 결과를 비교해 보세요.</li><li>아쉬운 부분 하나와 원하는 변화를 구체적으로 적어 보세요.</li><li>잘 나온 부분은 수정 코치의 ‘유지할 내용’에 남겨 보세요.</li></ol><p className="small muted">같은 요청도 도구와 실행 조건에 따라 달라질 수 있어요. 한 번에 한 가지를 바꾸면 무엇이 영향을 주었는지 비교하기 쉬워요.</p><button type="button" className="secondary" onClick={onRevise}>수정 코치 열기 →</button></details>
+    {project.locks.length > 0 && <section className="card stack"><div className="row"><h2 className="grow">유지할 내용</h2><button type="button" className="ghost" onClick={onRevise}>수정 코치에서 변경 →</button></div><ul className="small muted">{project.locks.map((item, index) => <li key={index}>{item}</li>)}</ul></section>}
   </div>
 }

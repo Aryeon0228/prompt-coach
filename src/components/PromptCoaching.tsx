@@ -8,7 +8,6 @@ import { CoachConversation } from './CoachConversation'
 import { CoachConnection } from './CoachConnection'
 
 const MAX_DRAFT = 100000
-const MAX_NOTES = 10000
 
 export function PromptCoaching({ onPreview, onEdit }: { onPreview: () => void; onEdit: () => void }) {
   const { project, updateProject } = useStore()
@@ -17,7 +16,6 @@ export function PromptCoaching({ onPreview, onEdit }: { onPreview: () => void; o
   const [copying, setCopying] = useState(false)
   const [previewOpen, setPreviewOpen] = useState(false)
   const [copyFailed, setCopyFailed] = useState(false)
-  const [confirmedSource, setConfirmedSource] = useState<string | null>(null)
   const [method, setMethod] = useState<'guide' | 'chatgpt'>(() =>
     project?.promptCoaching?.session ? 'guide' : 'chatgpt',
   )
@@ -44,7 +42,6 @@ export function PromptCoaching({ onPreview, onEdit }: { onPreview: () => void; o
   const draftStale = hasDraft && coaching.draftSource !== source
   const acceptedStale = Boolean(coaching.accepted && coaching.accepted.source !== source)
   const changed = requestStale || draftStale || acceptedStale
-  const canUse = hasIdea && hasDraft && sourceFits && requestFits && (!draftStale || confirmedSource === source)
   const copiedDate = coaching.request ? new Date(coaching.request.copiedAt) : null
   const validCopiedDate = copiedDate && Number.isFinite(copiedDate.getTime()) ? copiedDate : null
   const changeMethod = (next: 'guide' | 'chatgpt') => {
@@ -85,40 +82,6 @@ export function PromptCoaching({ onPreview, onEdit }: { onPreview: () => void; o
         requestBox.current?.select()
       })
     }
-  }
-
-  const updateDraft = (draft: string) => {
-    setConfirmedSource(null)
-    updateProject((p) => {
-      const current = p.promptCoaching ?? createPromptCoaching()
-      return {
-        ...p,
-        promptCoaching: {
-          ...current,
-          draft: draft.slice(0, MAX_DRAFT),
-          draftSource: current.draft.trim() ? current.draftSource : current.request?.source ?? (sourceFits ? source : ''),
-        },
-      }
-    })
-  }
-
-  const updateNotes = (notes: string) => updateProject((p) => ({
-    ...p,
-    promptCoaching: { ...(p.promptCoaching ?? createPromptCoaching()), notes: notes.slice(0, MAX_NOTES) },
-  }))
-
-  const useDraft = () => {
-    if (!canUse) return
-    updateProject((p) => ({
-      ...p,
-      promptCoaching: {
-        ...(p.promptCoaching ?? createPromptCoaching()),
-        draftSource: source,
-        accepted: { text: coaching.draft, source, acceptedAt: Date.now() },
-      },
-    }))
-    toast(coaching.accepted ? '사용할 프롬프트를 업데이트했어요.' : '사용할 프롬프트로 저장했어요.')
-    onPreview()
   }
 
   return (
@@ -162,7 +125,7 @@ export function PromptCoaching({ onPreview, onEdit }: { onPreview: () => void; o
         <div className="stack coaching-ai-choice" aria-labelledby={`${id}-chat-title`}>
           <h3 id={`${id}-chat-title`}>복사한 뒤 사용할 AI 열기</h3>
           <div className="coaching-open-row"><a className="coaching-open-chat" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" aria-label="ChatGPT 열기 (새 탭)">ChatGPT <span aria-hidden="true">↗</span></a><a className="coaching-open-chat" href="https://claude.ai/" target="_blank" rel="noopener noreferrer" aria-label="Claude 열기 (새 탭)">Claude <span aria-hidden="true">↗</span></a></div>
-          <p className="small muted">새 탭에서 코칭 요청문을 붙여 넣고 질문에 답하세요. 조건이 정리되면 “이 조건으로 프롬프트를 완성해 줘”라고 요청하고, 완성본을 아래에 가져오세요. 참고 이미지는 AI 대화에 직접 첨부해 주세요.</p>
+          <p className="small muted">새 탭에서 코칭 요청문을 붙여 넣고 질문에 답하세요. 조건이 정리되면 “이 조건으로 프롬프트를 완성해 줘”라고 요청하고, 완성본은 ‘프롬프트’ 화면에서 가져오고 편집할 수 있어요. 참고 이미지는 AI 대화에 직접 첨부해 주세요.</p>
           <p className="small muted">선택한 서비스의 본인 계정으로 사용하며 해당 서비스의 이용 한도가 적용돼요. 사이트와 대화 내용은 자동으로 연결되지 않아요.</p>
         </div>
         {copyFailed && <p className="small coaching-copy-failed" role="alert">자동 복사를 완료하지 못했어요. 요청문을 직접 선택해 복사하면 같은 내용을 전달할 수 있어요.</p>}
@@ -190,27 +153,7 @@ export function PromptCoaching({ onPreview, onEdit }: { onPreview: () => void; o
       </div>
       </details>
 
-      <details className="card coaching-optional" open={hasDraft || Boolean(coaching.accepted)}>
-      <summary>완성한 프롬프트 가져오기 <span className="small muted">웹에도 보관하려면</span></summary>
-      <section className="stack coaching-step" aria-labelledby={`${id}-import-title`}>
-        <div className="coaching-step-heading">
-          <div><h2 id={`${id}-import-title`}>이 프로젝트에도 완성본 보관하기</h2><p className="muted">AI 대화의 완성본을 웹에도 남기고 싶다면 여기에 붙여 넣으세요. 웹에 가져오지 않아도 AI에서 완성본을 사용할 수 있어요.</p></div>
-        </div>
-        <label className="stack coaching-draft-label" htmlFor={`${id}-draft`}><span>가져온 프롬프트</span><textarea id={`${id}-draft`} value={coaching.draft} onChange={(event) => updateDraft(event.target.value)} maxLength={MAX_DRAFT} rows={9} aria-describedby={`${id}-draft-help`} placeholder="ChatGPT나 Claude에서 다듬은 프롬프트를 여기에 붙여 넣으세요." /></label>
-        <p className="small muted" id={`${id}-draft-help`}>초안과 메모는 이 브라우저에 자동 보관돼요. 아래 사용 버튼을 눌러야 최종 프롬프트에 반영됩니다.</p>
-        <details className="coaching-notes"><summary>대화에서 배운 점 남기기 <span className="small muted">선택</span></summary><label className="stack" htmlFor={`${id}-notes`}><span className="sr-only" id={`${id}-notes-label`}>대화에서 배운 점 메모</span><textarea id={`${id}-notes`} aria-labelledby={`${id}-notes-label`} aria-describedby={`${id}-notes-help`} value={coaching.notes} maxLength={MAX_NOTES} rows={4} placeholder="예: ‘분위기 있게’ 대신 빛이 들어오는 방향과 색을 정하니 장면이 분명해졌어요." onChange={(event) => updateNotes(event.target.value)} /><span className="small muted" id={`${id}-notes-help`}>내가 참고할 메모예요. 최종 프롬프트에는 들어가지 않아요.</span></label></details>
-
-        {draftStale && <div className="coaching-compare-check">
-          <p className="small muted">{coaching.draftSource ? '이 초안은 이전 장면의 코칭 요청과 연결되어 있어요.' : '이 초안의 기준이 된 장면 설정을 확인할 수 없어요.'} 지금 장면의 조건이 잘 반영됐는지 확인해 주세요.</p>
-          <label><input type="checkbox" checked={confirmedSource === source} onChange={(event) => setConfirmedSource(event.target.checked ? source : null)} /><span>현재 장면 설정과 비교했어요</span></label>
-        </div>}
-        {coaching.accepted && <p className="small muted">{acceptedStale ? '이전에 사용한 프롬프트도 남아 있어요. 새 내용을 확인한 뒤 업데이트하세요.' : '이미 저장한 최종 프롬프트가 있어요. 초안을 수정한 뒤 업데이트할 수 있어요.'}</p>}
-        <div className="coaching-use-row">
-          <p className="small muted">처음 작성한 장면 설정은 그대로 보관돼요.</p>
-          <button type="button" disabled={!canUse} onClick={useDraft}>{coaching.accepted ? '프롬프트 업데이트하기' : '이 프롬프트 사용하기'} <span aria-hidden="true">→</span></button>
-        </div>
-      </section>
-      </details>
+      <div className="row"><p className="small muted grow">완성본의 가져오기·편집·복사는 프롬프트 화면에서 할 수 있어요.</p><button type="button" className="secondary" onClick={onPreview}>프롬프트 관리하기 →</button></div>
       </>}
     </div>
   )
