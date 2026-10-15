@@ -1,0 +1,34 @@
+{
+  "name": "studio-penumbra-prompt-coach-mcp",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Prompt coaching tools for a user's own ChatGPT or Claude. No model API calls or shared conversation storage.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.mjs --http",
+    "stdio": "node server.mjs --stdio",
+    "test": "node --test tests/*.test.mjs",
+    "worker:dev": "wrangler dev",
+    "worker:check": "wrangler deploy --dry-run",
+    "worker:deploy": "wrangler deploy",
+    "build:ui": "node scripts/build-ui.mjs",
+    "pretest": "npm run build:ui",
+    "prestart": "npm run build:ui",
+    "prestdio": "npm run build:ui",
+    "preworker:check": "npm run build:ui",
+    "preworker:deploy": "npm run build:ui",
+    "ui:preview": "node scripts/preview-ui.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "2.0.3",
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "wrangler": "4.151.0"
+  }
+}

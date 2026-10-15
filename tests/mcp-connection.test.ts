@@ -108,10 +108,12 @@ test('a scene handoff starts with a meaningful coaching question rather than set
   const starter = buildMcpStarter({ medium: 'image', idea: '작은 고래가 떠 있는 정원', requestText: request })
   assert.ok(starter.endsWith(request))
   for (const instruction of [
-    '연결 설정문이 아니라 웹에서 작성한 장면을 전달하는 코칭 요청문',
-    '코칭을 시작할지 다시 묻거나 메뉴를 제시하지',
-    '첫 질문 하나와 그 이유로 바로 시작',
-    '“완성한 프롬프트 가져오기”에 붙여 넣도록',
+    '웹에서 이미 작성한 장면을 가져가는 선택적 코칭 요청문',
+    '다시 입력하게 하거나 코칭 시작 여부를 묻지',
+    'open_prompt_coach',
+    '화면을 실제로 열지 못했다면 열렸다고 말하지',
+    '일반 AI 대화에서 첫 질문 하나와 그 이유로 바로 시작',
+    '웹에 별도로 보관하고 싶은 경우에만',
     '웹과 AI 대화가 자동 동기화되거나',
   ]) assert.ok(starter.includes(instruction), instruction)
   assert.equal(starter.includes('claude mcp add'), false)
@@ -168,26 +170,33 @@ test('desktop setup uses literal validated URLs and checks existing registration
   assert.ok(text.includes('원문을 자르지 말고 해당 정리 도구를 생략'))
 })
 
-test('setup returns users without a scene to the web, reports only verified connection status, and offers no coaching menu', () => {
+test('setup prioritizes chat coaching while UI compatibility is unresolved and keeps screen trials explicit', () => {
   const text = buildMcpSetup(endpoint)
   for (const instruction of [
     '이것은 연결 설정문',
     '실제로 확인한 수준인 등록 확인·도구 목록 확인·실제 호출 성공까지만',
     '호출하지 않았다면 호출 성공이라고 말하지',
-    '장면이 아직 없다면 이 대화에서 새 장면을 받으려 하지 말고',
-    '장면은 있지만 결과물 종류만 빠졌다면',
-    '이미 적은 장면을 웹에 다시 쓰게 하지',
-    '다음 한 가지 단계로 마무리',
-    'https://studio-penumbra.com/prompt-coach/#scene',
-    '코칭 세션 시작·규칙 자체 검토·도구 둘러보기 같은 메뉴나 불필요한 선택지를 먼저 덧붙이지',
-    '사용자가 따로 규칙 검토 등을 명시적으로 요청하면 그 요청에는 답하세요',
-    '가짜 장면을 만들지도',
-    '모두 이미 있으면',
-    '즉시 장면 코칭을 진행',
-    '코칭을 시작할지 다시 묻지 말고 첫 질문 하나와 그 이유',
-    '웹에서 장면 작성 → 내 AI에서 질문·답변 → 웹에 완성본 가져오기',
-    '웹사이트와 AI 대화는 자동으로 동기화되지',
-    '웹 안에서 AI가 직접 질문한다고 말하지',
+    '현재 도구 목록에서 open_prompt_coach를 찾고',
+    '사용자가 시험 중인 화면을 명시적으로 요청할 때만',
+    '사용할 수 있으면 실제 호출해 화면 열기를 시도하세요',
+    'Claude에서 화면 표시 오류가 확인되었고 ChatGPT 화면은 아직 검증하지 못했습니다',
+    '화면이 보이지 않으면 이 대화에서 코칭 시작해줘',
+    '연결 설정문은 처음 한 번만 사용하며 질문마다 복사할 필요가 없습니다',
+    '장면과 매체가 이미 대화에 있으면',
+    '아직 없는 값은 임의로 정하지 말고 비워 두세요',
+    '웹으로 돌아가 복사해 오라고 요구하지',
+    '코치 화면 안에서 장면 입력 → 필요한 질문과 이유 확인 → 답변 → 최종 프롬프트 확인',
+    '도구 호출이 성공해도 화면이 렌더링됐다고 단정하지',
+    '일반 AI 대화로 코칭을 이어가세요',
+    '코칭 시작하기 — 장면 입력·질문·답변',
+    '사용 방법 보기 — 코치 이용 안내',
+    '이 자료만 열었다고 코칭을 시작했거나 화면을 열었다고 말하지',
+    '사용자가 따로 규칙 검토 등을 명시적으로 요청하면',
+    '홈페이지에 저장한 프로젝트는 자동으로 가져오거나 덮어쓰지',
+    'AI 서비스 안에 열리는 화면',
+    '외부 프롬프트 코치 홈페이지 안의 직접 AI 대화는 승인 후 연동을 준비',
+    '완성본을 웹에 보관하는 것은 선택',
   ]) assert.ok(text.includes(instruction), instruction)
-  assert.equal(text.includes('빠진 정보만 한 번에 물어보고'), false)
+  assert.equal(text.includes('https://studio-penumbra.com/prompt-coach/#scene'), false)
+  assert.equal(text.includes('get_prompt_coaching_guide를 해당 medium으로 실제 호출한 뒤에만'), false)
 })

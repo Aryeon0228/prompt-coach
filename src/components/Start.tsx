@@ -11,7 +11,7 @@ export function Start({ onCreated }: { onCreated: () => void }) {
   const [picked, setPicked] = useState<TemplateIndexEntry | null>(null)
   const [name, setName] = useState('')
   const [idea, setIdea] = useState('')
-  const [mode, setMode] = useState<FreePromptMode>('image')
+  const [mode, setMode] = useState<FreePromptMode | null>(null)
   const [creating, setCreating] = useState(false)
   const file = useRef<HTMLInputElement>(null)
   const toast = useToast()
@@ -21,29 +21,30 @@ export function Start({ onCreated }: { onCreated: () => void }) {
     <div className="stack start-stack">
       <section className="start-intro">
         <div><div className="eyebrow">MAKE · OBSERVE · REFINE</div><h1>만들고 싶은 장면을 프롬프트로</h1></div>
-        <p className="muted">이미지부터 영상, 3D 웹까지. 아이디어를 적고, 필요한 조건을 배우며 요청문을 만들어 보세요.</p>
+        <p className="muted">내 AI와 대화하며 장면을 구체화해 보세요. 이미지·영상·3D 웹에 필요한 조건과 그 이유를 배우며 프롬프트를 완성합니다.</p>
         <ol className="start-steps" aria-label="사용 흐름">
-          <li><span>01</span><div><strong>웹에서 장면 작성</strong><p>아래에 아이디어를 적고 코칭 요청문을 복사해요.</p></div></li>
-          <li><span>02</span><div><strong>내 AI에서 질문·답변</strong><p>ChatGPT나 Claude에 붙여 넣고 조건을 구체화해요.</p></div></li>
-          <li><span>03</span><div><strong>웹에 완성본 가져오기</strong><p>완성한 프롬프트를 이곳에 붙여 넣어 보관해요.</p></div></li>
+          <li><span>01</span><div><strong>내 AI에 연결</strong><p>프롬프트 코치를 처음 한 번 추가해요.</p></div></li>
+          <li><span>02</span><div><strong>AI 대화에서 장면 설명</strong><p>만들 결과물과 원하는 장면을 말해요.</p></div></li>
+          <li><span>03</span><div><strong>질문에 답하며 완성</strong><p>왜 필요한 조건인지 배우고 프롬프트를 완성해요.</p></div></li>
         </ol>
       </section>
 
-      <CoachConnection collapsed />
+      <CoachConnection />
 
       <section className="card stack free-start">
-        <div className="section-title"><h2>어떤 장면을 만들고 싶나요?</h2><span className="small muted">한 문장으로 시작해도 좋아요</span></div>
+        <div className="section-title"><h2>웹에서 장면을 먼저 정리하기</h2><span className="small muted">선택 · 이 브라우저에 보관</span></div>
+        <p className="small muted">사이트의 기본 질문이나 프로젝트 보관 기능을 쓰고 싶다면 여기서 시작하세요. AI 대화로 자동 전송되지는 않아요.</p>
         <form className="stack" onSubmit={async e => {
           e.preventDefault()
-          if (!freeEntry || !idea.trim() || creating) return
+          if (!freeEntry || !mode || !idea.trim() || creating) return
           setCreating(true)
           try { await createProject(freeEntry, idea.trim().split('\n')[0].slice(0, 48), createFreeBrief(idea, mode)); onCreated() }
           catch (err) { toast((err as Error).message) }
           finally { setCreating(false) }
         }}>
-          <fieldset className="free-mode-fieldset"><legend>만들 결과물</legend><div className="free-mode-grid">{FREE_MODES.map(item => <button type="button" key={item.id} className={`choice big ${mode === item.id ? 'on' : ''}`} aria-pressed={mode === item.id} onClick={() => setMode(item.id)}><span>{item.label}</span><span className="hint">{item.hint}</span></button>)}</div></fieldset>
+          <fieldset className="free-mode-fieldset" aria-describedby="free-mode-guide"><legend>완성할 결과물을 골라 주세요</legend><div className="free-mode-grid">{FREE_MODES.map(item => <button type="button" key={item.id} className={`choice big ${mode === item.id ? 'on' : ''}`} aria-pressed={mode === item.id} onClick={() => setMode(item.id)}><span>{item.label}</span><span className="hint">{item.hint}</span></button>)}</div><p className="small muted" id="free-mode-guide">3D 웹이 목표라면 <strong>3D Web</strong>부터 시작하세요. 이미지는 참고 자료로 준비해 추가할 수 있어요.</p></fieldset>
           <label className="stack free-start-input"><span>장면 아이디어</span><textarea required rows={4} value={idea} onChange={e => setIdea(e.target.value)} placeholder="예: 비 오는 밤, 작은 우산 아래에서 버스를 기다리는 고양이" aria-describedby="free-start-hint" /></label>
-          <div className="free-start-action"><p className="small muted" id="free-start-hint">입력한 내용을 바탕으로 목적·구도·표현을 차근차근 정해요.<br />아직 정하지 않은 조건은 비워 두어도 괜찮아요.</p><button disabled={!freeEntry || !idea.trim() || creating}>{creating ? '만드는 중…' : '내 장면으로 시작하기'} <span aria-hidden="true">→</span></button></div>
+          <div className="free-start-action"><p className="small muted" id="free-start-hint">입력한 내용을 바탕으로 목적·구도·표현을 차근차근 정해요.<br />아직 정하지 않은 조건은 비워 두어도 괜찮아요.</p><button disabled={!freeEntry || !mode || !idea.trim() || creating}>{creating ? '만드는 중…' : !mode ? '결과물을 먼저 골라 주세요' : '내 장면으로 시작하기'} <span aria-hidden="true">→</span></button></div>
           {!freeEntry && <p className="small muted" role="status">시작 화면을 불러오지 못했어요. 잠시 후 새로고침해 주세요.</p>}
         </form>
       </section>
