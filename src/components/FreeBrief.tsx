@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createFreeBrief, type FreePromptBrief, type FreePromptMode } from '../lib/free-prompt'
 import { useStore } from '../store'
 import { PromptGuide } from './PromptGuide'
 import { FREE_MODES } from '../lib/free-modes'
+import { coachingContext, updateSceneCondition } from '../lib/coaching-context'
+import type { CoachingField } from '../lib/coach-conversation'
 
 type Field = Exclude<keyof FreePromptBrief, 'mode'>
 type Question = { id: Field; label: string; why: string; example: string; required?: boolean }
@@ -28,18 +30,39 @@ function questions(mode: FreePromptMode): Array<{ title: string; summary: string
   ]
 }
 
-export function FreeBrief({ onPreview, onRefine }: { onPreview: () => void; onRefine: () => void }) {
+export function FreeBrief({ onPreview, onRefine, onReferences, focusField, focusKey }: {
+  onPreview: () => void
+  onRefine: () => void
+  onReferences: () => void
+  focusField?: CoachingField
+  focusKey?: number
+}) {
   const { project, updateProject } = useStore()
-  const [opened, setOpened] = useState(0)
-  if (!project) return null
-  const brief = project.freeform ?? createFreeBrief()
+  const [openGroup, setOpenGroup] = useState({ index: 0, request: '' })
+  const nextActions = useRef<HTMLHeadingElement>(null)
+  const focusedRequest = useRef('')
+  const { brief, sessionStale } = coachingContext(project ?? { freeform: createFreeBrief(), references: [], locks: [] })
   const groups = questions(brief.mode)
-  const change = (field: keyof FreePromptBrief, value: string) => updateProject(p => ({ ...p, freeform: { ...(p.freeform ?? createFreeBrief()), [field]: value } }))
+  const projectId = project?.id
+  const focusRequest = focusField ? `${projectId}:${focusKey ?? 0}:${focusField}` : ''
+  const requestedGroup = focusField ? groups.findIndex(group => group.fields.some(field => field.id === focusField)) : -1
+  const opened = focusRequest && focusRequest !== openGroup.request && requestedGroup >= 0 ? requestedGroup : openGroup.index
+  const setOpened = (index: number) => setOpenGroup({ index, request: focusRequest })
+
+  useEffect(() => {
+    if (!focusField || !projectId || focusedRequest.current === focusRequest) return
+    focusedRequest.current = focusRequest
+    const frame = requestAnimationFrame(() => document.getElementById(`free-${focusField}`)?.focus())
+    return () => cancelAnimationFrame(frame)
+  }, [focusField, focusRequest, projectId])
+
+  if (!project) return null
+  const change = (field: keyof FreePromptBrief, value: string) => updateProject(p => p.id === project.id ? updateSceneCondition(p, field, value) : p)
 
   return <div className="stack free-brief">
-    <div className="note">핵심 장면부터 적고, 필요한 조건만 더해 보세요. 입력한 내용은 그대로 보관되고, 예시 문장은 요청문에 들어가지 않아요.</div>
+    <p className="small muted">프롬프트에 쓸 현재 조건을 여기서 확인하고 수정해요. 질문에서 확정한 답변도 함께 보여요.</p>
+    {sessionStale && <div className="note warn"><p>장면이 바뀌어 이전 질문 기록을 확인해야 해요. 작성 중인 답변과 기록은 보관되어 있어요.</p><button type="button" className="ghost" onClick={onRefine}>이전 질문 기록 확인 →</button></div>}
     <fieldset className="free-mode-fieldset"><legend>만들 결과물</legend><div className="choices">{FREE_MODES.map(mode => <button type="button" key={mode.id} className={`choice ${brief.mode === mode.id ? 'on' : ''}`} aria-pressed={brief.mode === mode.id} onClick={() => change('mode', mode.id)}>{mode.label}</button>)}</div><p className="small muted">종류를 바꾸어도 작성한 내용은 유지돼요. 출력 조건은 새 결과물에 맞는지 다시 확인해 주세요.</p></fieldset>
-    <PromptGuide mode={brief.mode} />
     {groups.map((group, i) => <section className="card free-question-group" key={group.title}>
       <h2><button type="button" className="free-group-toggle" aria-expanded={opened === i} aria-controls={`free-group-${i}`} onClick={() => setOpened(opened === i ? -1 : i)}><span className="free-group-index">0{i + 1}</span><span><strong>{group.title}</strong><small>{group.summary}</small></span><span className="free-group-count">{group.fields.filter(f => brief[f.id].trim()).length}/{group.fields.length} 작성</span><span aria-hidden="true">{opened === i ? '−' : '+'}</span></button></h2>
       <div className="stack free-group-body" id={`free-group-${i}`} hidden={opened !== i}>
@@ -49,10 +72,11 @@ export function FreeBrief({ onPreview, onRefine }: { onPreview: () => void; onRe
           <textarea id={`free-${field.id}`} value={brief[field.id]} onChange={e => change(field.id, e.target.value)} aria-describedby={`why-${field.id}`} required={field.required} rows={field.id === 'idea' ? 3 : 2} placeholder={field.required ? "만들고 싶은 대상과 상황을 한 문장으로 적어 주세요." : "내 장면에 맞게 적어 주세요. 아직 정하지 않았다면 비워 두어도 돼요."} />
           <details className="field-example"><summary>어느 정도로 구체적으로 쓸까요?</summary><p>{field.example}</p><small className="muted">작성 예시예요. 필요한 조건과 정도는 내 장면에 맞게 바꾸세요.</small></details>
         </div>)}
-        <div className="row step-actions"><span className="small muted">{i === 0 ? '장면 아이디어만 있어도 시작할 수 있어요.' : '이 항목들이 필요하지 않으면 다음으로 넘어가도 돼요.'}</span>{i < groups.length - 1 ? <button className="secondary" onClick={() => {setOpened(i + 1); requestAnimationFrame(() => document.getElementById(`free-${groups[i + 1].fields[0].id}`)?.focus())}}>다음 조건 →</button> : <button onClick={onPreview} disabled={!brief.idea.trim()}>프롬프트 확인하기 →</button>}</div>
+        <div className="row step-actions"><span className="small muted">{i === 0 ? '장면 아이디어만 있어도 시작할 수 있어요.' : '이 항목들이 필요하지 않으면 다음으로 넘어가도 돼요.'}</span>{i < groups.length - 1 ? <button type="button" className="secondary" onClick={() => {setOpened(i + 1); requestAnimationFrame(() => document.getElementById(`free-${groups[i + 1].fields[0].id}`)?.focus())}}>다음 조건 →</button> : <button type="button" className="secondary" onClick={() => nextActions.current?.focus()}>조건 입력 마치기 →</button>}</div>
       </div>
     </section>)}
-    <section className="card stack free-coaching-entry"><h2>어떤 조건을 더 정하면 좋을까요?</h2><p className="small muted">내 AI와 대화하며 질문과 이유를 살펴보세요. 웹에 쓴 장면을 가져가는 방법도 준비되어 있어요. 사이트의 기본 질문으로 정리하는 기능은 그대로 사용할 수 있습니다.</p><div className="row"><button onClick={onRefine} disabled={!brief.idea.trim()}>질문으로 구체화하기 →</button><button className="ghost" onClick={onPreview} disabled={!brief.idea.trim()}>지금 내용으로 프롬프트 보기</button></div></section>
+    <details className="brief-help"><summary>작성법과 예시 보기</summary><PromptGuide mode={brief.mode} /></details>
+    <section className="card stack free-coaching-entry scene-next-actions" aria-labelledby="free-next-actions"><h2 id="free-next-actions" ref={nextActions} tabIndex={-1}>이 조건으로 이어가기</h2><p className="small muted">질문에 답하며 조건을 더 정하거나, 지금 작성한 내용으로 프롬프트를 확인하세요.</p><div className="row"><button type="button" onClick={onRefine} disabled={!brief.idea.trim()}>질문으로 구체화하기 →</button><button type="button" className="secondary" onClick={onPreview} disabled={!brief.idea.trim()}>지금 내용으로 프롬프트 보기</button><button type="button" className="ghost" onClick={onReferences}>참고 이미지 추가 · 선택</button></div></section>
     {!brief.idea.trim() && <p className="small muted" role="status">‘만들고 싶은 장면’을 먼저 한 문장 적어 주세요.</p>}
   </div>
 }

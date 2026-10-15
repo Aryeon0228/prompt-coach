@@ -13,13 +13,14 @@ import { Settings } from './components/Settings'
 import { Start } from './components/Start'
 import { ToastProvider } from './components/ui'
 import { useStore } from './store'
+import type { CoachingField } from './lib/coach-conversation'
 
 type Tab = 'brief' | 'refs' | 'refine' | 'prompt' | 'coach' | 'history' | 'settings'
 const TABS: Array<{ id: Tab; label: string; description: string; group: string }> = [
-  { id: 'brief', label: '장면 설정', description: '원하는 장면의 조건을 하나씩 정해 보세요.', group: '첫 프롬프트 만들기' },
-  { id: 'refs', label: '참고 이미지', description: '무엇을 참고할 이미지인지 역할을 정해 주세요. 선택 사항이에요.', group: '첫 프롬프트 만들기' },
-  { id: 'refine', label: '질문으로 구체화', description: '한 번에 하나씩 답하고, 그 조건이 필요한 이유를 알아보세요.', group: '첫 프롬프트 만들기' },
-  { id: 'prompt', label: '프롬프트', description: '작성한 요청문과 AI에서 가져온 완성본을 확인하고 사용하세요.', group: '첫 프롬프트 만들기' },
+  { id: 'brief', label: '장면 설정', description: '원하는 장면의 조건을 하나씩 정해 보세요.', group: '장면 만들기' },
+  { id: 'refs', label: '참고 이미지', description: '선택 사항 · 이미지에서 참고할 부분을 정해요.', group: '장면 만들기' },
+  { id: 'refine', label: '질문으로 구체화', description: '한 번에 하나씩 답하고, 그 조건이 필요한 이유를 알아보세요.', group: '장면 만들기' },
+  { id: 'prompt', label: '프롬프트', description: '요청문을 확인하고 복사하거나 파일로 저장하세요.', group: '장면 만들기' },
   { id: 'coach', label: '수정 코치', description: '결과에서 아쉬운 부분을 짚고, 한 가지씩 수정 요청을 만드세요.', group: '결과 다듬기' },
   { id: 'history', label: '수정 기록', description: '어떤 요청이 효과가 있었는지 결과를 비교해 보세요.', group: '결과 다듬기' },
   { id: 'settings', label: '보관 · 설정', description: '프로젝트 이름을 바꾸거나 작업을 파일로 보관하세요.', group: '프로젝트' },
@@ -34,10 +35,13 @@ export function App() {
     return TABS.find(t => t.id === stored)?.id ?? 'brief'
   })
   const heading = useRef<HTMLHeadingElement>(null)
+  const [sceneFocus, setSceneFocus] = useState<{ projectId: string; field: CoachingField; key: number } | null>(null)
+  const focusSequence = useRef(0)
   const isFree = project?.templateId === 'free-scene'
   const tabs = TABS.filter(t => isFree || t.id !== 'refine')
   const activeTab = tab === 'refine' && !isFree ? 'brief' : tab
   const current = tabs.find(t => t.id === activeTab)!
+  const stepNumber = (id: Tab) => id === 'brief' ? '01' : id === 'refine' ? '02' : id === 'prompt' ? (isFree ? '03' : '02') : null
   useEffect(() => { localStorage.setItem('prompt-coach:tab', tab) }, [tab])
   useEffect(() => { window.scrollTo({ top: 0 }) }, [tab, project?.id])
   useEffect(() => {
@@ -55,6 +59,11 @@ export function App() {
   const navigate = (next: Tab) => {
     setTab(next)
     requestAnimationFrame(() => heading.current?.focus({ preventScroll: true }))
+  }
+
+  const editScene = (field?: CoachingField) => {
+    setSceneFocus(field && project ? { projectId: project.id, field, key: ++focusSequence.current } : null)
+    navigate('brief')
   }
 
   return (
@@ -84,26 +93,33 @@ export function App() {
               <nav className="nav" aria-label="프로젝트 작업">
                 {GROUPS.map(group => <div className="nav-group" key={group}><p className="nav-group-label">{group}</p>{tabs.filter(t => t.group === group).map(t => (
                   <button key={t.id} className={activeTab === t.id ? 'active' : ''} onClick={() => navigate(t.id)} aria-current={activeTab === t.id ? 'page' : undefined}>
-                    <span className="nav-index" aria-hidden="true">{String(tabs.indexOf(t) + 1).padStart(2, '0')}</span>{t.label}<span className="nav-arrow" aria-hidden="true">↗</span>
+                    {stepNumber(t.id) && <span className="nav-index" aria-hidden="true">{stepNumber(t.id)}</span>}{t.label}{t.id === 'refs' && <span className="nav-optional">선택</span>}<span className="nav-arrow" aria-hidden="true">↗</span>
                   </button>
                 ))}</div>)}
               </nav>
-              <label className="mobile-navigation"><span className="small muted">작업 단계</span><select value={activeTab} onChange={e => navigate(e.target.value as Tab)}>{GROUPS.map(group => <optgroup label={group} key={group}>{tabs.filter(t => t.group === group).map(t => <option key={t.id} value={t.id}>{t.label}</option>)}</optgroup>)}</select></label>
-              <p className="local-note">작업 내용은 이 브라우저에 보관돼요.</p>
+              <label className="mobile-navigation"><span className="small muted">작업 메뉴</span><select value={activeTab} onChange={e => navigate(e.target.value as Tab)}>{GROUPS.map(group => <optgroup label={group} key={group}>{tabs.filter(t => t.group === group).map(t => <option key={t.id} value={t.id}>{t.label}{t.id === 'refs' ? ' (선택)' : ''}</option>)}</optgroup>)}</select></label>
             </aside>
             <main className="content" id="main-content" tabIndex={-1}>
-              <header className="page-heading"><span className="page-number" aria-hidden="true">{String(tabs.indexOf(current) + 1).padStart(2, '0')}</span><div><h1 ref={heading} tabIndex={-1}>{current.label}</h1><p>{current.description}</p></div></header>
+              <header className="page-heading">{stepNumber(current.id) && <span className="page-number" aria-hidden="true">{stepNumber(current.id)}</span>}<div><h1 ref={heading} tabIndex={-1}>{current.label}</h1><p>{current.description}</p></div></header>
               {error ? <div className="note warn" role="alert">{error}</div> : null}
-              <div hidden={activeTab !== 'brief'} key={`brief-${project.id}`}>{isFree ? <FreeBrief onPreview={() => navigate('prompt')} onRefine={() => navigate('refine')} /> : <Brief />}</div>
+              <div hidden={activeTab !== 'brief'} key={`brief-${project.id}`}>{isFree ? <FreeBrief onPreview={() => navigate('prompt')} onRefine={() => navigate('refine')} onReferences={() => navigate('refs')} focusField={activeTab === 'brief' && sceneFocus?.projectId === project.id ? sceneFocus.field : undefined} focusKey={activeTab === 'brief' && sceneFocus?.projectId === project.id ? sceneFocus.key : undefined} /> : <Brief />}</div>
               {activeTab === 'refs' && <References />}
-              {isFree && activeTab === 'refine' && <PromptCoaching key={project.id} onPreview={() => navigate('prompt')} onEdit={() => navigate('brief')} />}
-              {activeTab === 'prompt' && (isFree ? <FreePromptView key={project.id} onEdit={() => navigate('brief')} onRefine={() => navigate('refine')} onRevise={() => navigate('coach')} /> : <PromptView onGoBrief={() => navigate('brief')} onRevise={() => navigate('coach')} />)}
+              {isFree && activeTab === 'refine' && <PromptCoaching key={project.id} onPreview={() => navigate('prompt')} onEdit={editScene} />}
+              {activeTab === 'prompt' && (isFree ? <FreePromptView key={project.id} onEdit={() => editScene()} onRefine={() => navigate('refine')} onRevise={() => navigate('coach')} /> : <PromptView onGoBrief={() => navigate('brief')} onRevise={() => navigate('coach')} />)}
               <div hidden={tab !== 'coach'} key={`coach-${project.id}`}><Coach onSaved={() => navigate('history')} /></div>
-              {tab === 'history' && <History />}
+              {tab === 'history' && <History onCreate={() => navigate('coach')} />}
               {tab === 'settings' && <Settings />}
-              {(['brief', 'refs', 'refine', 'prompt'] as Tab[]).includes(activeTab) && <nav className="page-pager" aria-label="이전 다음 작업">
-                {activeTab !== 'brief' ? <button className="ghost" onClick={() => navigate(activeTab === 'refs' ? 'brief' : activeTab === 'prompt' && isFree ? 'refine' : 'refs')}>← {activeTab === 'refs' ? '장면 설정' : activeTab === 'prompt' && isFree ? '질문으로 구체화' : '참고 이미지'}</button> : <span />}
-                <button className="secondary" onClick={() => navigate(activeTab === 'brief' ? 'refs' : activeTab === 'refs' ? (isFree ? 'refine' : 'prompt') : activeTab === 'refine' ? 'prompt' : 'coach')}>{activeTab === 'brief' ? '다음: 참고 이미지' : activeTab === 'refs' && isFree ? '질문으로 구체화하기' : activeTab === 'refs' || activeTab === 'refine' ? '프롬프트 보기' : '결과를 수정 코치로 다듬기'} <span aria-hidden="true">→</span></button>
+              {activeTab === 'brief' && !isFree && <nav className="page-pager" aria-label="장면 설정 다음 작업">
+                <button className="ghost" onClick={() => navigate('refs')}>참고 이미지 추가 <span className="small">(선택)</span></button>
+                <button onClick={() => navigate('prompt')}>프롬프트 보기 →</button>
+              </nav>}
+              {activeTab === 'refs' && <nav className="page-pager" aria-label="참고 이미지 다음 작업">
+                <button className="ghost" onClick={() => editScene()}>← 장면 설정</button>
+                <button className="secondary" onClick={() => navigate(isFree ? 'refine' : 'prompt')}>{isFree ? '질문으로 구체화하기' : '프롬프트 보기'} →</button>
+              </nav>}
+              {activeTab === 'prompt' && <nav className="page-pager" aria-label="프롬프트 다음 작업">
+                <button className="ghost" onClick={() => editScene()}>← 장면 설정</button>
+                <button className="secondary" onClick={() => navigate('coach')}>결과를 수정 코치로 다듬기 →</button>
               </nav>}
             </main>
           </div>

@@ -114,6 +114,7 @@ test('a scene handoff starts with a meaningful coaching question rather than set
     '화면을 실제로 열지 못했다면 열렸다고 말하지',
     '일반 AI 대화에서 첫 질문 하나와 그 이유로 바로 시작',
     '웹에 별도로 보관하고 싶은 경우에만',
+    '프롬프트 → 완성한 프롬프트 가져오기',
     '웹과 AI 대화가 자동 동기화되거나',
   ]) assert.ok(starter.includes(instruction), instruction)
   assert.equal(starter.includes('claude mcp add'), false)

@@ -77,3 +77,34 @@ summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;
 .locks-list>li>span{min-width:0;overflow-wrap:anywhere}
 .locks-list button{flex-shrink:0}
 @media(max-width:1000px){.revision-change-grid{grid-template-columns:1fr}.revision-change-grid>.revision-change-panel+*{border-top:1px solid var(--line);padding-top:20px}}
+
+.revision-step-heading:focus{outline:none}
+.nav-optional{font-size:11px;color:#8f8f8f;margin-left:auto}
+.nav-optional+.nav-arrow{margin-left:0}
+.project-management{gap:24px}
+.project-export,.project-danger{border-top:1px solid var(--line);padding-top:20px}
+.project-management h3{font-size:16px}
+.project-storage-note{font-size:12px;color:var(--muted);line-height:1.7}
+.project-danger{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.project-danger h3{font-size:14px}
+.project-danger button{font-size:12px}
+.history-evaluation{border-top:1px solid var(--line);padding-top:8px}
+.history-evaluation>summary,.history-stats>summary{font-size:14px}
+.history-evaluation>summary .small{margin-left:auto}
+.history-evaluation>summary::after{margin-left:0}
+.history-stats{font-size:13px}
+.ref-field{display:grid;gap:6px;margin:0 12px;font-size:12px;color:var(--muted)}
+.ref .ref-field select,.ref .ref-field input{margin:0;width:100%}
+.reference-order-note{font-size:12px;color:var(--muted)}
+.brief-help{border-block:1px solid var(--line);padding:4px 0}
+.brief-help>summary{font-size:13px;color:var(--muted)}
+.brief-help .prompt-guide{background:transparent;padding:8px 0 16px}
+.scene-next-actions{border-top:1px solid var(--line);padding-top:20px;gap:12px}
+.scene-next-actions h2{font-size:16px}
+.scene-next-actions .row{gap:8px 12px}
+@media(max-width:759px){.scene-next-actions .row>button{width:100%}.project-danger{align-items:flex-start}.history-evaluation>summary{flex-wrap:wrap;gap:6px 12px}.history-evaluation>summary .small{margin-left:0}}
+
+.history-before{margin:0;display:grid;gap:6px}
+.history-record-title{font-size:16px}
+.history-record-actions{justify-content:flex-end}
+.history-record-actions button{font-size:12px}

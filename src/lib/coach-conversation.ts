@@ -13,6 +13,8 @@ export interface GuidedSession {
   answers: Partial<Record<CoachingField, GuidedAnswer>>
   drafts: Partial<Record<CoachingField, string>>
   completed: boolean
+  /** Confirmed conditions now live in the scene; answers remain a historical record. */
+  conditionsApplied?: true
 }
 
 export interface CoachingQuestion {
@@ -73,10 +75,10 @@ export function nextCoachingQuestion(brief: FreePromptBrief, session: GuidedSess
     && (session.mode !== brief.mode || !session.answers[field]))
 }
 
-/** Answers remain a separate layer. Original text and stale sessions are never rewritten. */
+/** Read older answer layers until an explicit edit moves them into the scene conditions. */
 export function guidedBrief(brief: FreePromptBrief, session: GuidedSession | undefined, baseSource: string): FreePromptBrief {
   const result = { ...brief }
-  if (!session || session.source !== baseSource || session.mode !== brief.mode) return result
+  if (!session || session.conditionsApplied || session.source !== baseSource || session.mode !== brief.mode) return result
   for (const field of FIELDS) {
     const answer = session.answers[field]
     if (!brief[field].trim() && answer?.status === 'answered' && answer.text.trim()) result[field] = answer.text
@@ -110,11 +112,12 @@ function isAnswer(value: unknown): value is GuidedAnswer {
 /** Validate imported state without truncating the user's answers or unsent drafts. */
 export function isGuidedSession(value: unknown): value is GuidedSession {
   if (!isPlainRecord(value)
-    || !hasOnlyKeys(value, ['source', 'mode', 'answers', 'drafts', 'completed'])
+    || !hasOnlyKeys(value, ['source', 'mode', 'answers', 'drafts', 'completed', 'conditionsApplied'])
     || !['source', 'mode', 'answers', 'drafts', 'completed'].every((key) => Object.hasOwn(value, key))
     || typeof value.source !== 'string' || !value.source.trim() || value.source.length > SOURCE_LIMIT
     || !MODES.includes(value.mode as FreePromptMode)
     || typeof value.completed !== 'boolean'
+    || (value.conditionsApplied !== undefined && value.conditionsApplied !== true)
     || !isPlainRecord(value.answers) || !hasOnlyKeys(value.answers, FIELDS)
     || !isPlainRecord(value.drafts) || !hasOnlyKeys(value.drafts, FIELDS)) return false
 

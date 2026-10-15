@@ -6,6 +6,7 @@ import ts from 'typescript'
 import * as conversation from '../src/lib/coach-conversation.ts'
 import * as handoff from '../src/lib/coach-handoff.ts'
 import * as freePrompt from '../src/lib/free-prompt.ts'
+import * as coachingContext from '../src/lib/coaching-context.ts'
 import type { Project } from '../src/types.ts'
 
 type Element = { type: string; props: Record<string, any> }
@@ -28,6 +29,7 @@ function harness(initial: Project) {
   let project = structuredClone(initial)
   const states: unknown[] = []
   let cursor = 0
+  let editField: conversation.CoachingField | undefined
   const exports: Record<string, (props: unknown) => Element> = {}
   const jsx = (type: string, props: Element['props']) => ({ type, props })
   vm.runInNewContext(compiled, {
@@ -46,13 +48,15 @@ function harness(initial: Project) {
       if (name === '../lib/coach-conversation') return conversation
       if (name === '../lib/coach-handoff') return handoff
       if (name === '../lib/free-prompt') return freePrompt
+      if (name === '../lib/coaching-context') return coachingContext
       if (name.endsWith('.css')) return {}
       throw new Error(`Unexpected import: ${name}`)
     },
   })
   return {
     project: () => project,
-    render() { cursor = 0; return exports.CoachConversation({ onPreview() {}, onEdit() {}, onHandoff() {} }) },
+    editField: () => editField,
+    render() { cursor = 0; return exports.CoachConversation({ onPreview() {}, onEdit(field?: conversation.CoachingField) { editField = field }, onHandoff() {} }) },
   }
 }
 
@@ -70,12 +74,23 @@ function click(tree: Element, label: string) {
   button.props.onClick()
 }
 
-test('deferring an imported saved answer keeps its exact text available for resuming and saving again', () => {
-  const imported = JSON.parse(JSON.stringify(fixture())) as Project
-  assert.equal(conversation.isGuidedSession(imported.promptCoaching!.session), true)
-  const originalText = imported.promptCoaching!.session!.answers.purpose!.text
+test('saved answers open the matching scene condition without changing the historical record', () => {
+  const imported = fixture()
   const ui = harness(imported)
-  click(ui.render(), '답변 수정')
+  click(ui.render(), '장면 설정에서 수정 →')
+  assert.equal(ui.editField(), 'purpose')
+  assert.deepEqual(ui.project(), imported)
+  assert.equal(nodes(ui.render()).some(node => node.type === 'textarea'), false)
+})
+
+test('deferring an imported draft keeps exact text available for resuming into the scene condition', () => {
+  const imported = JSON.parse(JSON.stringify(fixture())) as Project
+  const originalText = imported.promptCoaching!.session!.answers.purpose!.text
+  imported.promptCoaching!.session!.answers.purpose = { status: 'deferred', text: '' }
+  imported.promptCoaching!.session!.drafts.purpose = originalText
+  assert.equal(conversation.isGuidedSession(imported.promptCoaching!.session), true)
+  const ui = harness(imported)
+  click(ui.render(), '이어서 답하기')
   assert.equal(nodes(ui.render()).find(node => node.type === 'textarea')?.props.value, originalText)
   click(ui.render(), '지금은 보류')
   const deferred = ui.project().promptCoaching!.session!
@@ -85,7 +100,7 @@ test('deferring an imported saved answer keeps its exact text available for resu
   assert.equal(deferred.drafts.subject, imported.promptCoaching!.session!.drafts.subject)
   assert.equal(conversation.isGuidedSession(deferred), true)
   assert.equal(conversation.guidedBrief(imported.freeform!, deferred, deferred.source).purpose, '')
-  click(ui.render(), '답변 수정')
+  click(ui.render(), '이어서 답하기')
   const resumed = ui.render()
   assert.equal(nodes(resumed).find(node => node.type === 'textarea')?.props.value, originalText)
   const form = nodes(resumed).find(node => node.type === 'form')
@@ -93,13 +108,14 @@ test('deferring an imported saved answer keeps its exact text available for resu
   form.props.onSubmit({ preventDefault() {} })
   assert.equal(ui.project().promptCoaching!.session!.answers.purpose!.text, originalText)
   assert.equal(ui.project().promptCoaching!.session!.answers.purpose!.status, 'answered')
-  assert.deepEqual(ui.project().freeform, imported.freeform)
+  assert.deepEqual(ui.project().freeform, { ...imported.freeform, purpose: originalText })
+  assert.equal(coachingContext.coachingContext(ui.project()).sessionStale, false)
 })
 
 test('deferring an edited answer preserves the current draft, including an intentionally empty draft', () => {
   for (const draft of ['  수정하던 새로운 용도\n', '']) {
     const ui = harness(fixture(draft))
-    click(ui.render(), '답변 수정')
+    click(ui.render(), '작성 중인 답변 이어쓰기')
     click(ui.render(), '지금은 보류')
     const session = ui.project().promptCoaching!.session!
     assert.equal(session.drafts.purpose, draft)
