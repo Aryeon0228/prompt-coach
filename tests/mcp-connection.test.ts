@@ -103,6 +103,21 @@ test('MCP coaching wraps the request verbatim and explicitly supports unconnecte
   assert.throws(() => buildMcpStarter({ medium: 'audio' as 'image', idea, requestText: original }))
 })
 
+test('a scene handoff starts with a meaningful coaching question rather than setup choices', () => {
+  const request = buildCoachingRequest(createFreeBrief('작은 고래가 떠 있는 정원'), [], [])
+  const starter = buildMcpStarter({ medium: 'image', idea: '작은 고래가 떠 있는 정원', requestText: request })
+  assert.ok(starter.endsWith(request))
+  for (const instruction of [
+    '연결 설정문이 아니라 웹에서 작성한 장면을 전달하는 코칭 요청문',
+    '코칭을 시작할지 다시 묻거나 메뉴를 제시하지',
+    '첫 질문 하나와 그 이유로 바로 시작',
+    '“완성한 프롬프트 가져오기”에 붙여 넣도록',
+    '웹과 AI 대화가 자동 동기화되거나',
+  ]) assert.ok(starter.includes(instruction), instruction)
+  assert.equal(starter.includes('claude mcp add'), false)
+  assert.equal(starter.includes('codex mcp add'), false)
+})
+
 test('MCP wrapping preserves saved and deferred answers without exposing drafts, images or changing snapshots', () => {
   const brief = createFreeBrief('조용한 서재', 'web')
   const project: Project = { id: 'mcp', name: '서재', templateId: 'free-scene', createdAt: 1, updatedAt: 1, freeform: brief, references: [], locks: [], decisions: {}, iterations: [] }
@@ -151,4 +166,28 @@ test('desktop setup uses literal validated URLs and checks existing registration
   assert.equal(text.includes('mcp login'), false)
   assert.ok(text.includes('전체 JSON 요청의 UTF-8 바이트 한도'))
   assert.ok(text.includes('원문을 자르지 말고 해당 정리 도구를 생략'))
+})
+
+test('setup returns users without a scene to the web, reports only verified connection status, and offers no coaching menu', () => {
+  const text = buildMcpSetup(endpoint)
+  for (const instruction of [
+    '이것은 연결 설정문',
+    '실제로 확인한 수준인 등록 확인·도구 목록 확인·실제 호출 성공까지만',
+    '호출하지 않았다면 호출 성공이라고 말하지',
+    '장면이 아직 없다면 이 대화에서 새 장면을 받으려 하지 말고',
+    '장면은 있지만 결과물 종류만 빠졌다면',
+    '이미 적은 장면을 웹에 다시 쓰게 하지',
+    '다음 한 가지 단계로 마무리',
+    'https://studio-penumbra.com/prompt-coach/#scene',
+    '코칭 세션 시작·규칙 자체 검토·도구 둘러보기 같은 메뉴나 불필요한 선택지를 먼저 덧붙이지',
+    '사용자가 따로 규칙 검토 등을 명시적으로 요청하면 그 요청에는 답하세요',
+    '가짜 장면을 만들지도',
+    '모두 이미 있으면',
+    '즉시 장면 코칭을 진행',
+    '코칭을 시작할지 다시 묻지 말고 첫 질문 하나와 그 이유',
+    '웹에서 장면 작성 → 내 AI에서 질문·답변 → 웹에 완성본 가져오기',
+    '웹사이트와 AI 대화는 자동으로 동기화되지',
+    '웹 안에서 AI가 직접 질문한다고 말하지',
+  ]) assert.ok(text.includes(instruction), instruction)
+  assert.equal(text.includes('빠진 정보만 한 번에 물어보고'), false)
 })

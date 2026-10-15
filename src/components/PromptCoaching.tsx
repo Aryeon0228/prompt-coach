@@ -75,7 +75,7 @@ export function PromptCoaching({ onPreview, onEdit }: { onPreview: () => void; o
           request: { text, source: copiedSource, copiedAt: Date.now() },
         },
       })
-      toast('코칭 시작문을 복사했어요. ChatGPT나 Claude에 붙여 넣어 주세요.')
+      toast('코칭 요청문을 복사했어요. ChatGPT나 Claude에 붙여 넣어 주세요.')
     } else {
       setCopyFailed(true)
       setPreviewOpen(true)
@@ -129,8 +129,8 @@ export function PromptCoaching({ onPreview, onEdit }: { onPreview: () => void; o
       </div>
       <h2 className="sr-only" ref={methodHeading} tabIndex={-1}>{method === 'guide' ? '사이트에서 기본 질문으로 정리하기' : '내 AI에서 문맥에 맞는 질문받기'}</h2>
       {method === 'guide' ? <CoachConversation onPreview={onPreview} onEdit={onEdit} onHandoff={() => changeMethod('chatgpt')} /> : <>
-      <div className="note coaching-intro"><p>내가 쓴 내용에서 부족한 조건이나 모순을 짚고, 왜 필요한지 설명하도록 AI에 요청해요. 본인 ChatGPT나 Claude에서 대화한 뒤 완성본을 가져오세요.</p>{answerCount > 0 && <p>사이트에서 저장한 답변 {answerCount}개도 코칭 시작문에 함께 담겨요.</p>}</div>
-      <CoachConnection />
+      <div className="note coaching-intro"><p><b>웹에서 장면 작성 → 내 AI에서 질문·답변 → 웹에 완성본 가져오기</b></p><p>작성한 장면을 내 ChatGPT나 Claude에 전달하세요. AI가 부족한 조건과 필요한 이유를 질문하면 답한 뒤, 완성본을 이 화면으로 가져오면 돼요.</p>{answerCount > 0 && <p>사이트에서 저장한 답변 {answerCount}개도 코칭 요청문에 함께 담겨요.</p>}</div>
+      <CoachConnection collapsed hasScene={hasIdea} />
       {sessionStale && <div className="note warn stack" role="status"><p>장면 설정이 바뀌어 이전 질문 답변은 이번 요청에서 제외했어요. 기록을 확인한 뒤 다시 이어 쓸 수 있어요.</p><button className="ghost" type="button" onClick={() => changeMethod('guide')}>이전 답변 확인하기 →</button></div>}
 
       {changed && <div className="note warn coaching-change" role="status">
@@ -142,26 +142,26 @@ export function PromptCoaching({ onPreview, onEdit }: { onPreview: () => void; o
       <section className="card stack coaching-step" aria-labelledby={`${id}-copy-title`}>
         <div className="coaching-step-heading">
           <span className="coaching-step-number" aria-hidden="true">01</span>
-          <div><h2 id={`${id}-copy-title`}>내 AI에서 코칭 시작하기</h2><p className="muted">장면과 조건에 코칭 방법을 담았어요. 시작문을 복사한 뒤, 사용할 AI에 붙여 넣고 보내세요. MCP를 연결했다면 코칭 도구를 사용하고, 연결하지 않아도 질문을 이어갈 수 있어요.</p></div>
+          <div><h2 id={`${id}-copy-title`}>내 AI에 장면 전달하기</h2><p className="muted">장면과 조건, 코칭 방법을 담은 요청문이에요. 복사해 내 AI에 보내면 첫 질문으로 바로 시작합니다. MCP를 연결했다면 코칭 도구를 사용하고, 연결하지 않아도 대화를 이어갈 수 있어요.</p></div>
         </div>
         <div className="coaching-copy-row">
-          <button type="button" disabled={!hasIdea || copying || !sourceFits || !requestFits} onClick={copyRequest}>{copying ? '복사하는 중…' : '코칭 시작문 복사'}</button>
+          <button type="button" disabled={!hasIdea || copying || !sourceFits || !requestFits} onClick={copyRequest}>{copying ? '복사하는 중…' : '코칭 요청문 복사'}</button>
           <p className="small muted" role="status">
-            {coaching.request ? <>{requestStale ? '이전 장면의 시작문을 복사해 둔 상태예요.' : '현재 장면의 시작문을 복사했어요.'}{validCopiedDate && <><br /><time dateTime={validCopiedDate.toISOString()}>{validCopiedDate.toLocaleString('ko-KR')}</time></>}</> : 'ChatGPT와 Claude에서 같은 시작문을 사용할 수 있어요.'}
+            {coaching.request ? <>{requestStale ? '이전 장면의 요청문을 복사해 둔 상태예요.' : '현재 장면의 요청문을 복사했어요.'}{validCopiedDate && <><br /><time dateTime={validCopiedDate.toISOString()}>{validCopiedDate.toLocaleString('ko-KR')}</time></>}</> : 'ChatGPT와 Claude에서 같은 요청문을 사용할 수 있어요.'}
           </p>
         </div>
         {!hasIdea && <p className="small muted">장면 설정에서 만들고 싶은 장면을 한 문장 적어 주세요. <button type="button" className="ghost" onClick={onEdit}>장면 적기 →</button></p>}
         <div className="stack coaching-ai-choice" aria-labelledby={`${id}-chat-title`}>
           <h3 id={`${id}-chat-title`}>복사한 뒤 사용할 AI 열기</h3>
           <div className="coaching-open-row"><a className="coaching-open-chat" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" aria-label="ChatGPT 열기 (새 탭)">ChatGPT <span aria-hidden="true">↗</span></a><a className="coaching-open-chat" href="https://claude.ai/" target="_blank" rel="noopener noreferrer" aria-label="Claude 열기 (새 탭)">Claude <span aria-hidden="true">↗</span></a></div>
-          <p className="small muted">새 탭에서 시작문을 직접 붙여 넣으세요. 질문에 답한 뒤 “이 조건으로 프롬프트를 완성해 줘”라고 요청하면 돼요. 참고 이미지는 대화에 직접 첨부해 주세요.</p>
+          <p className="small muted">새 탭에서 코칭 요청문을 붙여 넣고 질문에 답하세요. 조건이 정리되면 “이 조건으로 프롬프트를 완성해 줘”라고 요청하고, 완성본을 아래에 가져오세요. 참고 이미지는 AI 대화에 직접 첨부해 주세요.</p>
           <p className="small muted">선택한 서비스의 본인 계정으로 사용하며 해당 서비스의 이용 한도가 적용돼요. 사이트와 대화 내용은 자동으로 연결되지 않아요.</p>
         </div>
         {copyFailed && <p className="small coaching-copy-failed" role="alert">자동 복사를 완료하지 못했어요. 요청문을 직접 선택해 복사하면 같은 내용을 전달할 수 있어요.</p>}
         <details className="coaching-request-preview" open={previewOpen} onToggle={(event) => setPreviewOpen(event.currentTarget.open)}>
-          <summary>복사할 시작문 미리보기</summary>
+          <summary>복사할 코칭 요청문 미리보기</summary>
           <div className="stack">
-            <textarea ref={requestBox} readOnly value={requestText} rows={9} aria-label="ChatGPT나 Claude에 전달할 코칭 시작문" className="coaching-request-text" onCopy={(event) => {
+            <textarea ref={requestBox} readOnly value={requestText} rows={9} aria-label="ChatGPT나 Claude에 전달할 코칭 요청문" className="coaching-request-text" onCopy={(event) => {
               const field = event.currentTarget
               if (event.defaultPrevented || !hasIdea || !sourceFits || !requestFits || field.selectionStart !== 0 || field.selectionEnd !== requestText.length) return
               updateProject((p) => p.id !== project.id ? p : {
@@ -172,7 +172,7 @@ export function PromptCoaching({ onPreview, onEdit }: { onPreview: () => void; o
                 },
               })
               setCopyFailed(false)
-              toast('코칭 시작문을 복사했어요. ChatGPT나 Claude에 붙여 넣어 주세요.')
+              toast('코칭 요청문을 복사했어요. ChatGPT나 Claude에 붙여 넣어 주세요.')
             }} />
             <div className="row"><button type="button" className="secondary" onClick={() => { requestBox.current?.focus(); requestBox.current?.select(); toast('요청문을 선택했어요. 기기의 복사 기능으로 복사해 주세요.') }}>요청문 전체 선택</button></div>
           </div>
@@ -183,7 +183,7 @@ export function PromptCoaching({ onPreview, onEdit }: { onPreview: () => void; o
       <section className="card stack coaching-step" aria-labelledby={`${id}-import-title`}>
         <div className="coaching-step-heading">
           <span className="coaching-step-number" aria-hidden="true">02</span>
-          <div><h2 id={`${id}-import-title`}>완성한 프롬프트 가져오기</h2><p className="muted">대화에서 완성한 요청문을 아래에 붙여 넣고, 내 의도와 맞는지 읽어 보세요.</p></div>
+          <div><h2 id={`${id}-import-title`}>완성한 프롬프트 가져오기</h2><p className="muted">AI 대화에서 완성한 프롬프트를 복사해 이 웹에 붙여 넣으세요. 내 의도와 맞는지 읽은 뒤 사용하면 돼요.</p></div>
         </div>
         <label className="stack coaching-draft-label" htmlFor={`${id}-draft`}><span>가져온 프롬프트</span><textarea id={`${id}-draft`} value={coaching.draft} onChange={(event) => updateDraft(event.target.value)} maxLength={MAX_DRAFT} rows={9} aria-describedby={`${id}-draft-help`} placeholder="ChatGPT나 Claude에서 다듬은 프롬프트를 여기에 붙여 넣으세요." /></label>
         <p className="small muted" id={`${id}-draft-help`}>초안과 메모는 이 브라우저에 자동 보관돼요. 아래 사용 버튼을 눌러야 최종 프롬프트에 반영됩니다.</p>

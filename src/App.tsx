@@ -29,6 +29,7 @@ const GROUPS = [...new Set(TABS.map(t => t.group))]
 export function App() {
   const { ready, error, project, template, openProject } = useStore()
   const [tab, setTab] = useState<Tab>(() => {
+    if (window.location.hash === '#scene') return 'brief'
     const stored = localStorage.getItem('prompt-coach:tab')
     return TABS.find(t => t.id === stored)?.id ?? 'brief'
   })
@@ -39,6 +40,18 @@ export function App() {
   const current = tabs.find(t => t.id === activeTab)!
   useEffect(() => { localStorage.setItem('prompt-coach:tab', tab) }, [tab])
   useEffect(() => { window.scrollTo({ top: 0 }) }, [tab, project?.id])
+  useEffect(() => {
+    // A return from the AI opens scene editing without replacing the saved project.
+    const returnToScene = () => {
+      if (window.location.hash !== '#scene') return
+      setTab('brief')
+      window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search)
+      window.scrollTo({ top: 0 })
+    }
+    returnToScene()
+    window.addEventListener('hashchange', returnToScene)
+    return () => window.removeEventListener('hashchange', returnToScene)
+  }, [])
   const navigate = (next: Tab) => {
     setTab(next)
     requestAnimationFrame(() => heading.current?.focus({ preventScroll: true }))
