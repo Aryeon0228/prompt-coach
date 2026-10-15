@@ -76,8 +76,8 @@ export function Start({ onCreated }: { onCreated: () => void }) {
           <button type="button" className="ghost" aria-describedby="project-import-help" disabled={deleting !== null} onClick={() => file.current?.click()}>JSON 열기</button>
           <input ref={file} type="file" accept="application/json,.json" hidden onChange={async e => { const f = e.target.files?.[0]; if (!f) return; try { await importProject(await f.text()); onCreated(); toast('프로젝트를 불러왔어요.') } catch (err) { toast((err as Error).message) } e.target.value = '' }} />
         </div>
+        <p className="local-storage-note">내용은 이 브라우저에 저장돼요. 보관 · 설정에서 JSON 파일로 내보내면 다른 기기에서도 이어갈 수 있어요.</p>
       </section>
-      <p className="local-storage-note">내용은 이 브라우저에 저장돼요. 보관 · 설정에서 JSON 파일로 내보내면 다른 기기에서도 이어갈 수 있어요.</p>
     </div>
   )
 }
