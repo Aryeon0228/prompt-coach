@@ -7,3 +7,21 @@
 @media(max-width:759px){.free-mode-grid{grid-template-columns:1fr;gap:8px}.free-mode-grid .choice.big{display:flex;gap:10px;align-items:baseline;justify-content:space-between;padding:12px 16px}.free-mode-grid .choice .hint{margin:0;text-align:right}.free-mode-grid .choice>span:first-child{flex-shrink:0}.free-start-action,.free-preview-action{display:grid;gap:16px}.free-start-action button,.free-preview-action button{width:100%}.guide-compare{grid-template-columns:1fr}.guide-prompt{padding:16px}.free-group-toggle{padding:18px;gap:10px;flex-wrap:wrap}.free-group-toggle>span:nth-child(2){flex:1;min-width:0}.free-group-count{flex-basis:100%;order:4;margin-left:28px}.free-group-body{padding:0 18px 20px}.free-group-body .step-actions{align-items:stretch}.free-group-body .step-actions .small{max-width:none;width:100%}.free-group-body .step-actions button{margin-left:auto}.free-prompt-output{padding:20px;font-size:14px}.example-templates summary .small{flex-basis:100%;order:3}}
 
 .prompt-version-tabs{display:flex;max-width:100%;border-radius:14px}.prompt-version-tabs button{flex:1;min-width:0;white-space:normal}
+
+/* Examples support the scene input; saved projects remain a separate task. */
+.free-start .example-templates{margin-top:-8px}
+.example-templates>summary{width:fit-content;max-width:100%;font-size:13px;color:var(--muted);gap:8px 12px}
+.example-templates>summary:hover{color:var(--ink)}
+.example-templates>summary::after{font-size:16px}
+.example-templates[open]>summary{color:var(--ink)}
+.example-templates .template-card{padding:14px 16px!important}
+.example-templates .template-title{font-size:14px;margin-bottom:4px}
+.example-templates .hint{display:block;font-size:12px;color:var(--muted)}
+.example-templates .project-create{padding-top:12px;margin-top:0}
+.example-templates .project-create>button{font-size:13px;background:#333;color:var(--ink)}
+.example-templates .project-create>button:hover{background:#4d4d4d}
+.project-row-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.project-delete{display:grid;place-items:center;width:44px;height:44px;min-width:44px;padding:0;background:transparent;color:var(--muted);font:24px/1 var(--f-lat)}
+.project-delete:hover{background:#302320;color:var(--danger)}
+.project-delete:disabled:hover{background:transparent;color:var(--muted)}
+@media(max-width:759px){.saved-projects .project-row{flex-wrap:wrap}.saved-projects .project-row>.grow{flex-basis:100%}.project-row-actions{margin-left:auto}.example-templates>summary{width:100%;gap:0 8px}.example-templates .project-create>button{width:100%}}

@@ -13,6 +13,7 @@ interface TestStore {
   projects: Project[]
   openProject: (id: string | null) => Promise<void>
   updateProject: (patch: (project: Project) => Project) => void
+  deleteProject: (id: string) => Promise<void>
   importProject: (json: string) => Promise<void>
 }
 
@@ -187,4 +188,35 @@ test('malformed guided sessions are rejected before saving imported projects', a
     await assert.rejects(harness.render().importProject(JSON.stringify({ ...p, promptCoaching: { ...createPromptCoaching(), session: malformed } })), /코칭 기록의 형식/)
     assert.equal(harness.records.size, 0)
   }
+})
+
+test('deleting another saved project preserves the active project and its pending draft', async () => {
+  const active = project('active')
+  const removed = project('removed')
+  const harness = storageHarness([active, removed])
+  await harness.render().openProject(active.id)
+  harness.render().updateProject(current => ({ ...current, promptCoaching: { ...createPromptCoaching(), draft: '  삭제 중에도 보관할 초안\n둘째 줄  ' } }))
+  await harness.render().deleteProject(removed.id)
+  assert.equal(harness.records.has(removed.id), false)
+  assert.equal(harness.records.size, 1)
+  assert.equal(harness.records.get(active.id)!.promptCoaching!.draft, '  삭제 중에도 보관할 초안\n둘째 줄  ')
+  assert.equal(harness.render().project!.id, active.id)
+  assert.deepEqual(Array.from(harness.render().projects, p => p.id), [active.id])
+})
+
+test('deleting the active project clears selection and pending autosave cannot recreate it', async () => {
+  const removed = project('removed')
+  const retained = project('retained')
+  const harness = storageHarness([removed, retained])
+  await harness.render().openProject(removed.id)
+  harness.render().updateProject(current => ({ ...current, name: '저장 대기 중인 변경' }))
+  await harness.render().deleteProject(removed.id)
+  assert.equal(harness.render().project, null)
+  assert.equal(harness.records.has(removed.id), false)
+  assert.deepEqual(harness.records.get(retained.id), retained)
+  await harness.render().openProject(retained.id)
+  await harness.render().openProject(null)
+  assert.equal(harness.records.has(removed.id), false)
+  assert.equal(harness.records.size, 1)
+  assert.deepEqual(harness.records.get(retained.id), retained)
 })
