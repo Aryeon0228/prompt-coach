@@ -42,12 +42,17 @@ export function Start({ onCreated, onOpening }: { onCreated: () => void; onOpeni
           catch (err) { toast((err as Error).message) }
           finally { setCreating(false) }
         }}>
-          <fieldset className="free-mode-fieldset" aria-describedby="free-mode-guide"><legend>완성할 결과물을 골라 주세요</legend><div className="free-mode-grid">{FREE_MODES.map(item => <button type="button" key={item.id} className={`choice big ${mode === item.id ? 'on' : ''}`} aria-pressed={mode === item.id} onClick={() => setMode(item.id)}><span>{item.label}</span><span className="hint">{item.hint}</span></button>)}</div><p className="small muted" id="free-mode-guide">3D 웹이 목표라면 <strong>3D Web</strong>부터 시작하세요. 이미지는 참고 자료로 준비해 추가할 수 있어요.</p></fieldset>
+          <fieldset className="free-mode-fieldset" aria-describedby="free-mode-guide"><legend>만들 결과물을 선택하세요</legend><div className="free-mode-grid">{FREE_MODES.map(item => <button type="button" key={item.id} className={`choice big ${mode === item.id ? 'on' : ''}`} aria-pressed={mode === item.id} onClick={() => setMode(item.id)}><span>{item.label}</span><span className="hint">{item.hint}</span></button>)}</div><p className="small muted" id="free-mode-guide">3D 웹이 목표라면 <strong>3D Web</strong>부터 시작하세요. 이미지는 참고 자료로 준비해 추가할 수 있어요.</p></fieldset>
           <label className="stack free-start-input"><span>장면 아이디어</span><textarea required rows={4} value={idea} onChange={e => setIdea(e.target.value)} placeholder="예: 비 오는 밤, 작은 우산 아래에서 버스를 기다리는 고양이" aria-describedby="free-start-hint" /></label>
         </form>
 
         <details className="example-templates">
-          <summary><span>예시 장면으로 시작하기</span><span className="small muted">생각나는 장면이 없다면 눌러보세요.</span></summary>
+          <summary>
+            <span className="example-summary-copy">
+              <span className="example-summary-title">예시 장면으로 시작하기</span>
+              <span className="example-summary-hint">아이디어가 떠오르지 않으면 예시를 펼쳐 보세요.</span>
+            </span>
+          </summary>
           <div className="stack">
             <p className="small muted">3D 웹 예시예요. 장면을 고르면 정해진 선택지를 따라 새 프로젝트를 시작할 수 있어요.</p>
             <div className="template-grid">{index.filter(e => e.id !== 'free-scene').map(e => <button type="button" key={e.id} className={`choice template-card ${picked?.id === e.id ? 'on' : ''}`} onClick={() => setPicked(e)} aria-pressed={picked?.id === e.id}><span className="template-title">{e.name}</span><span className="hint">{e.description}</span></button>)}</div>
@@ -59,7 +64,7 @@ export function Start({ onCreated, onOpening }: { onCreated: () => void; onOpeni
         {!freeEntry && <p className="small muted" role="status">시작 화면을 불러오지 못했어요. 잠시 후 새로고침해 주세요.</p>}
       </section>
 
-      <section className="card saved-projects"><div className="section-title"><h2>내 프로젝트</h2><span className="small muted">저장한 장면 이어서 작업하기</span></div>{projects.map(p => <div className="project-row" key={p.id}><div className="grow"><div className="name">{p.name}</div><div className="small muted">{p.freeform ? `자유 장면 · ${FREE_MODES.find(m => m.id === p.freeform?.mode)?.label ?? ''}` : index.find(e => e.id === p.templateId)?.name ?? p.templateId} · 마지막 수정 {new Date(p.updatedAt).toLocaleDateString()} · 수정 요청 {p.iterations.length}회</div></div><div className="project-row-actions"><button type="button" className="secondary" disabled={deleting !== null} onClick={() => { onOpening?.(); openProject(p.id) }}>열기</button><button type="button" className="project-delete" title="프로젝트 삭제" aria-label={`${p.name} 프로젝트 삭제`} disabled={deleting !== null} onClick={async () => {
+      <section className="card saved-projects"><div className="section-title"><h2 className="saved-projects-heading"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="4" rx="1" /><path d="M5 7v13h14V7M10 11h4" /></svg>내 프로젝트</h2><span className="small muted">저장한 장면 이어서 작업하기</span></div>{projects.map(p => <div className="project-row" key={p.id}><div className="grow"><div className="name">{p.name}</div><div className="small muted">{p.freeform ? `자유 장면 · ${FREE_MODES.find(m => m.id === p.freeform?.mode)?.label ?? ''}` : index.find(e => e.id === p.templateId)?.name ?? p.templateId} · 마지막 수정 {new Date(p.updatedAt).toLocaleDateString()} · 수정 요청 {p.iterations.length}회</div></div><div className="project-row-actions"><button type="button" className="secondary" disabled={deleting !== null} onClick={() => { onOpening?.(); openProject(p.id) }}>열기</button><button type="button" className="project-delete" title="프로젝트 삭제" aria-label={`${p.name} 프로젝트 삭제`} disabled={deleting !== null} onClick={async () => {
         if (deletePending.current || !window.confirm(`“${p.name}” 프로젝트를 이 브라우저에서 삭제할까요?\n내보낸 JSON 파일이 없으면 되살릴 수 없어요.`)) return
         deletePending.current = true
         setDeleting(p.id)
