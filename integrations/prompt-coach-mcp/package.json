@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "esbuild": "0.28.2",
+    "happy-dom": "^21.0.1",
     "wrangler": "4.151.0"
   }
 }

@@ -1,18 +1,5 @@
 import { MEDIUMS, LIMITS, coachKey, submissionBudget } from './model.mjs';
-
-function el(document, tag, props = {}, children = []) {
-  const node = document.createElement(tag);
-  for (const [name, value] of Object.entries(props)) {
-    if (value === undefined || value === null || value === false) continue;
-    if (name === 'text') node.textContent = value;
-    else if (name === 'class') node.className = value;
-    else if (name.startsWith('on')) node.addEventListener(name.slice(2), value);
-    else if (name in node && !name.startsWith('aria-')) node[name] = value;
-    else node.setAttribute(name, value === true ? '' : String(value));
-  }
-  for (const child of children) if (child) node.append(typeof child === 'string' ? document.createTextNode(child) : child);
-  return node;
-}
+import { createElement as el, reconcileChildren } from './dom.mjs';
 
 async function copyText(text, document) {
   try { await document.defaultView.navigator.clipboard.writeText(text); return true; }
@@ -44,8 +31,19 @@ export function createCoachView(root, controller, adapter) {
     const id = `coach-${field}`;
     const text = value ?? controller.draft?.[field] ?? '';
     const budget = budgetAction ? budgetFor(budgetAction) : null;
+    const key = coachKey(controller.output.coach);
+    const save = (event) => {
+      if (readOnly) return;
+      if (coachKey(controller.output.coach) === key) controller.setDraft(field, event.target.value);
+      else {
+        // If the host advances while composing, keep the final text with its
+        // original draft, never with the next question's answer.
+        const previous = controller.drafts.get(key);
+        if (previous) { previous[field] = event.target.value; controller.emit(); }
+      }
+    };
     const box = e('textarea', { id, value: text, rows, readOnly, 'aria-describedby': `${id}-help${budget ? ` ${id}-budget` : ''}`,
-      oninput: (event) => controller.setDraft(field, event.target.value) });
+      oninput: save, oncompositionend: save });
     return e('div', { class: 'field' }, [
       e('label', { htmlFor: id, text: label }), box,
       e('div', { class: 'field-help', id: `${id}-help` }, [p(help ?? '', 'small muted'), limit ? p(`${text.length.toLocaleString('ko-KR')} / ${limit.toLocaleString('ko-KR')}자`, `count${text.length > limit ? ' over' : ''}`) : null]),
@@ -57,7 +55,7 @@ export function createCoachView(root, controller, adapter) {
   function scene() {
     const draft = controller.draft;
     const blocked = controller.busy || controller.connection !== 'ready';
-    return e('section', { class: 'panel phase-scene' }, [
+    return e('section', { id: 'scene-panel', class: 'panel phase-scene' }, [
       e('div', { class: 'section-heading' }, [e('span', { class: 'eyebrow', text: '01 / SCENE' }), e('h1', { text: '어떤 장면을 만들고 싶나요?' }), p('한 문장으로 시작해도 좋아요. 필요한 조건은 질문에 답하며 함께 정해요.')]),
       e('fieldset', { class: 'medium-picker', disabled: blocked }, [e('legend', { text: '만들 결과물' }), e('div', { class: 'medium-options' }, MEDIUMS.map((medium) => e('button', {
         type: 'button', class: `medium${draft.medium === medium.value ? ' selected' : ''}`, 'aria-pressed': String(draft.medium === medium.value),
@@ -73,7 +71,7 @@ export function createCoachView(root, controller, adapter) {
     const coach = controller.output.coach;
     const q = coach.question;
     const answered = coach.turns.filter((turn) => turn.kind === 'answer').length;
-    const panel = e('section', { class: 'panel phase-question' }, [
+    const panel = e('section', { id: 'question-panel', class: 'panel phase-question' }, [
       e('div', { class: 'question-title' }, [e('span', { class: 'question-mark', text: 'Q.' }), e('div', {}, [p(`조건 구체화 · 답변 ${answered}개`, 'eyebrow'), e('h1', { text: q.text })])]),
       e('div', { class: 'why' }, [e('h2', { text: '왜 필요한가요?' }), p(q.why)]),
       q.examples.length ? e('details', { class: 'disclosure', id: 'examples-details' }, [e('summary', { text: '답변 예시 보기' }), p('선택하면 초안에만 들어가요. 내 생각에 맞게 고쳐서 보내거나 자유롭게 답해도 좋아요.', 'small muted'), e('div', { class: 'examples' }, q.examples.map((example) => e('button', { type: 'button', class: 'example', text: example, onclick: () => { controller.chooseExample(example); document.getElementById('coach-answer')?.focus(); }, disabled: controller.busy })))]) : null,
@@ -89,7 +87,7 @@ export function createCoachView(root, controller, adapter) {
 
   function review() {
     const reviewData = controller.output.coach.review;
-    return e('section', { class: 'panel phase-review' }, [
+    return e('section', { id: 'review-panel', class: 'panel phase-review' }, [
       e('div', { class: 'section-heading' }, [e('span', { class: 'eyebrow', text: '03 / REVIEW' }), e('h1', { text: '이 조건으로 완성할까요?' }), p(reviewData.summary)]),
       reviewData.unresolved.length ? e('div', { class: 'unresolved' }, [e('h2', { text: '아직 정하지 않은 내용' }), e('ul', {}, reviewData.unresolved.map((item) => e('li', { text: item }))), p('보류한 조건을 임의로 확정하지 않아요. 아래 문장에 섞여 있지는 않은지 함께 확인해 주세요.', 'small muted')]) : null,
       textarea('prompt', '확인할 프롬프트', { rows: 11, limit: LIMITS.prompt, budgetAction: 'confirm', help: '내 의도와 맞는지 읽고 직접 고칠 수 있어요. 아래 버튼을 눌러야 확정돼요.' }),
@@ -108,7 +106,7 @@ export function createCoachView(root, controller, adapter) {
   }
 
   function final() {
-    return e('section', { class: 'panel phase-final' }, [
+    return e('section', { id: 'final-panel', class: 'panel phase-final' }, [
       e('div', { class: 'section-heading' }, [e('span', { class: 'eyebrow', text: 'READY TO CREATE' }), e('h1', { text: '내 장면의 프롬프트가 완성됐어요' }), p('직접 확인한 조건으로 정리했어요. 만들 AI에 전달하고 결과를 살펴보세요.')]),
       textarea('finalPrompt', '완성한 프롬프트', { rows: 12, value: controller.output.coach.finalPrompt, readOnly: true }),
       e('div', { class: 'button-row export-actions' }, [button('프롬프트 복사', () => copy(controller.output.coach.finalPrompt, 'coach-finalPrompt')), button('TXT 저장', () => download('txt'), { secondary: true }), button('기록 JSON 저장', () => download('json'), { secondary: true })]),
@@ -122,7 +120,7 @@ export function createCoachView(root, controller, adapter) {
   function waiting() {
     const pending = controller.pending;
     const sent = pending?.delivery === 'sent';
-    return e('section', { class: 'panel waiting', 'aria-labelledby': 'waiting-title' }, [
+    return e('section', { id: 'waiting-panel', class: 'panel waiting', 'aria-labelledby': 'waiting-title' }, [
       e('div', { class: 'waiting-symbol', 'aria-hidden': 'true', text: '✦' }),
       e('h1', { id: 'waiting-title', text: pending?.delivery === 'failed' ? '요청을 다시 보내 주세요' : sent ? 'AI의 다음 질문을 기다리고 있어요' : 'AI에 질문을 요청하고 있어요' }),
       p(sent ? '요청이 전달되었어요. AI의 답변이 도착했다는 뜻은 아니에요. 아래에 새 질문 카드가 나타나면 그 카드에서 이어가세요.' : pending?.delivery === 'failed' ? '입력한 내용은 현재 열린 카드에서 확인할 수 있어요. 다시 보내도 답변을 두 번 등록하지 않아요.' : '입력한 조건을 정리했어요. 현재 대화의 AI가 다음 내용을 준비합니다.'),
@@ -167,20 +165,20 @@ export function createCoachView(root, controller, adapter) {
     } else if (!controller.output) {
       children.push(e('section', { class: 'panel waiting' }, [e('h1', { text: '코치 화면을 준비하고 있어요' }), p('대화에 연결된 장면을 불러오는 중이에요.')]));
     } else {
-      if (controller.connection === 'disconnected') children.push(e('div', { class: 'status error', role: 'status', text: 'AI 대화와 연결이 끊어졌어요. 현재 열린 카드에서 작성한 글을 복사해 보관하세요.' }));
+      if (controller.connection === 'disconnected') children.push(e('div', { id: 'connection-status', class: 'status error', role: 'status', text: 'AI 대화와 연결이 끊어졌어요. 현재 열린 카드에서 작성한 글을 복사해 보관하세요.' }));
       if (controller.output.coach.phase === 'waiting') children.push(waiting());
       else children.push(({ scene, question, review, final })[controller.output.coach.phase]());
-      if (controller.pending?.kind === 'new-scene') children.push(e('section', { class: 'status', role: 'status' }, [p(controller.pending.delivery === 'sent' ? '새 장면 카드를 요청했어요. 아래에 나타나는 새 카드에서 시작하세요. 현재 완성본은 복사하거나 저장해 주세요.' : '새 장면 카드 요청을 아직 전달하지 못했어요.'), controller.pending.delivery !== 'sending' ? button('새 카드 요청 다시 보내기', () => controller.sendPending(), { secondary: true }) : null]));
+      if (controller.pending?.kind === 'new-scene') children.push(e('section', { id: 'new-scene-status', class: 'status', role: 'status' }, [p(controller.pending.delivery === 'sent' ? '새 장면 카드를 요청했어요. 아래에 나타나는 새 카드에서 시작하세요. 현재 완성본은 복사하거나 저장해 주세요.' : '새 장면 카드 요청을 아직 전달하지 못했어요.'), controller.pending.delivery !== 'sending' ? button('새 카드 요청 다시 보내기', () => controller.sendPending(), { secondary: true }) : null]));
       if (controller.output.coach.phase !== 'scene') children.push(history());
     }
-    if (controller.error) children.push(e('div', { class: 'status error', role: 'alert', text: controller.error }));
-    if (controller.notice) children.push(e('div', { class: 'status', role: 'status', text: controller.notice }));
+    if (controller.error) children.push(e('div', { id: 'error-status', class: 'status error', role: 'alert', text: controller.error }));
+    if (controller.notice) children.push(e('div', { id: 'notice-status', class: 'status', role: 'status', text: controller.notice }));
     children.push(e('footer', { class: 'coach-footer' }, [p('장면의 조건을 배우며, 내 언어로 만드는 프롬프트.', 'small muted'), p('초안은 현재 열린 카드에서 확인할 수 있어요. 새로고침 전 필요한 글을 복사해 주세요.', 'small muted')]));
-    root.replaceChildren(...children);
+    reconcileChildren(root, children);
     for (const id of opened) { const details = document.getElementById(id); if (details?.tagName === 'DETAILS') details.open = true; }
     if (focus?.id) {
       const next = document.getElementById(focus.id);
-      if (next) { next.focus({ preventScroll: true }); if (typeof next.setSelectionRange === 'function' && typeof focus.start === 'number') next.setSelectionRange(focus.start, focus.end); }
+      if (next && next !== document.activeElement) { next.focus({ preventScroll: true }); if (typeof next.setSelectionRange === 'function' && typeof focus.start === 'number') next.setSelectionRange(focus.start, focus.end); }
     }
   }
   return { render };
