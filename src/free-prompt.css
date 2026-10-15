@@ -17,6 +17,10 @@
 .example-templates>summary:hover .example-summary-title{color:#fff}
 .example-templates>summary::after,.start-stack>.coach-connection>summary::after{content:'';display:block;width:24px;height:24px;flex:0 0 24px;margin-left:auto;background:linear-gradient(currentColor,currentColor) center/12px 1.5px no-repeat,linear-gradient(currentColor,currentColor) center/1.5px 12px no-repeat;color:var(--muted)}
 .example-templates[open]>summary::after,.start-stack>.coach-connection[open]>summary::after{content:'';background-size:12px 1.5px,0 0}
+@media(forced-colors:active){
+  .example-templates>summary::after,.start-stack>.coach-connection>summary::after{content:'+';display:grid;place-items:center;background:none;color:ButtonText;font:20px/1 var(--f-lat)}
+  .example-templates[open]>summary::after,.start-stack>.coach-connection[open]>summary::after{content:'−'}
+}
 .example-templates>summary~*{margin-top:4px}
 .example-templates .template-card{padding:14px 16px!important}
 .example-templates .template-title{font-size:14px;margin-bottom:4px}
