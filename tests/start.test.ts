@@ -8,6 +8,7 @@ import { FREE_MODES } from '../src/lib/free-modes.ts'
 import type { Project, TemplateIndexEntry } from '../src/types.ts'
 
 type Element = { type: unknown; props: Record<string, any> }
+const CoachConnectionStub = () => null
 const entries: TemplateIndexEntry[] = [
   { id: 'free-scene', name: '자유 장면', description: '', file: 'free-scene.json' },
   { id: 'island', name: '미니어처 섬', description: '작은 섬을 둘러보는 예시', file: 'island.json' },
@@ -62,7 +63,7 @@ function harness(initial: Project[] = []) {
       if (name === '../lib/free-prompt') return { createFreeBrief }
       if (name === '../lib/free-modes') return { FREE_MODES }
       if (name === './ui') return { useToast: () => (message: string) => toasts.push(message) }
-      if (name === './CoachConnection') return { CoachConnection: () => null }
+      if (name === './CoachConnection') return { CoachConnection: CoachConnectionStub }
       throw new Error(`Unexpected dependency: ${name}`)
     },
     window: { confirm }, confirm,
@@ -101,6 +102,20 @@ function deleteButton(tree: Element, name: string): Element {
   const row = find(tree, node => node.props.className === 'project-row' && text(node).includes(name))
   return find(row, node => node.type === 'button' && /삭제/.test(String(node.props['aria-label'] ?? node.props.title ?? text(node))))
 }
+
+test('new visitors reach scene input before optional, collapsed AI setup', () => {
+  const tree = harness().render()
+  const children = tree.props.children as Element[]
+  const sceneIndex = children.findIndex(node => nodes(node).some(child => child.props.id === 'free-scene-form'))
+  const projectsIndex = children.findIndex(node => node.props.className === 'card saved-projects')
+  const setupIndex = children.findIndex(node => node.type === CoachConnectionStub)
+  assert.ok(sceneIndex >= 0 && sceneIndex < projectsIndex && projectsIndex < setupIndex)
+  assert.equal(children[setupIndex].props.collapsed, true)
+  assert.equal(children[setupIndex].props.setupOnly, true)
+  assert.match(text(children[sceneIndex]), /별도 설치 없이/)
+  const firstStep = find(tree, node => node.type === 'ol' && node.props['aria-label'] === '사용 흐름').props.children[0]
+  assert.match(text(firstStep), /장면 입력/)
+})
 
 test('example choices are subordinate to the scene form without nesting forms or losing the free draft', async () => {
   const ui = harness()

@@ -14,13 +14,14 @@ import { Start } from './components/Start'
 import { ToastProvider } from './components/ui'
 import { useStore } from './store'
 import type { CoachingField } from './lib/coach-conversation'
+import type { CoachingMethod } from './components/CoachingMethodChoices'
 
 type Tab = 'brief' | 'refs' | 'refine' | 'prompt' | 'coach' | 'history' | 'settings'
 const TABS: Array<{ id: Tab; label: string; description: string; group: string }> = [
   { id: 'brief', label: '장면 설정', description: '원하는 장면의 조건을 하나씩 정해 보세요.', group: '장면 만들기' },
   { id: 'refs', label: '참고 이미지', description: '선택 사항 · 이미지에서 참고할 부분을 정해요.', group: '장면 만들기' },
   { id: 'refine', label: '질문으로 구체화', description: '한 번에 하나씩 답하고, 그 조건이 필요한 이유를 알아보세요.', group: '장면 만들기' },
-  { id: 'prompt', label: '프롬프트', description: '요청문을 확인하고 복사하거나 파일로 저장하세요.', group: '장면 만들기' },
+  { id: 'prompt', label: '프롬프트', description: '프롬프트를 복사해 사용할 AI에 전달하고 제작을 시작하세요.', group: '장면 만들기' },
   { id: 'coach', label: '수정 코치', description: '결과에서 아쉬운 부분을 짚고, 한 가지씩 수정 요청을 만드세요.', group: '결과 다듬기' },
   { id: 'history', label: '수정 기록', description: '어떤 요청이 효과가 있었는지 결과를 비교해 보세요.', group: '결과 다듬기' },
   { id: 'settings', label: '보관 · 설정', description: '프로젝트 이름을 바꾸거나 작업을 파일로 보관하세요.', group: '프로젝트' },
@@ -37,6 +38,9 @@ export function App() {
   const heading = useRef<HTMLHeadingElement>(null)
   const [sceneFocus, setSceneFocus] = useState<{ projectId: string; field: CoachingField; key: number } | null>(null)
   const focusSequence = useRef(0)
+  const entrySequence = useRef(0)
+  const [coachingEntry, setCoachingEntry] = useState<{ projectId: string; method?: CoachingMethod; key: number } | null>(null)
+  const [importRequest, setImportRequest] = useState<{ projectId: string; key: number } | null>(null)
   const isFree = project?.templateId === 'free-scene'
   const tabs = TABS.filter(t => isFree || t.id !== 'refine')
   const activeTab = tab === 'refine' && !isFree ? 'brief' : tab
@@ -57,8 +61,25 @@ export function App() {
     return () => window.removeEventListener('hashchange', returnToScene)
   }, [])
   const navigate = (next: Tab) => {
+    setImportRequest(null)
+    setCoachingEntry(null)
     setTab(next)
     requestAnimationFrame(() => heading.current?.focus({ preventScroll: true }))
+  }
+  const clearNavigationIntents = () => {
+    setSceneFocus(null)
+    setCoachingEntry(null)
+    setImportRequest(null)
+  }
+
+  const refineScene = (method?: CoachingMethod) => {
+    navigate('refine')
+    if (project) setCoachingEntry({ projectId: project.id, method, key: ++entrySequence.current })
+  }
+
+  const importPrompt = () => {
+    navigate('prompt')
+    if (project) setImportRequest({ projectId: project.id, key: ++entrySequence.current })
   }
 
   const editScene = (field?: CoachingField) => {
@@ -84,7 +105,7 @@ export function App() {
             <div className="eyebrow"><a href="https://studio-penumbra.com/#lab">LAB</a><span>/</span>프롬프트 만들기와 다듬기</div>
             <div className="lab-title-line"><span className="lab-name">Prompt <b>Lab</b></span><span className="lab-subtitle">프롬프트 코치</span></div>
           </div>
-          {project && <button className="secondary project-list-button" onClick={() => openProject(null)}>← 프로젝트 목록</button>}
+          {project && <button className="secondary project-list-button" onClick={() => { clearNavigationIntents(); openProject(null) }}>← 프로젝트 목록</button>}
         </div>
         {project && template ? (
           <div className="workspace">
@@ -102,10 +123,10 @@ export function App() {
             <main className="content" id="main-content" tabIndex={-1}>
               <header className="page-heading">{stepNumber(current.id) && <span className="page-number" aria-hidden="true">{stepNumber(current.id)}</span>}<div><h1 ref={heading} tabIndex={-1}>{current.label}</h1><p>{current.description}</p></div></header>
               {error ? <div className="note warn" role="alert">{error}</div> : null}
-              <div hidden={activeTab !== 'brief'} key={`brief-${project.id}`}>{isFree ? <FreeBrief onPreview={() => navigate('prompt')} onRefine={() => navigate('refine')} onReferences={() => navigate('refs')} focusField={activeTab === 'brief' && sceneFocus?.projectId === project.id ? sceneFocus.field : undefined} focusKey={activeTab === 'brief' && sceneFocus?.projectId === project.id ? sceneFocus.key : undefined} /> : <Brief />}</div>
+              <div hidden={activeTab !== 'brief'} key={`brief-${project.id}`}>{isFree ? <FreeBrief onPreview={() => navigate('prompt')} onRefine={refineScene} onReferences={() => navigate('refs')} focusField={activeTab === 'brief' && sceneFocus?.projectId === project.id ? sceneFocus.field : undefined} focusKey={activeTab === 'brief' && sceneFocus?.projectId === project.id ? sceneFocus.key : undefined} /> : <Brief />}</div>
               {activeTab === 'refs' && <References />}
-              {isFree && activeTab === 'refine' && <PromptCoaching key={project.id} onPreview={() => navigate('prompt')} onEdit={editScene} />}
-              {activeTab === 'prompt' && (isFree ? <FreePromptView key={project.id} onEdit={() => editScene()} onRefine={() => navigate('refine')} onRevise={() => navigate('coach')} /> : <PromptView onGoBrief={() => navigate('brief')} onRevise={() => navigate('coach')} />)}
+              {isFree && activeTab === 'refine' && <PromptCoaching key={`${project.id}-${coachingEntry?.projectId === project.id ? coachingEntry.key : 0}`} initialMethod={coachingEntry?.projectId === project.id ? coachingEntry.method : undefined} onPreview={() => navigate('prompt')} onImport={importPrompt} onEdit={editScene} />}
+              {activeTab === 'prompt' && (isFree ? <FreePromptView key={project.id} importRequestKey={importRequest?.projectId === project.id ? importRequest.key : undefined} onEdit={() => editScene()} onRefine={() => refineScene()} onRevise={() => navigate('coach')} /> : <PromptView onGoBrief={() => navigate('brief')} onRevise={() => navigate('coach')} />)}
               <div hidden={tab !== 'coach'} key={`coach-${project.id}`}><Coach onSaved={() => navigate('history')} /></div>
               {tab === 'history' && <History onCreate={() => navigate('coach')} />}
               {tab === 'settings' && <Settings />}
@@ -115,17 +136,13 @@ export function App() {
               </nav>}
               {activeTab === 'refs' && <nav className="page-pager" aria-label="참고 이미지 다음 작업">
                 <button className="ghost" onClick={() => editScene()}>← 장면 설정</button>
-                <button className="secondary" onClick={() => navigate(isFree ? 'refine' : 'prompt')}>{isFree ? '질문으로 구체화하기' : '프롬프트 보기'} →</button>
-              </nav>}
-              {activeTab === 'prompt' && <nav className="page-pager" aria-label="프롬프트 다음 작업">
-                <button className="ghost" onClick={() => editScene()}>← 장면 설정</button>
-                <button className="secondary" onClick={() => navigate('coach')}>결과를 수정 코치로 다듬기 →</button>
+                <button className="secondary" onClick={() => isFree ? refineScene() : navigate('prompt')}>{isFree ? '질문으로 이어가기' : '프롬프트 보기'} →</button>
               </nav>}
             </main>
           </div>
         ) : (
           <main className="start-content" id="main-content" tabIndex={-1}>
-            {!ready ? <p className="muted" role="status">불러오는 중…</p> : <Start onCreated={() => setTab('brief')} />}
+            {!ready ? <p className="muted" role="status">불러오는 중…</p> : <Start onOpening={clearNavigationIntents} onCreated={() => { clearNavigationIntents(); navigate('brief') }} />}
             {error ? <div className="note warn" role="alert">{error}</div> : null}
           </main>
         )}

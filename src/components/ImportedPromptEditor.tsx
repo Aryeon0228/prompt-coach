@@ -9,8 +9,9 @@ const MAX_DRAFT = 100000
 const MAX_NOTES = 10000
 
 /** Drafts are saved as work in progress; applying is an explicit, separate action. */
-export function ImportedPromptEditor({ open, onOpenChange, onApplied, onEdit }: {
+export function ImportedPromptEditor({ open, onOpenChange, onApplied, onEdit, focusRequestKey }: {
   open: boolean
+  focusRequestKey?: number
   onOpenChange: (open: boolean) => void
   onApplied: () => void
   onEdit: () => void
@@ -22,8 +23,10 @@ export function ImportedPromptEditor({ open, onOpenChange, onApplied, onEdit }: 
   const [confirmedSource, setConfirmedSource] = useState<string | null>(null)
 
   useEffect(() => {
-    if (open) draftField.current?.focus()
-  }, [open])
+    if (!open) return
+    const frame = requestAnimationFrame(() => draftField.current?.focus())
+    return () => cancelAnimationFrame(frame)
+  }, [open, focusRequestKey])
 
   if (!project) return null
   const { brief, source, session } = coachingContext(project)
@@ -71,11 +74,11 @@ export function ImportedPromptEditor({ open, onOpenChange, onApplied, onEdit }: 
       },
     })
     setConfirmedSource(null)
-    toast(coaching.accepted ? '사용할 프롬프트를 업데이트했어요.' : '사용할 프롬프트로 저장했어요.')
+    toast(coaching.accepted ? '프롬프트를 업데이트했어요. 복사해서 제작을 시작하세요.' : '프롬프트를 준비했어요. 복사해서 제작을 시작하세요.')
     onApplied()
   }
 
-  return <details className="card coaching-optional imported-prompt-editor" open={open} onToggle={(event) => onOpenChange(event.currentTarget.open)}>
+  return <details className="card coaching-optional imported-prompt-editor" hidden={!open} open={open} onToggle={(event) => onOpenChange(event.currentTarget.open)}>
     <summary>{coaching.accepted ? '가져온 프롬프트 편집' : '완성한 프롬프트 가져오기'} <span className="small muted">{hasPendingChanges ? '아직 적용하지 않은 초안' : '직접 붙여 넣고 편집'}</span></summary>
     <section className="stack coaching-step" aria-labelledby={`${id}-title`}>
       <div><h2 id={`${id}-title`}>{coaching.accepted ? '가져온 프롬프트 다듬기' : '내 AI의 완성본 보관하기'}</h2><p className="muted">ChatGPT나 Claude에서 완성한 문장을 붙여 넣거나 직접 고치세요. 적용하면 이 화면에서 비교하고 복사할 수 있어요.</p></div>

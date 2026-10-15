@@ -6,7 +6,7 @@ import { FREE_MODES } from '../lib/free-modes'
 import { useToast } from './ui'
 import { CoachConnection } from './CoachConnection'
 
-export function Start({ onCreated }: { onCreated: () => void }) {
+export function Start({ onCreated, onOpening }: { onCreated: () => void; onOpening?: () => void }) {
   const { index, projects, createProject, openProject, deleteProject, importProject } = useStore()
   const [picked, setPicked] = useState<TemplateIndexEntry | null>(null)
   const [name, setName] = useState('')
@@ -23,19 +23,17 @@ export function Start({ onCreated }: { onCreated: () => void }) {
     <div className="stack start-stack">
       <section className="start-intro">
         <div><div className="eyebrow">MAKE · OBSERVE · REFINE</div><h1>만들고 싶은 장면을 프롬프트로</h1></div>
-        <p className="muted">내 AI와 대화하며 장면을 구체화해 보세요. 이미지·영상·3D 웹에 필요한 조건과 그 이유를 배우며 프롬프트를 완성합니다.</p>
+        <p className="muted">장면을 적고 필요한 조건을 하나씩 정해 보세요. 사이트의 기본 질문이나 내 AI와의 대화를 선택해 프롬프트를 완성할 수 있어요.</p>
         <ol className="start-steps" aria-label="사용 흐름">
-          <li><span>01</span><div><strong>내 AI에 연결</strong><p>프롬프트 코치를 처음 한 번 추가해요.</p></div></li>
-          <li><span>02</span><div><strong>AI 대화에서 장면 설명</strong><p>만들 결과물과 원하는 장면을 말해요.</p></div></li>
-          <li><span>03</span><div><strong>질문에 답하며 완성</strong><p>왜 필요한 조건인지 배우고 프롬프트를 완성해요.</p></div></li>
+          <li><span>01</span><div><strong>장면 입력</strong><p>만들 결과물과 떠오르는 아이디어를 적어요.</p></div></li>
+          <li><span>02</span><div><strong>구체화 방법 선택</strong><p>사이트 기본 질문 또는 내 AI와 대화해요.</p></div></li>
+          <li><span>03</span><div><strong>프롬프트로 제작 시작</strong><p>완성한 프롬프트를 복사해 제작 도구에서 사용해요.</p></div></li>
         </ol>
       </section>
 
-      <CoachConnection />
-
       <section className="card stack free-start">
-        <div className="section-title"><h2>웹에서 장면을 먼저 정리하기</h2><span className="small muted">선택 · 이 브라우저에 보관</span></div>
-        <p className="small muted">사이트의 기본 질문이나 프로젝트 보관 기능을 쓰고 싶다면 여기서 시작하세요. AI 대화로 자동 전송되지는 않아요.</p>
+        <div className="section-title"><h2>어떤 장면을 만들고 싶나요?</h2><span className="small muted">한 문장으로 시작해도 좋아요</span></div>
+        <p className="small muted">별도 설치 없이 사이트의 기본 질문으로 시작할 수 있어요.</p>
         <form id="free-scene-form" className="stack" onSubmit={async e => {
           e.preventDefault()
           if (!freeEntry || !mode || !idea.trim() || creating) return
@@ -61,7 +59,7 @@ export function Start({ onCreated }: { onCreated: () => void }) {
         {!freeEntry && <p className="small muted" role="status">시작 화면을 불러오지 못했어요. 잠시 후 새로고침해 주세요.</p>}
       </section>
 
-      <section className="card saved-projects"><div className="section-title"><h2>내 프로젝트</h2><span className="small muted">저장한 장면 이어서 작업하기</span></div>{projects.map(p => <div className="project-row" key={p.id}><div className="grow"><div className="name">{p.name}</div><div className="small muted">{p.freeform ? `자유 장면 · ${FREE_MODES.find(m => m.id === p.freeform?.mode)?.label ?? ''}` : index.find(e => e.id === p.templateId)?.name ?? p.templateId} · 마지막 수정 {new Date(p.updatedAt).toLocaleDateString()} · 수정 요청 {p.iterations.length}회</div></div><div className="project-row-actions"><button type="button" className="secondary" disabled={deleting !== null} onClick={() => openProject(p.id)}>열기</button><button type="button" className="project-delete" title="프로젝트 삭제" aria-label={`${p.name} 프로젝트 삭제`} disabled={deleting !== null} onClick={async () => {
+      <section className="card saved-projects"><div className="section-title"><h2>내 프로젝트</h2><span className="small muted">저장한 장면 이어서 작업하기</span></div>{projects.map(p => <div className="project-row" key={p.id}><div className="grow"><div className="name">{p.name}</div><div className="small muted">{p.freeform ? `자유 장면 · ${FREE_MODES.find(m => m.id === p.freeform?.mode)?.label ?? ''}` : index.find(e => e.id === p.templateId)?.name ?? p.templateId} · 마지막 수정 {new Date(p.updatedAt).toLocaleDateString()} · 수정 요청 {p.iterations.length}회</div></div><div className="project-row-actions"><button type="button" className="secondary" disabled={deleting !== null} onClick={() => { onOpening?.(); openProject(p.id) }}>열기</button><button type="button" className="project-delete" title="프로젝트 삭제" aria-label={`${p.name} 프로젝트 삭제`} disabled={deleting !== null} onClick={async () => {
         if (deletePending.current || !window.confirm(`“${p.name}” 프로젝트를 이 브라우저에서 삭제할까요?\n내보낸 JSON 파일이 없으면 되살릴 수 없어요.`)) return
         deletePending.current = true
         setDeleting(p.id)
@@ -78,6 +76,8 @@ export function Start({ onCreated }: { onCreated: () => void }) {
         </div>
         <p className="local-storage-note">내용은 이 브라우저에 저장돼요. 보관 · 설정에서 JSON 파일로 내보내면 다른 기기에서도 이어갈 수 있어요.</p>
       </section>
+
+      <CoachConnection collapsed setupOnly />
     </div>
   )
 }

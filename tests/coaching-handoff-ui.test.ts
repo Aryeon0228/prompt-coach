@@ -23,6 +23,7 @@ function harness(initial: Project) {
   const states: unknown[] = []
   const copied: string[] = []
   const toasts: string[] = []
+  const navigations: string[] = []
   let copy: () => Promise<boolean> = async () => true
   let cursor = 0
   const exports: { PromptCoaching?: (props: unknown) => Element } = {}
@@ -43,15 +44,16 @@ function harness(initial: Project) {
     if (name === '../lib/coaching-context') return { coachingContext }
     if (name === '../lib/mcp-connection') return { buildMcpStarter }
     if (name === './ui') return { copyText: async (text: string) => { copied.push(text); return copy() }, useToast: () => (message: string) => toasts.push(message) }
+    if (name === './CoachingMethodChoices') return { CoachingMethodChoices: 'method-choices' }
     if (name === './CoachConversation') return { CoachConversation: 'conversation' }
     if (name === './CoachConnection') return { CoachConnection: 'connection', CoachCompatibilityNotice: 'compatibility' }
     throw new Error(`Unexpected dependency: ${name}`)
   } })
   return {
-    copied, toasts, project: () => structuredClone(saved),
+    copied, toasts, navigations, project: () => structuredClone(saved),
     setProject(next: Project) { saved = structuredClone(next) },
     copyWith(next: () => Promise<boolean>) { copy = next },
-    render() { cursor = 0; return exports.PromptCoaching!({ onPreview() {}, onEdit() {} }) },
+    render(props = {}) { cursor = 0; return exports.PromptCoaching!({ initialMethod: 'chatgpt', onPreview() { navigations.push('preview') }, onImport() { navigations.push('import') }, onEdit() {}, ...props }) },
   }
 }
 
@@ -114,4 +116,29 @@ test('a clipboard completion after changing projects cannot write the prior scen
   await pending
   assert.deepEqual(ui.project(), second)
   assert.deepEqual(ui.toasts, [])
+})
+
+
+test('a new student chooses the question destination before seeing handoff actions', () => {
+  const original = { ...project(), promptCoaching: undefined }
+  const ui = harness(original)
+  let tree = ui.render({ initialMethod: undefined })
+  assert.equal(nodes(tree).some(element => element.type === 'conversation'), false)
+  assert.equal(nodes(tree).some(element => element.type === 'button' && text(element).includes('장면과 코칭 요청 복사')), false)
+  find(tree, element => element.type === 'method-choices').props.onChoose('guide')
+  tree = ui.render({ initialMethod: undefined })
+  assert.equal(nodes(tree).some(element => element.type === 'conversation'), true)
+  assert.deepEqual(ui.project(), original)
+  find(tree, element => element.type === 'button' && text(element).includes('내 AI와 대화')).props.onClick()
+  tree = ui.render({ initialMethod: undefined })
+  assert.ok(copyButton(tree))
+  assert.deepEqual(ui.project(), original)
+})
+
+test('bringing an AI result back requests the import editor rather than an ordinary preview', () => {
+  const ui = harness(project())
+  const tree = ui.render()
+  find(tree, element => element.type === 'button' && text(element).includes('AI 완성본 가져오기')).props.onClick()
+  find(tree, element => element.type === 'button' && text(element).includes('지금 작성한 프롬프트 보기')).props.onClick()
+  assert.deepEqual(ui.navigations, ['import', 'preview'])
 })

@@ -28,6 +28,7 @@ export function CoachConversation({ onPreview, onEdit, onHandoff }: {
   const [reviewedSource, setReviewedSource] = useState<{ projectId: string; source: string } | null>(null)
   const questionHeading = useRef<HTMLHeadingElement>(null)
   const answerBox = useRef<HTMLTextAreaElement>(null)
+  const answerComposing = useRef(false)
   const completionHeading = useRef<HTMLHeadingElement>(null)
   const focusRequested = useRef(false)
   const focusProjectId = useRef<string | null>(null)
@@ -57,6 +58,7 @@ export function CoachConversation({ onPreview, onEdit, onHandoff }: {
   const canContinue = Boolean(session && !stale && sourceFits && hasIdea)
 
   useEffect(() => {
+    answerComposing.current = false
     if (!focusRequested.current) return
     focusRequested.current = false
     if (focusProjectId.current !== project?.id) return
@@ -119,7 +121,7 @@ export function CoachConversation({ onPreview, onEdit, onHandoff }: {
   }
 
   const saveAnswer = (deferred = false) => {
-    if (!question || !canContinue || (!deferred && !answerText.trim())) return
+    if (!question || !canContinue || answerComposing.current || (!deferred && !answerText.trim())) return
     const field = question.field
     requestFocus()
     updateCurrentProject(current => confirmGuidedAnswer(current, field, deferred))
@@ -127,9 +129,23 @@ export function CoachConversation({ onPreview, onEdit, onHandoff }: {
   }
 
   const finish = () => {
-    if (!canContinue) return
+    if (!question || !canContinue || answerComposing.current) return
+    const field = question.field
     requestFocus()
-    updateSession((current) => ({ ...current, completed: true }))
+    updateCurrentProject((current) => {
+      // Read the latest draft inside the same update that completes the session.
+      // Other unfinished answers remain drafts until explicitly confirmed.
+      const session = current.promptCoaching!.session!
+      const text = session.drafts[field] ?? session.answers[field]?.text ?? ''
+      const confirmed = text.trim() ? confirmGuidedAnswer(current, field) : current
+      return {
+        ...confirmed,
+        promptCoaching: {
+          ...confirmed.promptCoaching!,
+          session: { ...confirmed.promptCoaching!.session!, completed: true },
+        },
+      }
+    })
     setEditing(null)
   }
 
@@ -184,7 +200,7 @@ export function CoachConversation({ onPreview, onEdit, onHandoff }: {
         {nextQuestion && <div><button type="button" className="ghost" onClick={() => { requestFocus(); updateSession((current) => ({ ...current, completed: false })) }}>남은 질문 이어가기</button></div>}
       </div>}
 
-      {session && !stale && !completed && question && <form className="stack conversation-question" onSubmit={(event) => { event.preventDefault(); saveAnswer() }}>
+      {session && !stale && !completed && question && <form className="stack conversation-question" onSubmit={(event) => { event.preventDefault(); if (!(event.nativeEvent as Event & { isComposing?: boolean })?.isComposing) saveAnswer() }}>
         <div className="conversation-question-meta"><span>{editingField ? '작성 중인 답변 이어쓰기' : question.label}</span><span className="small muted">저장한 답변 {answeredCount}개 · 보류 {deferredCount}개</span></div>
         <h3 ref={questionHeading} tabIndex={-1} id={`${id}-question`}><span aria-hidden="true">Q.</span> {question.question}</h3>
         {editingField && currentConditions[editingField].trim() && <div className="note"><p className="small">이 항목에는 이미 조건이 있어요. 답변을 확정하면 아래 내용으로 바뀌고, 보류하면 현재 조건을 유지해요.</p><p className="small conversation-text">현재: {currentConditions[editingField]}</p><button type="button" className="ghost" onClick={() => onEdit(editingField)}>현재 조건 수정 →</button></div>}
@@ -197,11 +213,11 @@ export function CoachConversation({ onPreview, onEdit, onHandoff }: {
             return <button key={example} type="button" className="conversation-example" disabled={!canContinue || combined.length > COACHING_ANSWER_LIMIT} aria-label={`예시 넣기: ${example}`} onClick={() => { saveDraft(combined); answerBox.current?.focus() }}><span>{example}</span><span aria-hidden="true">＋</span></button>
           })}</div>
         </details>
-        <label className="stack conversation-answer" htmlFor={`${id}-answer`}><span>내 답변</span><textarea ref={answerBox} id={`${id}-answer`} aria-describedby={`${id}-why ${id}-autosave`} value={answerText} maxLength={COACHING_ANSWER_LIMIT} disabled={!canContinue} rows={5} placeholder="내가 원하는 조건을 편하게 적어 주세요." onChange={(event) => saveDraft(event.target.value)} /></label>
+        <label className="stack conversation-answer" htmlFor={`${id}-answer`}><span>내 답변</span><textarea ref={answerBox} id={`${id}-answer`} aria-describedby={`${id}-why ${id}-autosave`} value={answerText} maxLength={COACHING_ANSWER_LIMIT} disabled={!canContinue} rows={5} placeholder="내가 원하는 조건을 편하게 적어 주세요." onChange={(event) => saveDraft(event.target.value)} onCompositionStart={() => { answerComposing.current = true }} onCompositionEnd={(event) => { answerComposing.current = false; saveDraft(event.currentTarget.value) }} /></label>
         <p className="conversation-character-count small muted">{answerText.length.toLocaleString()} / {COACHING_ANSWER_LIMIT.toLocaleString()}자</p>
         <div className="conversation-answer-actions"><button type="submit" disabled={!canContinue || !answerText.trim()}>{editingField ? '답변 확정 · 조건에 반영' : '답변 저장 · 다음 질문'}</button><button type="button" className="secondary" disabled={!canContinue} onClick={() => saveAnswer(true)}>지금은 보류</button>{editingField && <button type="button" className="ghost" onClick={() => { requestFocus(); setEditing(null) }}>나중에 이어쓰기</button>}</div>
         {editingField && <p className="small muted">수정한 내용을 저장하기 전까지는 이전 답변이 유지돼요. 작성 중인 내용도 남아 있어요.</p>}
-        {!editingField && <div className="conversation-finish"><span className="small muted">모든 질문에 답하지 않아도 괜찮아요.</span><button type="button" className="ghost" disabled={!canContinue} onClick={finish}>여기까지 정리</button></div>}
+        {!editingField && <div className="conversation-finish"><span className="small muted">{answerText.trim() ? '지금 쓴 답변까지 프롬프트에 반영하고 마쳐요.' : '이 질문은 비워 두고, 지금까지 정한 조건으로 마쳐요.'}</span><button type="button" className="ghost" disabled={!canContinue} onClick={finish}>{answerText.trim() ? '답변 저장하고 마치기' : '답변 없이 마치기'}</button></div>}
       </form>}
 
       {history.length > 0 && <details className="conversation-history" open={stale || undefined}>

@@ -5,6 +5,7 @@ import { PromptGuide } from './PromptGuide'
 import { FREE_MODES } from '../lib/free-modes'
 import { coachingContext, updateSceneCondition } from '../lib/coaching-context'
 import type { CoachingField } from '../lib/coach-conversation'
+import { CoachingMethodChoices, type CoachingMethod } from './CoachingMethodChoices'
 
 type Field = Exclude<keyof FreePromptBrief, 'mode'>
 type Question = { id: Field; label: string; why: string; example: string; required?: boolean }
@@ -32,7 +33,7 @@ function questions(mode: FreePromptMode): Array<{ title: string; summary: string
 
 export function FreeBrief({ onPreview, onRefine, onReferences, focusField, focusKey }: {
   onPreview: () => void
-  onRefine: () => void
+  onRefine: (method?: CoachingMethod) => void
   onReferences: () => void
   focusField?: CoachingField
   focusKey?: number
@@ -61,7 +62,7 @@ export function FreeBrief({ onPreview, onRefine, onReferences, focusField, focus
 
   return <div className="stack free-brief">
     <p className="small muted">프롬프트에 쓸 현재 조건을 여기서 확인하고 수정해요. 질문에서 확정한 답변도 함께 보여요.</p>
-    {sessionStale && <div className="note warn"><p>장면이 바뀌어 이전 질문 기록을 확인해야 해요. 작성 중인 답변과 기록은 보관되어 있어요.</p><button type="button" className="ghost" onClick={onRefine}>이전 질문 기록 확인 →</button></div>}
+    {sessionStale && <div className="note warn"><p>장면이 바뀌어 이전 질문 기록을 확인해야 해요. 작성 중인 답변과 기록은 보관되어 있어요.</p><button type="button" className="ghost" onClick={() => onRefine('guide')}>이전 질문 기록 확인 →</button></div>}
     <fieldset className="free-mode-fieldset"><legend>만들 결과물</legend><div className="choices">{FREE_MODES.map(mode => <button type="button" key={mode.id} className={`choice ${brief.mode === mode.id ? 'on' : ''}`} aria-pressed={brief.mode === mode.id} onClick={() => change('mode', mode.id)}>{mode.label}</button>)}</div><p className="small muted">종류를 바꾸어도 작성한 내용은 유지돼요. 출력 조건은 새 결과물에 맞는지 다시 확인해 주세요.</p></fieldset>
     {groups.map((group, i) => <section className="card free-question-group" key={group.title}>
       <h2><button type="button" className="free-group-toggle" aria-expanded={opened === i} aria-controls={`free-group-${i}`} onClick={() => setOpened(opened === i ? -1 : i)}><span className="free-group-index">0{i + 1}</span><span><strong>{group.title}</strong><small>{group.summary}</small></span><span className="free-group-count">{group.fields.filter(f => brief[f.id].trim()).length}/{group.fields.length} 작성</span><span aria-hidden="true">{opened === i ? '−' : '+'}</span></button></h2>
@@ -76,7 +77,7 @@ export function FreeBrief({ onPreview, onRefine, onReferences, focusField, focus
       </div>
     </section>)}
     <details className="brief-help"><summary>작성법과 예시 보기</summary><PromptGuide mode={brief.mode} /></details>
-    <section className="card stack free-coaching-entry scene-next-actions" aria-labelledby="free-next-actions"><h2 id="free-next-actions" ref={nextActions} tabIndex={-1}>이 조건으로 이어가기</h2><p className="small muted">질문에 답하며 조건을 더 정하거나, 지금 작성한 내용으로 프롬프트를 확인하세요.</p><div className="row"><button type="button" onClick={onRefine} disabled={!brief.idea.trim()}>질문으로 구체화하기 →</button><button type="button" className="secondary" onClick={onPreview} disabled={!brief.idea.trim()}>지금 내용으로 프롬프트 보기</button><button type="button" className="ghost" onClick={onReferences}>참고 이미지 추가 · 선택</button></div></section>
+    <section className="card stack free-coaching-entry scene-next-actions" aria-labelledby="free-next-actions"><h2 id="free-next-actions" ref={nextActions} tabIndex={-1}>어떤 방식으로 구체화할까요?</h2><p className="small muted">기본 질문으로 조건을 정리하거나, 내 AI와 대화하며 더 구체화할 수 있어요.</p><CoachingMethodChoices onChoose={onRefine} disabled={!brief.idea.trim()} /><div className="row scene-alternative-actions"><button type="button" className="secondary" onClick={onPreview} disabled={!brief.idea.trim()}>지금 내용으로 프롬프트 보기</button><button type="button" className="ghost" onClick={onReferences}>참고 이미지 추가 · 선택</button></div></section>
     {!brief.idea.trim() && <p className="small muted" role="status">‘만들고 싶은 장면’을 먼저 한 문장 적어 주세요.</p>}
   </div>
 }

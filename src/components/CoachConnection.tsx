@@ -89,6 +89,15 @@ export function CoachConnection({ collapsed = false, setupOnly = false }: { coll
             <div><dt>사용 방법 보기 — 코치 이용 안내</dt><dd>설명을 읽는 메뉴예요. 이것만 열면 코칭은 시작되지 않아요.</dd></div>
           </dl>
         </div>
+        <details className="coach-connection-desktop">
+          <summary>Medium · Idea 입력창이 뜬다면</summary>
+          <div className="stack small">
+            <p><b>Medium은 만들 결과물</b>이에요. 3D 웹 장면은 <code>web</code>, 한 장의 이미지는 <code>image</code>, 영상은 <code>video</code>를 입력하세요.</p>
+            <p><b>Idea는 장면 아이디어</b>예요. 한국어로 적어도 괜찮아요.<br />예: “유리구 속 작은 섬을 드래그해서 둘러보는 3D 웹 장면을 만들고 싶어.”</p>
+            <p>입력 후 <b>프롬프트 추가</b>를 누르면 채팅창에 요청문이 들어가요. 이어서 <b>메시지를 전송</b>해야 코칭이 시작됩니다.</p>
+            <p className="muted">입력창이 불편하면 닫고, 대화에 “프롬프트 코치로 3D 웹 장면 만들기를 도와줘”라고 말해도 돼요. 이어서 원하는 장면을 설명하세요.</p>
+          </div>
+        </details>
         <p className="small muted coach-connection-account-note">{!setupOnly && <>본인 AI 계정의 이용 한도가 적용돼요. </>}계정·조직에 따라 연결 메뉴나 MCP 도구를 지원하지 않을 수 있어요. 연결 메뉴가 없다면 코칭 요청문으로 대화를 이어갈 수 있습니다.</p>
 
         <details className="coach-connection-desktop" open={setupOpen} onToggle={(event) => setSetupOpen(event.currentTarget.open)}>

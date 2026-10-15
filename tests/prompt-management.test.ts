@@ -29,6 +29,9 @@ function harness(initial: Project) {
   let states: unknown[] = []
   let cursor = 0
   let navigations = 0
+  let dirty = false
+  const effects: Array<() => unknown> = []
+  const focused: string[] = []
   const copied: string[] = []
   const toasts: string[] = []
   const componentStates = new Map<Component, unknown[]>()
@@ -37,14 +40,21 @@ function harness(initial: Project) {
   const require = (name: string): unknown => {
     if (name === 'react/jsx-runtime') return { jsx, jsxs: jsx, Fragment: 'fragment' }
     if (name === 'react') return {
-      useEffect() {},
+      useEffect(effect: () => unknown, dependencies: unknown[]) {
+        const index = cursor++
+        const previous = states[index] as unknown[] | undefined
+        if (!previous || dependencies.some((value, index) => value !== previous[index])) {
+          states[index] = dependencies
+          effects.push(effect)
+        }
+      },
       useId: () => 'editor',
       useRef(value: unknown) { const index = cursor++; return states[index] ??= { current: value } },
       useState(value: unknown) {
         const index = cursor++
         const componentState = states
         if (!(index in componentState)) componentState[index] = typeof value === 'function' ? value() : value
-        return [componentState[index], (next: unknown) => { componentState[index] = typeof next === 'function' ? next(componentState[index]) : next }]
+        return [componentState[index], (next: unknown) => { const updated = typeof next === 'function' ? next(componentState[index]) : next; if (updated !== componentState[index]) { componentState[index] = updated; dirty = true } }]
       },
     }
     if (name === '../store') return { useStore: () => ({ project: saved, updateProject: (update: (p: Project) => Project) => { saved = update(saved) } }) }
@@ -60,13 +70,14 @@ function harness(initial: Project) {
   const load = (name: string) => {
     if (modules[name]) return modules[name]
     const exports: Record<string, Component> = {}
-    vm.runInNewContext(compiled[name], { exports, require, requestAnimationFrame: (callback: () => void) => callback(), Date })
+    vm.runInNewContext(compiled[name], { exports, require, requestAnimationFrame: (callback: () => void) => callback(), cancelAnimationFrame() {}, Date })
     return modules[name] = exports
   }
   const expand = (value: any): any => {
     if (Array.isArray(value)) return value.map(expand)
     if (!value || typeof value !== 'object' || !('props' in value)) return value
     if (typeof value.type === 'function') return render(value.type, value.props)
+    if (value.props.ref) value.props.ref.current = { focus() { focused.push(value.props.id ?? value.props.className) } }
     return { ...value, props: { ...value.props, children: expand(value.props.children) } }
   }
   const render = (component: Component, props: any): Element => {
@@ -77,11 +88,21 @@ function harness(initial: Project) {
   }
   const navigate = () => { navigations++ }
   return {
-    copied, toasts,
+    copied, toasts, focused,
     project: () => structuredClone(saved),
     update: (change: (p: Project) => Project) => { saved = change(saved) },
     navigations: () => navigations,
-    render: () => render(load('FreePromptView').FreePromptView, { onEdit: navigate, onRefine: navigate, onRevise: navigate }),
+    render: (props: { importRequestKey?: number } = {}) => {
+      let tree: Element
+      let passes = 0
+      do {
+        assert.ok(passes++ < 5, 'Effects settle without a render loop')
+        dirty = false
+        tree = render(load('FreePromptView').FreePromptView, { onEdit: navigate, onRefine: navigate, onRevise: navigate, ...props })
+        while (effects.length) effects.shift()!()
+      } while (dirty)
+      return tree!
+    },
   }
 }
 
@@ -221,4 +242,59 @@ test('editor enforces import budgets and cannot apply an empty idea or an oversi
   assert.equal(apply(tree).props.disabled, true)
   assert.match(text(tree), /장면 설명과 참고 메모가 길어/)
   assert.equal(largeUi.project().promptCoaching!.accepted, undefined)
+})
+
+
+test('explicit import intent opens and focuses the existing editor once; ordinary visits do not reopen it', () => {
+  const ui = harness(project())
+  let tree = ui.render()
+  assert.equal(editor(tree).props.open, false)
+  assert.equal(ui.focused.length, 0)
+  assert.equal(editor(tree).props.hidden, true, 'The closed editor does not repeat the top import action')
+
+  tree = ui.render({ importRequestKey: 1 })
+  assert.equal(editor(tree).props.open, true)
+  assert.equal(ui.focused.at(-1), 'editor-draft')
+  assert.equal(editor(tree).props.hidden, false)
+  assert.equal(nodes(tree).filter(node => node.type === 'textarea' && node.props.id.endsWith('-draft')).length, 1, 'There is only one draft editor')
+  assert.ok(nodes(tree).indexOf(editor(tree)) < nodes(tree).indexOf(output(tree)), 'The import editor is before the long prompt output')
+
+  editor(tree).props.onToggle({ currentTarget: { open: false } })
+  tree = ui.render({ importRequestKey: 1 })
+  assert.equal(editor(tree).props.open, false, 'The same consumed intent does not undo closing')
+  tree = ui.render()
+  assert.equal(editor(tree).props.open, false)
+  tree = ui.render({ importRequestKey: 2 })
+  assert.equal(editor(tree).props.open, true)
+  const previousFocusCount = ui.focused.length
+  button(tree, 'AI 완성본 가져오기').props.onClick()
+  ui.render({ importRequestKey: 2 })
+  assert.equal(ui.focused.length, previousFocusCount + 1, 'The top action focuses the field even when already expanded')
+
+  const anotherProject = project()
+  anotherProject.id = 'another-project'
+  const nextProject = harness(anotherProject)
+  assert.equal(editor(nextProject.render()).props.open, false, 'A project without its own import intent starts normally')
+})
+
+test('ready state follows the selected version and optional next work stays folded below the prompt', () => {
+  const p = project()
+  const source = context.coachingContext(p).source
+  p.promptCoaching = { ...handoff.createPromptCoaching(), draft: '이전 완성본', draftSource: source, accepted: { text: '이전 완성본', source, acceptedAt: 1 } }
+  p.locks = ['현재는 빨간 책장을 유지']
+  const ui = harness(p)
+  let tree = ui.render()
+  const heading = (view: Element) => text(find(view, node => node.type === 'h2' && node.props.id === 'free-prompt-ready-title'))
+  assert.equal(heading(tree), '프롬프트 준비 완료', 'Current original conditions can be used while the old imported version is preserved')
+  button(tree, '코칭으로 다듬은 내용').props.onClick()
+  tree = ui.render()
+  assert.equal(heading(tree), '현재 조건과 비교해 주세요')
+  assert.equal(button(tree, '프롬프트 복사').props.disabled, true)
+  const deeperWork = find(tree, node => node.type === 'details' && String(node.props.className).includes('prompt-review'))
+  assert.notEqual(deeperWork.props.open, true)
+  assert.ok(nodes(deeperWork).includes(button(tree, '질문으로 더 다듬기')))
+  const afterCreation = find(tree, node => node.type === 'details' && text(node).startsWith('결과를 받은 뒤'))
+  assert.notEqual(afterCreation.props.open, true)
+  assert.ok(nodes(afterCreation).includes(button(tree, '수정 코치 열기')))
+  assert.ok(text(afterCreation).includes('현재는 빨간 책장을 유지'))
 })

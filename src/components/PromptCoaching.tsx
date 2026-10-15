@@ -7,18 +7,19 @@ import { useStore } from '../store'
 import { copyText, useToast } from './ui'
 import { CoachConversation } from './CoachConversation'
 import { CoachCompatibilityNotice, CoachConnection } from './CoachConnection'
+import { CoachingMethodChoices, type CoachingMethod } from './CoachingMethodChoices'
 
 const MAX_DRAFT = 100000
 
-export function PromptCoaching({ onPreview, onEdit }: { onPreview: () => void; onEdit: (field?: CoachingField) => void }) {
+export function PromptCoaching({ onPreview, onImport, onEdit, initialMethod }: { onPreview: () => void; onImport: () => void; onEdit: (field?: CoachingField) => void; initialMethod?: CoachingMethod }) {
   const { project, updateProject } = useStore()
   const toast = useToast()
   const id = useId()
   const [copying, setCopying] = useState(false)
   const [previewOpen, setPreviewOpen] = useState(false)
   const [copyFailed, setCopyFailed] = useState(false)
-  const [method, setMethod] = useState<'guide' | 'chatgpt'>(() =>
-    project?.promptCoaching?.session ? 'guide' : 'chatgpt',
+  const [method, setMethod] = useState<CoachingMethod | null>(() =>
+    initialMethod ?? (project?.promptCoaching?.session ? 'guide' : project?.promptCoaching?.request ? 'chatgpt' : null),
   )
   const methodHeading = useRef<HTMLHeadingElement>(null)
   const requestBox = useRef<HTMLTextAreaElement>(null)
@@ -45,7 +46,7 @@ export function PromptCoaching({ onPreview, onEdit }: { onPreview: () => void; o
   const changed = requestStale || draftStale || acceptedStale
   const copiedDate = coaching.request ? new Date(coaching.request.copiedAt) : null
   const validCopiedDate = copiedDate && Number.isFinite(copiedDate.getTime()) ? copiedDate : null
-  const changeMethod = (next: 'guide' | 'chatgpt') => {
+  const changeMethod = (next: CoachingMethod) => {
     setMethod(next)
     requestAnimationFrame(() => methodHeading.current?.focus())
   }
@@ -87,12 +88,12 @@ export function PromptCoaching({ onPreview, onEdit }: { onPreview: () => void; o
 
   return (
     <div className="stack prompt-coaching">
-      <div className="coaching-methods" role="group" aria-label="질문 방식">
-        <button type="button" className={method === 'chatgpt' ? 'on' : ''} aria-pressed={method === 'chatgpt'} onClick={() => changeMethod('chatgpt')}>내 AI에서 구체화 <span aria-hidden="true">↗</span></button>
-        <button type="button" className={method === 'guide' ? 'on' : ''} aria-pressed={method === 'guide'} onClick={() => changeMethod('guide')}>사이트에서 정리</button>
-      </div>
-      <h2 className="sr-only" ref={methodHeading} tabIndex={-1}>{method === 'guide' ? '사이트에서 기본 질문으로 정리하기' : '내 AI에서 문맥에 맞는 질문받기'}</h2>
-      {method === 'guide' ? <CoachConversation onPreview={onPreview} onEdit={onEdit} onHandoff={() => changeMethod('chatgpt')} /> : <>
+      {!method ? <section className="card stack"><h2>어떤 방식으로 구체화할까요?</h2><p className="small muted">질문을 받을 곳을 먼저 골라 주세요. 작성한 장면은 어느 쪽에서도 이어 쓸 수 있어요.</p><CoachingMethodChoices onChoose={changeMethod} disabled={!hasIdea} />{!hasIdea && <button type="button" className="ghost" onClick={() => onEdit()}>장면부터 적기 →</button>}</section> : <div className="coaching-methods" role="group" aria-label="질문 방식">
+        <button type="button" className={method === 'guide' ? 'on' : ''} aria-pressed={method === 'guide'} onClick={() => changeMethod('guide')}>사이트 기본 질문</button>
+        <button type="button" className={method === 'chatgpt' ? 'on' : ''} aria-pressed={method === 'chatgpt'} onClick={() => changeMethod('chatgpt')}>내 AI와 대화 <span aria-hidden="true">↗</span></button>
+      </div>}
+      <h2 className="sr-only" ref={methodHeading} tabIndex={-1}>{method === 'guide' ? '사이트에서 기본 질문으로 정리하기' : method === 'chatgpt' ? '내 AI에서 문맥에 맞는 질문받기' : '구체화 방법 선택'}</h2>
+      {method === 'guide' ? <CoachConversation onPreview={onPreview} onEdit={onEdit} onHandoff={() => changeMethod('chatgpt')} /> : method === 'chatgpt' ? <>
       <section className="card stack coaching-step" aria-labelledby={`${id}-copy-title`}>
         <div><h2 id={`${id}-copy-title`}>지금 장면으로 내 AI에서 질문받기</h2><p className="muted">요청문을 한 번 전달한 뒤, 같은 AI 대화에서 질문에 답하세요.{answerCount > 0 && <> 저장한 답변 {answerCount}개도 함께 담겨요.</>}</p></div>
         {(sessionStale || changed) && <div className="note warn stack" role="status">
@@ -132,10 +133,10 @@ export function PromptCoaching({ onPreview, onEdit }: { onPreview: () => void; o
         </details>
         {coaching.request && requestStale && <details className="coaching-previous-request"><summary>마지막으로 복사한 요청 보기</summary><div className="coaching-saved-text mono" tabIndex={0}>{coaching.request.text}</div></details>}
       </section>
+      <section className="card stack coaching-return"><h2>AI에서 프롬프트를 완성했다면</h2><p className="small muted">완성한 문장을 복사해 가져오세요. 여기에서 보관하고 편집할 수 있어요.</p><div className="row"><button type="button" onClick={onImport}>AI 완성본 가져오기 →</button><button type="button" className="ghost" onClick={onPreview}>지금 작성한 프롬프트 보기</button></div></section>
       <CoachCompatibilityNotice />
       <CoachConnection collapsed setupOnly />
-      <div className="row"><p className="small muted grow">AI가 완성한 문장도 프롬프트 화면에서 가져오고 편집할 수 있어요.</p><button type="button" className="secondary" onClick={onPreview}>프롬프트 보기 →</button></div>
-      </>}
+      </> : null}
     </div>
   )
 }

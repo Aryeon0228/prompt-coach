@@ -65,6 +65,7 @@ function harness(initial: Project) {
       if (name === '../lib/free-prompt') return freePrompt
       if (name === '../lib/free-modes') return freeModes
       if (name === '../lib/coaching-context') return conditions
+      if (name === './CoachingMethodChoices') return { CoachingMethodChoices: 'method-choices' }
       if (name === './PromptGuide') return { PromptGuide: () => null }
       throw new Error(`Unexpected import: ${name}`)
     },
@@ -130,5 +131,19 @@ test('an exact history field opens its condition group and focuses that editor o
   assert.equal(ui.focusCount(), count)
   ui.render({ focusField: 'style', focusKey: 3 })
   assert.equal(ui.focusCount(), count + 1)
+  assert.equal(ui.writes(), 0)
+})
+
+
+test('scene preparation passes the chosen question destination without changing saved conditions', () => {
+  const original = fixture()
+  const ui = harness(original)
+  const destinations: string[] = []
+  const tree = ui.render({ onRefine: (method: string) => destinations.push(method) })
+  const choices = nodes(tree).find(node => node.type === 'method-choices')!
+  choices.props.onChoose('guide')
+  choices.props.onChoose('chatgpt')
+  assert.deepEqual(destinations, ['guide', 'chatgpt'])
+  assert.deepEqual(ui.project(), original)
   assert.equal(ui.writes(), 0)
 })

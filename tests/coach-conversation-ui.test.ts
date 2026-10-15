@@ -28,7 +28,10 @@ function fixture(draft?: string): Project {
 function harness(initial: Project) {
   let project = structuredClone(initial)
   const states: unknown[] = []
+  const refs: Array<{ current: unknown }> = []
   let cursor = 0
+  let refCursor = 0
+  let updates = 0
   let editField: conversation.CoachingField | undefined
   const exports: Record<string, (props: unknown) => Element> = {}
   const jsx = (type: string, props: Element['props']) => ({ type, props })
@@ -37,14 +40,18 @@ function harness(initial: Project) {
     require(name: string) {
       if (name === 'react/jsx-runtime') return { jsx, jsxs: jsx }
       if (name === 'react') return {
-        useId: () => 'test', useEffect: () => {}, useRef: (current: unknown) => ({ current }),
+        useId: () => 'test', useEffect: () => {},
+        useRef(current: unknown) {
+          const index = refCursor++
+          return refs[index] ?? (refs[index] = { current })
+        },
         useState(value: unknown) {
           const index = cursor++
           if (!(index in states)) states[index] = value
           return [states[index], (next: unknown) => { states[index] = next }]
         },
       }
-      if (name === '../store') return { useStore: () => ({ project, updateProject: (change: (p: Project) => Project) => { project = change(project) } }) }
+      if (name === '../store') return { useStore: () => ({ project, updateProject: (change: (p: Project) => Project) => { project = change(project); updates++ } }) }
       if (name === '../lib/coach-conversation') return conversation
       if (name === '../lib/coach-handoff') return handoff
       if (name === '../lib/free-prompt') return freePrompt
@@ -55,8 +62,10 @@ function harness(initial: Project) {
   })
   return {
     project: () => project,
+    replaceProject: (next: Project) => { project = next },
+    updates: () => updates,
     editField: () => editField,
-    render() { cursor = 0; return exports.CoachConversation({ onPreview() {}, onEdit(field?: conversation.CoachingField) { editField = field }, onHandoff() {} }) },
+    render() { cursor = 0; refCursor = 0; return exports.CoachConversation({ onPreview() {}, onEdit(field?: conversation.CoachingField) { editField = field }, onHandoff() {} }) },
   }
 }
 
@@ -122,4 +131,95 @@ test('deferring an edited answer preserves the current draft, including an inten
     assert.equal(session.answers.purpose!.status, 'deferred')
     assert.equal(session.answers.purpose!.text, '')
   }
+})
+
+test('finish confirms the active draft and completion atomically while preserving other records', () => {
+  const original = fixture()
+  const session = original.promptCoaching!.session!
+  session.completed = false
+  session.drafts.subject = '  유리구 안의 작은 섬\n중앙에는 집 한 채  '
+  session.answers.style = { status: 'deferred', text: '' }
+  session.drafts.style = '분위기는 아직 고민 중'
+  session.drafts.composition = '다른 질문에서 이어 쓸 시점'
+  const ui = harness(original)
+
+  click(ui.render(), '답변 저장하고 마치기')
+
+  const result = ui.project()
+  const finished = result.promptCoaching!.session!
+  assert.equal(ui.updates(), 1, 'answer and completion must be one project update')
+  assert.equal(finished.completed, true)
+  assert.deepEqual(finished.answers.subject, { status: 'answered', text: session.drafts.subject })
+  assert.deepEqual(finished.answers.purpose, session.answers.purpose)
+  assert.deepEqual(finished.answers.style, session.answers.style)
+  assert.deepEqual(finished.drafts, session.drafts)
+  assert.equal(result.freeform!.subject, session.drafts.subject)
+  assert.equal(result.freeform!.purpose, session.answers.purpose!.text)
+  assert.equal(result.freeform!.composition, '', 'other unfinished answers stay drafts')
+  assert.equal(coachingContext.coachingContext(result).sessionStale, false)
+  assert.equal(conversation.isGuidedSession(finished), true)
+  assert.equal(finished.source, handoff.coachingSource(result.freeform!, result.references, result.locks))
+})
+
+test('finish without an answer explicitly leaves the empty question unconfirmed', () => {
+  for (const draft of ['', '  \n ']) {
+    const original = fixture()
+    original.promptCoaching!.session!.completed = false
+    original.promptCoaching!.session!.drafts.subject = draft
+    const ui = harness(original)
+    const tree = ui.render()
+    assert.equal(nodes(tree).some(node => node.type === 'button' && node.props.children === '답변 저장하고 마치기'), false)
+    click(tree, '답변 없이 마치기')
+    assert.equal(ui.updates(), 1)
+    assert.equal(ui.project().promptCoaching!.session!.completed, true)
+    assert.deepEqual(ui.project().promptCoaching!.session!.answers, original.promptCoaching!.session!.answers)
+    assert.deepEqual(ui.project().promptCoaching!.session!.drafts, original.promptCoaching!.session!.drafts)
+    assert.deepEqual(ui.project().freeform, original.freeform)
+  }
+})
+
+test('finish uses the latest draft and rejects callbacks for a changed scene or project', () => {
+  const original = fixture()
+  original.promptCoaching!.session!.completed = false
+  const ui = harness(original)
+  const tree = ui.render()
+  const answer = nodes(tree).find(node => node.type === 'textarea')!
+  answer.props.onChange({ target: { value: '최종 글자까지 남겨 주세요' } })
+  click(tree, '답변 저장하고 마치기')
+  assert.equal(ui.project().freeform!.subject, '최종 글자까지 남겨 주세요')
+
+  for (const change of [
+    (project: Project) => ({ ...project, id: 'another-project' }),
+    (project: Project) => ({ ...project, locks: ['장면이 바뀐 조건'] }),
+  ]) {
+    const guarded = harness(original)
+    const oldTree = guarded.render()
+    const changed = change(structuredClone(original))
+    guarded.replaceProject(changed)
+    click(oldTree, '답변 저장하고 마치기')
+    assert.deepEqual(guarded.project(), changed)
+  }
+})
+
+test('IME composition cannot submit or finish an incomplete Korean answer', () => {
+  const original = fixture()
+  original.promptCoaching!.session!.completed = false
+  const ui = harness(original)
+  let tree = ui.render()
+  const textarea = nodes(tree).find(node => node.type === 'textarea')!
+  textarea.props.onCompositionStart()
+  textarea.props.onChange({ target: { value: '유리구 안의 작은 서' } })
+  tree = ui.render()
+  const form = nodes(tree).find(node => node.type === 'form')!
+  form.props.onSubmit({ preventDefault() {}, nativeEvent: { isComposing: true } })
+  form.props.onSubmit({ preventDefault() {}, nativeEvent: {} })
+  click(tree, '답변 저장하고 마치기')
+  assert.equal(ui.project().promptCoaching!.session!.completed, false)
+  assert.equal(ui.project().promptCoaching!.session!.answers.subject, undefined)
+  assert.equal(ui.project().freeform!.subject, '')
+
+  nodes(tree).find(node => node.type === 'textarea')!.props.onCompositionEnd({ currentTarget: { value: '유리구 안의 작은 섬' } })
+  click(ui.render(), '답변 저장하고 마치기')
+  assert.equal(ui.project().freeform!.subject, '유리구 안의 작은 섬')
+  assert.equal(ui.project().promptCoaching!.session!.completed, true)
 })
