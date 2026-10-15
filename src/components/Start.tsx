@@ -61,19 +61,21 @@ export function Start({ onCreated }: { onCreated: () => void }) {
         {!freeEntry && <p className="small muted" role="status">시작 화면을 불러오지 못했어요. 잠시 후 새로고침해 주세요.</p>}
       </section>
 
-      {projects.length > 0 && <section className="card saved-projects"><div className="section-title"><h2>내 프로젝트</h2><span className="small muted">저장한 장면 이어서 작업하기</span></div>{projects.map(p => <div className="project-row" key={p.id}><div className="grow"><div className="name">{p.name}</div><div className="small muted">{p.freeform ? `자유 장면 · ${FREE_MODES.find(m => m.id === p.freeform?.mode)?.label ?? ''}` : index.find(e => e.id === p.templateId)?.name ?? p.templateId} · 마지막 수정 {new Date(p.updatedAt).toLocaleDateString()} · 수정 요청 {p.iterations.length}회</div></div><div className="project-row-actions"><button type="button" className="secondary" disabled={deleting !== null} onClick={() => openProject(p.id)}>열기</button><button type="button" className="project-delete" title="프로젝트 삭제" aria-label={`${p.name} 프로젝트 삭제`} disabled={deleting !== null} onClick={async () => {
+      <section className="card saved-projects"><div className="section-title"><h2>내 프로젝트</h2><span className="small muted">저장한 장면 이어서 작업하기</span></div>{projects.map(p => <div className="project-row" key={p.id}><div className="grow"><div className="name">{p.name}</div><div className="small muted">{p.freeform ? `자유 장면 · ${FREE_MODES.find(m => m.id === p.freeform?.mode)?.label ?? ''}` : index.find(e => e.id === p.templateId)?.name ?? p.templateId} · 마지막 수정 {new Date(p.updatedAt).toLocaleDateString()} · 수정 요청 {p.iterations.length}회</div></div><div className="project-row-actions"><button type="button" className="secondary" disabled={deleting !== null} onClick={() => openProject(p.id)}>열기</button><button type="button" className="project-delete" title="프로젝트 삭제" aria-label={`${p.name} 프로젝트 삭제`} disabled={deleting !== null} onClick={async () => {
         if (deletePending.current || !window.confirm(`“${p.name}” 프로젝트를 이 브라우저에서 삭제할까요?\n내보낸 JSON 파일이 없으면 되살릴 수 없어요.`)) return
         deletePending.current = true
         setDeleting(p.id)
         try { await deleteProject(p.id); toast('프로젝트를 삭제했어요.') }
         catch (err) { toast(`프로젝트를 삭제하지 못했어요. ${(err as Error).message}`) }
         finally { deletePending.current = false; setDeleting(null) }
-      }}><span aria-hidden="true">×</span></button></div></div>)}</section>}
+      }}><span aria-hidden="true">×</span></button></div></div>)}
+        {projects.length === 0 && <p className="small muted projects-empty">아직 저장한 프로젝트가 없어요.</p>}
 
-      <section className="import-project row">
-        <div><h3>저장한 프로젝트 불러오기</h3><p className="small muted">전에 내보낸 JSON 파일을 열어요. 참고 이미지와 기록까지 그대로 돌아와요.</p></div>
-        <button className="secondary" onClick={() => file.current?.click()}>JSON 열기</button>
-        <input ref={file} type="file" accept="application/json,.json" hidden onChange={async e => { const f = e.target.files?.[0]; if (!f) return; try { await importProject(await f.text()); onCreated(); toast('프로젝트를 불러왔어요.') } catch (err) { toast((err as Error).message) } e.target.value = '' }} />
+        <div className="import-project row">
+          <div><h3>저장한 프로젝트 불러오기</h3><p className="small muted" id="project-import-help">내보낸 JSON 파일로 참고 이미지와 기록까지 불러와요.</p></div>
+          <button type="button" className="ghost" aria-describedby="project-import-help" disabled={deleting !== null} onClick={() => file.current?.click()}>JSON 열기</button>
+          <input ref={file} type="file" accept="application/json,.json" hidden onChange={async e => { const f = e.target.files?.[0]; if (!f) return; try { await importProject(await f.text()); onCreated(); toast('프로젝트를 불러왔어요.') } catch (err) { toast((err as Error).message) } e.target.value = '' }} />
+        </div>
       </section>
       <p className="local-storage-note">내용은 이 브라우저에 저장돼요. 보관 · 설정에서 JSON 파일로 내보내면 다른 기기에서도 이어갈 수 있어요.</p>
     </div>

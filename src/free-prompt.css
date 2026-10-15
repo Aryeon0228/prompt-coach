@@ -24,4 +24,8 @@
 .project-delete{display:grid;place-items:center;width:44px;height:44px;min-width:44px;padding:0;background:transparent;color:var(--muted);font:24px/1 var(--f-lat)}
 .project-delete:hover{background:#302320;color:var(--danger)}
 .project-delete:disabled:hover{background:transparent;color:var(--muted)}
+.saved-projects .import-project{margin-top:4px;padding:12px 0 0;border-top:1px solid var(--line);gap:8px 16px}
+.saved-projects .import-project h3{font-size:13px}
+.saved-projects .import-project>button{font-size:12px;flex-shrink:0}
+.projects-empty{padding:16px 0}
 @media(max-width:759px){.saved-projects .project-row{flex-wrap:wrap}.saved-projects .project-row>.grow{flex-basis:100%}.project-row-actions{margin-left:auto}.example-templates>summary{width:100%;gap:0 8px}.example-templates .project-create>button{width:100%}}
