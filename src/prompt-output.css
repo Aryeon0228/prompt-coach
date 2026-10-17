@@ -12,6 +12,7 @@
 .prompt-document-options .tabs{background:#101010;border-radius:12px;max-width:100%}
 .prompt-document-options .tabs button{font-size:12px;min-height:40px;white-space:normal;border-radius:8px}
 .prompt-document-options .tabs button.on{background:#393939;box-shadow:inset 0 0 0 1px #666}
+.prompt-document-options .prompt-version-tabs button{flex:0 1 auto;white-space:nowrap}
 .prompt-document-options .prompt-save-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-left:auto;font-size:12px;flex-shrink:0}
 .prompt-source-label{font-size:12px;color:var(--muted)}
 .prompt-document .prompt-language-note{font-size:12px;line-height:1.8;color:var(--muted);margin-top:-8px}
@@ -35,7 +36,7 @@
   .prompt-copy-button{width:100%;min-height:48px}
   .prompt-document-options{gap:8px}
   .prompt-document-options .prompt-version-tabs{width:100%}
-  .prompt-document-options .prompt-version-tabs button{padding:8px 10px}
+  .prompt-document-options .prompt-version-tabs button{flex:1;white-space:normal;padding:8px 10px}
   .prompt-document .prompt-document-body{padding:18px;font-size:14px;line-height:1.9}
   .prompt-use-note{grid-template-columns:minmax(0,1fr);gap:4px}
   .prompt-secondary{padding:14px 18px}
