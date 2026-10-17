@@ -4,6 +4,7 @@ import { App } from './App'
 import { StoreProvider } from './store'
 import './styles.css'
 import './question-layout.css'
+import './prompt-output.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

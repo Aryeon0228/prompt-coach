@@ -1,0 +1,42 @@
+/* The finished prompt is the main document; controls and guidance stay outside its text. */
+.prompt-result-page{gap:20px}
+.prompt-ready-heading,.prompt-document-heading{display:flex;justify-content:space-between;align-items:center;gap:16px 24px}
+.prompt-ready-copy,.prompt-document-copy{display:grid;gap:8px;min-width:0}
+.prompt-output-help{font-size:13px;line-height:1.8;font-weight:400;color:var(--muted);max-width:68ch}
+.prompt-ready .prompt-import-action{font-size:12px;flex-shrink:0;display:inline-flex;align-items:center;gap:12px}
+.prompt-document{display:grid;gap:16px;padding:24px;border:1px solid #363636}
+.prompt-document-heading h2{font-size:18px;line-height:1.5}
+.prompt-copy-button{display:inline-flex;align-items:center;justify-content:center;gap:10px;flex-shrink:0;min-height:46px;font-size:14px}
+.prompt-copy-button svg,.prompt-save-button svg{width:18px;height:18px;flex-shrink:0}
+.prompt-document-options{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px 16px;padding-top:16px;border-top:1px solid var(--line);min-width:0}
+.prompt-document-options .tabs{background:#101010;border-radius:12px;max-width:100%}
+.prompt-document-options .tabs button{font-size:12px;min-height:40px;white-space:normal;border-radius:8px}
+.prompt-document-options .tabs button.on{background:#393939;box-shadow:inset 0 0 0 1px #666}
+.prompt-document-options .prompt-save-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-left:auto;font-size:12px;flex-shrink:0}
+.prompt-source-label{font-size:12px;color:var(--muted)}
+.prompt-document .prompt-language-note{font-size:12px;line-height:1.8;color:var(--muted);margin-top:-8px}
+.prompt-document .prompt-document-body{background:#0c0c0c;border:1px solid #333;border-radius:14px;padding:24px;font-size:15px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;min-width:0}
+.prompt-document-body:focus-visible{outline-offset:3px}
+.prompt-use-note{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;font-size:12px;line-height:1.8;color:var(--muted)}
+.prompt-use-note>span{font-weight:500;color:var(--ink)}
+.prompt-secondary{padding:16px 20px;background:#151515}
+.prompt-secondary>summary{flex-wrap:nowrap;gap:16px}
+.prompt-secondary-copy{display:grid;gap:4px;min-width:0;font-size:14px;font-weight:500;line-height:1.6}
+.prompt-secondary-copy>small{font-size:12px;font-weight:400;color:var(--muted)}
+.prompt-secondary>summary::after{display:grid;place-items:center;width:24px;height:24px;flex:0 0 24px;font:20px/1 var(--f-lat)}
+
+@media(max-width:759px){
+  .prompt-result-page{gap:16px}
+  .prompt-ready-heading{align-items:flex-start;flex-direction:column;gap:8px}
+  .prompt-ready .prompt-import-action{padding-left:0}
+  .prompt-document{padding:18px;gap:16px}
+  .prompt-document-heading{align-items:stretch;flex-direction:column;gap:16px}
+  .prompt-document-heading h2{font-size:17px}
+  .prompt-copy-button{width:100%;min-height:48px}
+  .prompt-document-options{gap:8px}
+  .prompt-document-options .prompt-version-tabs{width:100%}
+  .prompt-document-options .prompt-version-tabs button{padding:8px 10px}
+  .prompt-document .prompt-document-body{padding:18px;font-size:14px;line-height:1.9}
+  .prompt-use-note{grid-template-columns:minmax(0,1fr);gap:4px}
+  .prompt-secondary{padding:14px 18px}
+}

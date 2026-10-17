@@ -21,7 +21,7 @@ const TABS: Array<{ id: Tab; label: string; description: string; group: string }
   { id: 'brief', label: '장면 설정', description: '원하는 장면의 조건을 하나씩 정해 보세요.', group: '장면 만들기' },
   { id: 'refs', label: '참고 이미지', description: '선택 사항 · 이미지에서 참고할 부분을 정해요.', group: '장면 만들기' },
   { id: 'refine', label: '질문으로 구체화', description: '한 번에 하나씩 답하고, 그 조건이 필요한 이유를 알아보세요.', group: '장면 만들기' },
-  { id: 'prompt', label: '프롬프트', description: '프롬프트를 복사해 사용할 AI에 전달하고 제작을 시작하세요.', group: '장면 만들기' },
+  { id: 'prompt', label: '프롬프트', description: '정리된 장면 조건을 확인하고 제작을 시작하세요.', group: '장면 만들기' },
   { id: 'coach', label: '수정 코치', description: '결과에서 아쉬운 부분을 짚고, 한 가지씩 수정 요청을 만드세요.', group: '결과 다듬기' },
   { id: 'history', label: '수정 기록', description: '어떤 요청이 효과가 있었는지 결과를 비교해 보세요.', group: '결과 다듬기' },
   { id: 'settings', label: '보관 · 설정', description: '프로젝트 이름을 바꾸거나 작업을 파일로 보관하세요.', group: '프로젝트' },

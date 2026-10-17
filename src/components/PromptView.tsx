@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import { assembleBrief, checklist, undecided } from '../lib/assemble'
 import { useStore } from '../store'
 import { PromptBox } from './ui'
@@ -5,17 +6,17 @@ import { PromptBox } from './ui'
 /** The prompt is ready to take to a creation tool; checks and revision stay optional. */
 export function PromptView({ onGoBrief, onRevise }: { onGoBrief: () => void; onRevise: () => void }) {
   const { project, template } = useStore()
+  const readyTitleId = useId()
   if (!project || !template) return null
   const missing = undecided(template, project)
   const en = assembleBrief(template, project, 'en')
   const ko = assembleBrief(template, project, 'ko')
 
   return (
-    <div className="stack">
-      <section className="prompt-ready stack">
-        <h2>프롬프트 준비 완료</h2>
-        <p className="muted">프롬프트를 복사한 뒤, 사용할 AI에 붙여 넣고 제작을 요청하세요.</p>
-        <p className="small muted">장면 설정을 요청문으로 정리했어요. 3D 장면의 제작은 사용하는 AI 도구에서 이어가요.</p>
+    <div className="stack prompt-result-page">
+      <section className="prompt-ready stack" aria-labelledby={readyTitleId}>
+        <h2 id={readyTitleId}>프롬프트 준비 완료</h2>
+        <p className="prompt-output-help">3D 웹 · 장면 설정을 제작 요청문으로 정리했어요.</p>
       </section>
       <PromptBox en={en} ko={ko} filename={`${project.name}-first-prompt.txt`} />
       {missing.length > 0 && (
@@ -28,8 +29,13 @@ export function PromptView({ onGoBrief, onRevise }: { onGoBrief: () => void; onR
           </button>
         </div>
       )}
-      <details className="card">
-        <summary style={{ cursor: 'pointer', fontWeight: 700 }}>검수 기준 {checklist(template, project, 'ko').length}개 (프롬프트에 들어 있어요)</summary>
+      <details className="card prompt-secondary">
+        <summary>
+          <span className="prompt-secondary-copy">
+            <span>검수 기준 {checklist(template, project, 'ko').length}개</span>
+            <small>프롬프트에 포함된 결과 확인 기준</small>
+          </span>
+        </summary>
         <ol className="small" style={{ margin: '10px 0 0', paddingLeft: 20, lineHeight: 1.7 }}>
           {checklist(template, project, 'ko').map((c, i) => (
             <li key={i}>{c}</li>
@@ -40,8 +46,13 @@ export function PromptView({ onGoBrief, onRevise }: { onGoBrief: () => void; onR
         </p>
       </details>
 
-      <details className="card">
-        <summary>결과를 받은 뒤 <span className="small muted">선택 · 수정 코치</span></summary>
+      <details className="card prompt-secondary">
+        <summary>
+          <span className="prompt-secondary-copy">
+            <span>결과를 받은 뒤</span>
+            <small>선택 · 수정 코치</small>
+          </span>
+        </summary>
         <p className="small muted">제작 도구에서 받은 결과를 확인하고, 바꿀 부분과 유지할 부분을 함께 정해요.</p>
         <button type="button" className="secondary" onClick={onRevise}>수정 코치 열기 →</button>
       </details>
