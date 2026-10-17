@@ -202,21 +202,26 @@ export function CoachConversation({ onPreview, onEdit, onHandoff }: {
 
       {session && !stale && !completed && question && <form className="stack conversation-question" onSubmit={(event) => { event.preventDefault(); if (!(event.nativeEvent as Event & { isComposing?: boolean })?.isComposing) saveAnswer() }}>
         <div className="conversation-question-meta"><span>{editingField ? '작성 중인 답변 이어쓰기' : question.label}</span><span className="small muted">저장한 답변 {answeredCount}개 · 보류 {deferredCount}개</span></div>
-        <h3 ref={questionHeading} tabIndex={-1} id={`${id}-question`}><span aria-hidden="true">Q.</span> {question.question}</h3>
-        {editingField && currentConditions[editingField].trim() && <div className="note"><p className="small">이 항목에는 이미 조건이 있어요. 답변을 확정하면 아래 내용으로 바뀌고, 보류하면 현재 조건을 유지해요.</p><p className="small conversation-text">현재: {currentConditions[editingField]}</p><button type="button" className="ghost" onClick={() => onEdit(editingField)}>현재 조건 수정 →</button></div>}
-        <div className="conversation-why" id={`${id}-why`}><span>왜 필요할까요?</span><p>{question.why}</p></div>
-        <details className="conversation-examples" key={question.field}>
-          <summary>답변 예시 보기</summary>
-          <p className="small muted">방향을 떠올리기 위한 예시예요. 직접 답해도 돼요. 예시를 누르면 작성 칸에 추가되고, 저장 전까지는 확정되지 않아요.</p>
-          <div className="conversation-example-list">{question.examples.map((example) => {
-            const combined = answerText.trim() ? `${answerText}\n${example}` : example
-            return <button key={example} type="button" className="conversation-example" disabled={!canContinue || combined.length > COACHING_ANSWER_LIMIT} aria-label={`예시 넣기: ${example}`} onClick={() => { saveDraft(combined); answerBox.current?.focus() }}><span>{example}</span><span aria-hidden="true">＋</span></button>
-          })}</div>
-        </details>
-        <label className="stack conversation-answer" htmlFor={`${id}-answer`}><span>내 답변</span><textarea ref={answerBox} id={`${id}-answer`} aria-describedby={`${id}-why ${id}-autosave`} value={answerText} maxLength={COACHING_ANSWER_LIMIT} disabled={!canContinue} rows={5} placeholder="내가 원하는 조건을 편하게 적어 주세요." onChange={(event) => saveDraft(event.target.value)} onCompositionStart={() => { answerComposing.current = true }} onCompositionEnd={(event) => { answerComposing.current = false; saveDraft(event.currentTarget.value) }} /></label>
-        <p className="conversation-character-count small muted">{answerText.length.toLocaleString()} / {COACHING_ANSWER_LIMIT.toLocaleString()}자</p>
-        <div className="conversation-answer-actions"><button type="submit" disabled={!canContinue || !answerText.trim()}>{editingField ? '답변 확정 · 조건에 반영' : '답변 저장 · 다음 질문'}</button><button type="button" className="secondary" disabled={!canContinue} onClick={() => saveAnswer(true)}>지금은 보류</button>{editingField && <button type="button" className="ghost" onClick={() => { requestFocus(); setEditing(null) }}>나중에 이어쓰기</button>}</div>
-        {editingField && <p className="small muted">수정한 내용을 저장하기 전까지는 이전 답변이 유지돼요. 작성 중인 내용도 남아 있어요.</p>}
+        <div className="question-copy">
+          <h3 className="question-title" ref={questionHeading} tabIndex={-1} id={`${id}-question`}><span aria-hidden="true">Q.</span> {question.question}</h3>
+          {editingField && currentConditions[editingField].trim() && <div className="note"><p className="small">이 항목에는 이미 조건이 있어요. 답변을 확정하면 아래 내용으로 바뀌고, 보류하면 현재 조건을 유지해요.</p><p className="small conversation-text">현재: {currentConditions[editingField]}</p><button type="button" className="ghost" onClick={() => onEdit(editingField)}>현재 조건 수정 →</button></div>}
+          <div className="conversation-why" id={`${id}-why`}><span>왜 필요할까요?</span><p>{question.why}</p></div>
+        </div>
+        <div className="question-response conversation-response">
+          <div className="conversation-response-heading"><label className="question-answer-label" htmlFor={`${id}-answer`}>내 답변</label><span className="small muted">직접 적거나 예시를 참고하세요</span></div>
+          <details className="conversation-examples" key={question.field}>
+            <summary>답변 예시 보기</summary>
+            <p className="small muted">누르면 답변에 추가돼요. 내 장면에 맞게 고친 뒤 저장하세요.</p>
+            <div className="conversation-example-list">{question.examples.map((example) => {
+              const combined = answerText.trim() ? `${answerText}\n${example}` : example
+              return <button key={example} type="button" className="conversation-example" disabled={!canContinue || combined.length > COACHING_ANSWER_LIMIT} aria-label={`예시 넣기: ${example}`} onClick={() => { saveDraft(combined); answerBox.current?.focus() }}><span>{example}</span><span aria-hidden="true">＋</span></button>
+            })}</div>
+          </details>
+          <div className="conversation-answer"><textarea ref={answerBox} id={`${id}-answer`} aria-describedby={`${id}-question ${id}-why ${id}-autosave`} value={answerText} maxLength={COACHING_ANSWER_LIMIT} disabled={!canContinue} rows={5} placeholder="내가 원하는 조건을 편하게 적어 주세요." onChange={(event) => saveDraft(event.target.value)} onCompositionStart={() => { answerComposing.current = true }} onCompositionEnd={(event) => { answerComposing.current = false; saveDraft(event.currentTarget.value) }} /></div>
+          <p className="conversation-character-count small muted">{answerText.length.toLocaleString()} / {COACHING_ANSWER_LIMIT.toLocaleString()}자</p>
+          <div className="conversation-answer-actions"><button type="submit" disabled={!canContinue || !answerText.trim()}>{editingField ? '답변 확정 · 조건에 반영' : '답변 저장 · 다음 질문'}</button><button type="button" className="secondary" disabled={!canContinue} onClick={() => saveAnswer(true)}>지금은 보류</button>{editingField && <button type="button" className="ghost" onClick={() => { requestFocus(); setEditing(null) }}>나중에 이어쓰기</button>}</div>
+          {editingField && <p className="small muted">수정한 내용을 저장하기 전까지는 이전 답변이 유지돼요. 작성 중인 내용도 남아 있어요.</p>}
+        </div>
         {!editingField && <div className="conversation-finish"><span className="small muted">{answerText.trim() ? '지금 쓴 답변까지 프롬프트에 반영하고 마쳐요.' : '이 질문은 비워 두고, 지금까지 정한 조건으로 마쳐요.'}</span><button type="button" className="ghost" disabled={!canContinue} onClick={finish}>{answerText.trim() ? '답변 저장하고 마치기' : '답변 없이 마치기'}</button></div>}
       </form>}
 

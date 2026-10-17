@@ -42,64 +42,68 @@ export function Brief() {
               const a = answerFor(d, project)
               return (
                 <div className="decision" key={d.id} id={`decision-${d.id}`}>
-                  <header>
-                    <div>
-                      <div className="label" id={`decision-label-${d.id}`}>
-                        {d.label} {d.importance === 'core' ? <span className="pill">핵심</span> : null}
-                      </div>
-                      {d.help ? <div className="help">{d.help}</div> : null}
-                    </div>
-                    <Segmented<DecisionState>
-                      label={`${d.label} 결정 방식`}
-                      value={a.state}
-                      onChange={(state) => set(d, { ...a, state })}
-                      options={[
-                        { value: 'set', label: '내가 정함' },
-                        { value: 'delegate', label: 'AI에게', className: 'delegate' },
-                        { value: 'unknown', label: '모름', className: 'unknown' },
-                      ]}
-                    />
+                  <header className="question-copy">
+                    <h3 className="label question-title" id={`decision-label-${d.id}`}>
+                      {d.label} {d.importance === 'core' ? <span className="pill">핵심</span> : null}
+                    </h3>
+                    {d.help ? <p className="help question-help" id={`decision-help-${d.id}`}>{d.help}</p> : null}
                   </header>
-                  {a.state === 'set' && d.kind === 'choice' && (
-                    <div className="choices" role="group" aria-labelledby={`decision-label-${d.id}`}>
-                      {d.options!.map((o) => (
-                        <button key={o.value} type="button" aria-pressed={a.value === o.value} className={`choice ${a.value === o.value ? 'on' : ''}`} onClick={() => set(d, { state: 'set', value: o.value, custom: a.custom })} title={o.text.ko}>
-                          {o.label}
-                        </button>
-                      ))}
-                      <button type="button" aria-pressed={a.value === CUSTOM} className={`choice ${a.value === CUSTOM ? 'on' : ''}`} onClick={() => set(d, { state: 'set', value: CUSTOM, custom: a.custom ?? '' })}>
-                        직접 쓰기
-                      </button>
+                  <div className="question-response decision-response">
+                    <div className="decision-response-heading">
+                      <span className="question-answer-label">답변</span>
+                      <Segmented<DecisionState>
+                        label={`${d.label} 결정 방식`}
+                        value={a.state}
+                        onChange={(state) => set(d, { ...a, state })}
+                        options={[
+                          { value: 'set', label: '내가 정함' },
+                          { value: 'delegate', label: 'AI에게', className: 'delegate' },
+                          { value: 'unknown', label: '모름', className: 'unknown' },
+                        ]}
+                      />
                     </div>
-                  )}
-                  {a.state === 'set' && d.kind === 'choice' && a.value === CUSTOM && (
-                    <CustomBox d={d} value={a.custom ?? ''} onChange={(custom) => set(d, { ...a, custom })} />
-                  )}
-                  {a.state === 'set' && d.kind === 'multi' && (
-                    <div className="choices" role="group" aria-labelledby={`decision-label-${d.id}`}>
-                      {d.options!.map((o) => {
-                        const vals = Array.isArray(a.value) ? a.value : []
-                        const on = vals.includes(o.value)
-                        return (
-                          <button key={o.value} type="button" aria-pressed={on} className={`choice ${on ? 'on' : ''}`} onClick={() => set(d, { state: 'set', value: on ? vals.filter((v) => v !== o.value) : [...vals, o.value] })} title={o.text.ko}>
-                            {on ? '✓ ' : ''}
+                    {a.state === 'set' && d.kind !== 'text' && <p className="small muted answer-instruction">{d.kind === 'choice' ? '하나를 고르거나 직접 적어 주세요.' : '여러 개를 고르거나 직접 덧붙일 수 있어요.'}</p>}
+                    {a.state === 'set' && d.kind === 'choice' && (
+                      <div className="choices question-choices" role="group" aria-labelledby={`decision-label-${d.id}`} aria-describedby={d.help ? `decision-help-${d.id}` : undefined}>
+                        {d.options!.map((o) => (
+                          <button key={o.value} type="button" aria-pressed={a.value === o.value} className={`choice ${a.value === o.value ? 'on' : ''}`} onClick={() => set(d, { state: 'set', value: o.value, custom: a.custom })} title={o.text.ko}>
                             {o.label}
                           </button>
-                        )
-                      })}
-                      <button type="button" aria-pressed={a.custom !== undefined} className={`choice ${a.custom !== undefined ? 'on' : ''}`} onClick={() => set(d, { ...a, state: 'set', custom: a.custom === undefined ? '' : undefined })}>
-                        {a.custom !== undefined ? '✓ ' : ''}직접 덧붙이기
-                      </button>
-                    </div>
-                  )}
-                  {a.state === 'set' && d.kind === 'multi' && a.custom !== undefined && (
-                    <CustomBox d={d} value={a.custom} onChange={(custom) => set(d, { ...a, custom })} />
-                  )}
-                  {a.state === 'set' && d.kind === 'text' && (
-                    <textarea aria-labelledby={`decision-label-${d.id}`} value={typeof a.value === 'string' ? a.value : ''} placeholder={d.placeholder} onChange={(e) => set(d, { state: 'set', value: e.target.value })} />
-                  )}
-                  {a.state === 'delegate' && <p className="small muted">→ "{(d.delegateText ?? { ko: '이건 나머지 내용과 어울리게 네가 정해줘.' }).ko}"</p>}
-                  {a.state === 'unknown' && <p className="small" style={{ color: 'var(--amber)' }}>→ 프롬프트에 "두 가지 안을 내고 물어봐 줘"가 들어가요.</p>}
+                        ))}
+                        <button type="button" aria-pressed={a.value === CUSTOM} className={`choice ${a.value === CUSTOM ? 'on' : ''}`} onClick={() => set(d, { state: 'set', value: CUSTOM, custom: a.custom ?? '' })}>
+                          직접 쓰기
+                        </button>
+                      </div>
+                    )}
+                    {a.state === 'set' && d.kind === 'choice' && a.value === CUSTOM && (
+                      <CustomBox d={d} value={a.custom ?? ''} onChange={(custom) => set(d, { ...a, custom })} />
+                    )}
+                    {a.state === 'set' && d.kind === 'multi' && (
+                      <div className="choices question-choices" role="group" aria-labelledby={`decision-label-${d.id}`} aria-describedby={d.help ? `decision-help-${d.id}` : undefined}>
+                        {d.options!.map((o) => {
+                          const vals = Array.isArray(a.value) ? a.value : []
+                          const on = vals.includes(o.value)
+                          return (
+                            <button key={o.value} type="button" aria-pressed={on} className={`choice ${on ? 'on' : ''}`} onClick={() => set(d, { state: 'set', value: on ? vals.filter((v) => v !== o.value) : [...vals, o.value] })} title={o.text.ko}>
+                              {on ? '✓ ' : ''}
+                              {o.label}
+                            </button>
+                          )
+                        })}
+                        <button type="button" aria-pressed={a.custom !== undefined} className={`choice ${a.custom !== undefined ? 'on' : ''}`} onClick={() => set(d, { ...a, state: 'set', custom: a.custom === undefined ? '' : undefined })}>
+                          {a.custom !== undefined ? '✓ ' : ''}직접 덧붙이기
+                        </button>
+                      </div>
+                    )}
+                    {a.state === 'set' && d.kind === 'multi' && a.custom !== undefined && (
+                      <CustomBox d={d} value={a.custom} onChange={(custom) => set(d, { ...a, custom })} />
+                    )}
+                    {a.state === 'set' && d.kind === 'text' && (
+                      <textarea aria-labelledby={`decision-label-${d.id}`} aria-describedby={d.help ? `decision-help-${d.id}` : undefined} value={typeof a.value === 'string' ? a.value : ''} placeholder={d.placeholder} onChange={(e) => set(d, { state: 'set', value: e.target.value })} />
+                    )}
+                    {a.state === 'delegate' && <p className="small muted">→ "{(d.delegateText ?? { ko: '이건 나머지 내용과 어울리게 네가 정해줘.' }).ko}"</p>}
+                    {a.state === 'unknown' && <p className="small" style={{ color: 'var(--amber)' }}>→ 프롬프트에 "두 가지 안을 내고 물어봐 줘"가 들어가요.</p>}
+                  </div>
                 </div>
               )
             })}
@@ -114,7 +118,7 @@ export function Brief() {
 function CustomBox({ d, value, onChange }: { d: Decision; value: string; onChange: (v: string) => void }) {
   return (
     <div className="stack" style={{ gap: 4 }}>
-      <textarea aria-label={`${d.label} 직접 입력`} value={value} placeholder="원하는 걸 자유롭게 적어 주세요. 쓴 그대로 프롬프트에 들어가요." onChange={(e) => onChange(e.target.value)} />
+      <textarea aria-label={`${d.label} 직접 입력`} aria-describedby={d.help ? `decision-help-${d.id}` : undefined} value={value} placeholder="원하는 걸 자유롭게 적어 주세요. 쓴 그대로 프롬프트에 들어가요." onChange={(e) => onChange(e.target.value)} />
       <span className="small muted">프롬프트에는 "{d.label}: (적은 내용)"으로 들어가요. 한국어로 써도 괜찮아요.</span>
     </div>
   )

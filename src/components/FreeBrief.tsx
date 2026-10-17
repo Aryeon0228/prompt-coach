@@ -68,10 +68,12 @@ export function FreeBrief({ onPreview, onRefine, onReferences, focusField, focus
       <h2><button type="button" className="free-group-toggle" aria-expanded={opened === i} aria-controls={`free-group-${i}`} onClick={() => setOpened(opened === i ? -1 : i)}><span className="free-group-index">0{i + 1}</span><span><strong>{group.title}</strong><small>{group.summary}</small></span><span className="free-group-count">{group.fields.filter(f => brief[f.id].trim()).length}/{group.fields.length} 작성</span><span aria-hidden="true">{opened === i ? '−' : '+'}</span></button></h2>
       <div className="stack free-group-body" id={`free-group-${i}`} hidden={opened !== i}>
         {group.fields.map(field => <div className="free-field" key={field.id}>
-          <label htmlFor={`free-${field.id}`}>{field.label}{field.required && <span className="pill">필수</span>}</label>
-          <p className="small muted" id={`why-${field.id}`}>{field.why}</p>
+          <div className="question-copy">
+            <label className="question-title" htmlFor={`free-${field.id}`}>{field.label}{field.required && <span className="pill">필수</span>}</label>
+            <p className="question-help" id={`why-${field.id}`}>{field.why}</p>
+          </div>
           <textarea id={`free-${field.id}`} value={brief[field.id]} onChange={e => change(field.id, e.target.value)} aria-describedby={`why-${field.id}`} required={field.required} rows={field.id === 'idea' ? 3 : 2} placeholder={field.required ? "만들고 싶은 대상과 상황을 한 문장으로 적어 주세요." : "내 장면에 맞게 적어 주세요. 아직 정하지 않았다면 비워 두어도 돼요."} />
-          <details className="field-example"><summary>어느 정도로 구체적으로 쓸까요?</summary><p>{field.example}</p><small className="muted">작성 예시예요. 필요한 조건과 정도는 내 장면에 맞게 바꾸세요.</small></details>
+          <details className="field-example"><summary>작성 예시 보기</summary><p>{field.example}</p><small className="muted">내 장면에 맞게 필요한 조건만 참고하세요.</small></details>
         </div>)}
         <div className="row step-actions"><span className="small muted">{i === 0 ? '장면 아이디어만 있어도 시작할 수 있어요.' : '이 항목들이 필요하지 않으면 다음으로 넘어가도 돼요.'}</span>{i < groups.length - 1 ? <button type="button" className="secondary" onClick={() => {setOpened(i + 1); requestAnimationFrame(() => document.getElementById(`free-${groups[i + 1].fields[0].id}`)?.focus())}}>다음 조건 →</button> : <button type="button" className="secondary" onClick={() => nextActions.current?.focus()}>조건 입력 마치기 →</button>}</div>
       </div>

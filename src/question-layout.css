@@ -1,0 +1,74 @@
+/* Shared hierarchy: question, supporting context, then the response area. */
+.question-copy{display:grid;gap:8px;min-width:0}
+.question-copy .question-title{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-size:18px;font-weight:500;line-height:1.55;color:var(--ink)}
+.question-copy .question-title .pill{font-size:11px;font-weight:400;align-self:center}
+.question-copy .question-help{font-size:13px;font-weight:400;line-height:1.8;color:var(--muted);max-width:68ch;margin:0}
+.question-response{display:grid;gap:14px;background:#111;border:1px solid #303030;border-radius:14px;padding:18px;min-width:0}
+.question-answer-label{font-size:14px;font-weight:500;line-height:1.5;color:var(--ink)}
+.question-response textarea{font-size:14px;line-height:1.8}
+.question-response .answer-instruction{font-size:12px;line-height:1.7;color:var(--muted)}
+.question-choices .choice{background:#202020;border-color:#454545;border-radius:10px;text-align:left;line-height:1.6}
+.question-choices .choice:hover{background:#2d2d2d;border-color:#888}
+.question-choices .choice.on{background:#353535;border-color:#d9d9d9;box-shadow:inset 0 0 0 1px #d9d9d9}
+.decision .question-copy{display:grid;gap:8px;margin-bottom:16px}
+.decision-response-heading,.conversation-response-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px}
+.decision-response .segmented{border:1px solid #393939}
+.decision-response>.small{font-size:13px;line-height:1.8}
+.brief-group-body .decision{padding-top:28px;padding-bottom:28px}
+.brief-group-body .decision:first-of-type{padding-top:0}
+.brief-group-body .decision:last-child{padding-bottom:0}
+.brief-group-summary{display:grid;grid-template-columns:20px minmax(0,1fr) auto 24px;gap:12px;align-items:center}
+.brief-group-summary .brief-group-index{margin:0;align-self:start;line-height:24px}
+.brief-group-summary .brief-group-heading{min-width:0}
+.brief-group-summary .brief-group-status{margin:0}
+.brief-group-summary::after{margin-left:0}
+
+/* Free scene fields keep their labels attached to the large writing area. */
+.free-group-body{gap:28px}
+.free-group-body .free-field{gap:14px}
+.free-group-body .free-field+.free-field{border-top:1px solid var(--line);padding-top:28px}
+.free-field .field-example{padding:0;background:transparent;border-radius:0}
+.free-field .field-example>summary{font-size:12px;color:var(--muted);gap:12px}
+.free-field .field-example>p{padding:14px 16px;background:#111;border-radius:10px;font-size:13px;line-height:1.8;margin-top:4px}
+.free-field .field-example>small{font-size:12px;margin-top:8px;padding-bottom:0}
+.free-brief .free-group-toggle{display:grid;grid-template-columns:20px minmax(0,1fr) auto 24px;gap:12px;align-items:center}
+.free-brief .free-group-toggle>span:nth-child(2){min-width:0}
+.free-brief .free-group-index{padding:0;align-self:start;line-height:24px}
+.free-brief .free-group-count{font-size:12px;margin:0}
+.free-brief .free-group-toggle>span:last-child{display:grid;place-items:center;width:24px;height:24px;font:20px/1 var(--f-lat)}
+
+/* The active question leads; examples and writing controls stay together below. */
+.conversation-question .question-copy{gap:14px}
+.conversation-question .question-title{display:block;font-size:20px;line-height:1.55;margin:0}
+.conversation-question .question-title>span{font:inherit;color:var(--muted);margin-right:6px}
+.conversation-question .conversation-why{padding:0 0 0 14px;gap:4px;border-color:#555}
+.conversation-question .conversation-why>span{font-size:12px;color:var(--muted)}
+.conversation-question .conversation-why>p{font-size:13px;line-height:1.8;max-width:68ch}
+.conversation-response .conversation-examples{border:0;border-top:1px solid var(--line);padding:4px 0 0}
+.conversation-response .conversation-examples>summary{font-size:13px;color:var(--muted)}
+.conversation-response .conversation-examples>p{margin-top:8px}
+.conversation-response .conversation-example-list{margin-top:12px}
+.conversation-response .conversation-example{background:#1c1c1c;font-size:14px;border-color:#454545;gap:16px}
+.conversation-response .conversation-example:hover:not(:disabled){background:#2d2d2d;border-color:#888}
+.conversation-response .conversation-example>span:last-child{display:grid;place-items:center;width:24px;height:24px;font:20px/1 var(--f-lat)}
+.conversation-response .conversation-character-count{margin-top:-6px;font-size:11px}
+.conversation-response .conversation-answer-actions{padding-top:4px}
+.conversation-response .conversation-answer textarea{display:block}
+.free-field .field-example>summary::after,.coach-conversation details>summary::after,.brief-group-summary::after{display:grid;place-items:center;width:24px;height:24px;flex:0 0 24px;font:20px/1 var(--f-lat)}
+
+@media(max-width:759px){
+  .question-copy .question-title{font-size:17px}
+  .question-response{padding:14px;gap:12px}
+  .decision-response-heading{align-items:flex-start;flex-direction:column;gap:10px}
+  .question-choices .choice{flex:1 1 auto;min-width:0}
+  .brief-group-summary{grid-template-columns:18px minmax(0,1fr) 24px;gap:6px 10px}
+  .brief-group-summary .brief-group-status{grid-column:2;grid-row:2}
+  .brief-group-summary::after{grid-column:3;grid-row:1;align-self:start}
+  .free-brief .free-group-toggle{grid-template-columns:18px minmax(0,1fr) 24px;gap:6px 10px}
+  .free-brief .free-group-count{grid-column:2;grid-row:2;font-size:11px}
+  .free-brief .free-group-toggle>span:last-child{grid-column:3;grid-row:1;align-self:start}
+  .free-group-body .free-field+.free-field{padding-top:24px}
+  .conversation-question .question-title{font-size:18px}
+  .conversation-response-heading{align-items:flex-start;flex-direction:column;gap:4px}
+  .conversation-response .conversation-answer-actions{grid-template-columns:minmax(0,1fr)}
+}
