@@ -43,8 +43,8 @@ export function History({ onCreate }: { onCreate: () => void }) {
               </div>
             </div>
             <details className="history-request">
-              <summary>수정 요청문 보기</summary>
-              <PromptBox en={it.promptEn} ko={it.promptKo} filename={`${project.name}-fix-${n}.txt`} initialLang={template.id === 'free-scene' ? 'ko' : 'en'} />
+              <summary>수정 프롬프트 보기</summary>
+              <PromptBox en={it.promptEn} ko={it.promptKo} filename={`${project.name}-fix-${n}.txt`} initialLang={template.id === 'free-scene' ? 'ko' : 'en'} title="저장된 수정 프롬프트" copyLabel="수정 프롬프트 복사" usageHint="복사한 뒤 작업 중인 AI 대화에 붙여 넣으세요." />
             </details>
             <details className="history-evaluation">
               <summary>결과를 받은 뒤 평가 <span className="small muted">{evaluation}</span></summary>

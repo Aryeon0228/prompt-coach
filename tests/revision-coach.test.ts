@@ -126,7 +126,7 @@ test('desired change and preserved features reach the saved request for all resu
     assert.notEqual(comparison.props.open, true, 'Reference comparison starts as optional, closed content')
     find(ui.renderLocks(), n => n.type === 'input').props.onChange({ target: { value: '대상의 푸른색' } })
     button(ui.renderLocks(), '추가').props.onClick()
-    button(ui.render(), '수정 요청문 보기').props.onClick()
+    button(ui.render(), '수정 프롬프트 보기').props.onClick()
     const prompt = output(ui.render())
     for (const language of ['ko', 'en']) {
       assert.ok(prompt[language].includes(change))
@@ -153,7 +153,7 @@ test('dictionary shortcut still collects a target and a saved request starts wit
   find(tree, n => n.props['aria-label'] === '참고 이미지 1').props.onClick()
   button(ui.render(), '구도·배치').props.onClick()
   find(ui.render(), n => n.type === 'textarea').props.onChange({ target: { value: '잎을 더 크게 해 주세요.' } })
-  button(ui.render(), '수정 요청문 보기').props.onClick()
+  button(ui.render(), '수정 프롬프트 보기').props.onClick()
   button(ui.render(), '기록에 저장').props.onClick()
   assert.equal(ui.project().iterations[0].referenceId, 'reference')
   assert.ok(ui.project().iterations[0].promptKo.includes('참고 이미지 1'))

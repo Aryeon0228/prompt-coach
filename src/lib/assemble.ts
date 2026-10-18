@@ -158,7 +158,7 @@ export function assembleFix(
       : ` (첨부한 ${imageLabel.ko}에 표시한 부분, 왼쪽에서 약 ${Math.round(it.region.x * 100)}~${Math.round((it.region.x + it.region.w) * 100)}%, 위에서 ${Math.round(it.region.y * 100)}~${Math.round((it.region.y + it.region.h) * 100)}% 자리)`
     : ''
   lines.push(lang === 'en' ? `Problem: ${target}${where} — ${sym.labelEn || sym.label}.` : `문제: ${target}${where}. ${sym.label}.`)
-  const fix = sym.fix[lang].replace(/\{target\}/g, target)
+  const fix = sym.fix[lang].replace(/\{target\}/g, () => target)
   // a target like "the cliffs" can start the sentence: capitalise it
   lines.push(lang === 'en' ? fix.charAt(0).toUpperCase() + fix.slice(1) : fix)
   if (it.compareId) {

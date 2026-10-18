@@ -1,0 +1,46 @@
+/* Revision intent, preserved conditions, and the final request have separate places. */
+.revision-coach{gap:20px}
+.revision-coach .revision-step-heading{font-size:20px;line-height:1.55}
+.revision-coach .revision-step-heading+.small{font-size:13px;line-height:1.8;color:var(--muted)}
+.revision-coach .revision-edit-card{gap:24px}
+.revision-coach .revision-change-grid{gap:16px;align-items:stretch}
+.revision-coach .revision-change-grid>.revision-change-panel{display:grid;align-content:start;gap:16px;padding:20px;background:#111;border:1px solid #383838;border-radius:14px}
+.revision-change-panel .question-title{font-size:17px;align-items:center;gap:10px}
+.revision-change-panel .question-title svg{width:20px;height:20px;flex:0 0 20px;color:#bfbfbf}
+.revision-change-panel .question-help{font-size:13px;line-height:1.8;color:var(--muted)}
+.revision-change-input,.revision-lock-input{display:grid;gap:10px}
+.revision-change-panel .question-answer-label{font-size:13px}
+.revision-change-panel .question-answer-label>.small{margin-left:6px;font-size:11px;font-weight:400}
+.revision-change-panel textarea,.revision-change-panel input{font-size:14px;line-height:1.8}
+.revision-lock-add{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:start}
+.revision-lock-add button{padding:12px 16px}
+.revision-preserve-panel .locks-list{gap:8px}
+.revision-preserve-panel .locks-list>li{display:flex;align-items:center;gap:12px;flex-wrap:nowrap;background:#202020;border:1px solid #343434;border-radius:10px;padding:6px 8px 6px 14px;font-size:14px;line-height:1.7}
+.revision-preserve-panel .locks-list button{min-width:36px;min-height:36px;padding:4px;font:22px/1 var(--f-lat)}
+.revision-coach .revision-comparison>summary{font-size:13px;line-height:1.7}
+.revision-coach .revision-comparison>summary::after{display:grid;place-items:center;width:24px;height:24px;font:20px/1 var(--f-lat)}
+.revision-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.revision-summary-grid>section{min-width:0;display:grid;align-content:start;gap:10px}
+.revision-summary-grid h3,.revision-reason h3{font-size:14px;font-weight:500}
+.revision-summary-grid p,.revision-summary-grid li{font-size:13px;line-height:1.8;white-space:pre-wrap}
+.revision-summary-grid ul{margin:0;padding-left:18px;display:grid;gap:8px}
+.revision-reason{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:16px}
+.revision-reason p{font-size:13px;line-height:1.8;color:var(--muted);max-width:72ch}
+.revision-attachment-note{padding:0 4px}
+.revision-record-actions{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px 24px;padding-top:20px;border-top:1px solid var(--line)}
+.revision-record-actions>.ghost{padding-left:0;font-size:13px}
+.revision-record-save{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px}
+.revision-record-save p{font-size:12px;line-height:1.7;color:var(--muted)}
+.revision-record-save button{font-size:13px}
+
+@media(max-width:759px){
+  .revision-coach{gap:16px}
+  .revision-coach .revision-step-heading{font-size:18px}
+  .revision-coach .revision-change-grid>.revision-change-panel{padding:16px;gap:14px}
+  .revision-change-panel .question-title{font-size:16px}
+  .revision-summary-grid{grid-template-columns:minmax(0,1fr);gap:20px}
+  .revision-summary-grid>section+section{padding-top:16px;border-top:1px solid var(--line)}
+  .revision-record-actions,.revision-record-save{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+  .revision-record-actions>.ghost{text-align:left}
+  .revision-record-save{padding-top:12px;border-top:1px solid #222}
+}

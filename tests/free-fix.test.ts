@@ -66,6 +66,15 @@ test('English fix format retains the original custom input without pretending to
   assert.equal(prompt.includes('same camera angle'), false)
 })
 
+test('custom targets containing replacement characters remain literal in the fix instruction', () => {
+  const target = "간판 $& / $` / $'"
+  for (const lang of ['ko', 'en'] as const) {
+    const prompt = assembleFix(template, project('image'), { ...draft, target, targetEn: target }, lang)
+    assert.equal(prompt.split(target).length - 1, 2, 'The problem and fix both retain the exact target')
+    assert.equal(prompt.includes('{target}'), false)
+  }
+})
+
 test('free-scene comparisons do not invent a reference image when none was selected', () => {
   const p = project('image')
   const noReference = assembleFix(template, p, { ...draft, compareId: 'composition' }, 'ko')

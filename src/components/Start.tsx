@@ -42,7 +42,7 @@ export function Start({ onCreated, onOpening }: { onCreated: () => void; onOpeni
           catch (err) { toast((err as Error).message) }
           finally { setCreating(false) }
         }}>
-          <fieldset className="free-mode-fieldset" aria-describedby="free-mode-guide"><legend>만들 결과물을 선택하세요</legend><div className="free-mode-grid">{FREE_MODES.map(item => <button type="button" key={item.id} className={`choice big ${mode === item.id ? 'on' : ''}`} aria-pressed={mode === item.id} onClick={() => setMode(item.id)}><span>{item.label}</span><span className="hint">{item.hint}</span></button>)}</div><p className="small muted" id="free-mode-guide">3D 웹이 목표라면 <strong>3D Web</strong>부터 시작하세요. 이미지는 참고 자료로 준비해 추가할 수 있어요.</p></fieldset>
+          <fieldset className="free-mode-fieldset" aria-describedby="free-mode-guide"><legend>지금 만들 결과물을 선택하세요</legend><div className="free-mode-grid">{FREE_MODES.map(item => <button type="button" key={item.id} className={`choice big ${mode === item.id ? 'on' : ''}`} aria-pressed={mode === item.id} onClick={() => setMode(item.id)}><span>{item.label}</span><span className="hint">{item.hint}</span></button>)}</div><p className="small muted" id="free-mode-guide">참고 이미지를 먼저 만들려면 <strong>2D Image</strong>, 3D 장면을 구현하려면 <strong>3D Web</strong>을 고르세요.</p></fieldset>
           <label className="stack free-start-input"><span>장면 아이디어</span><textarea required rows={4} value={idea} onChange={e => setIdea(e.target.value)} placeholder="예: 비 오는 밤, 작은 우산 아래에서 버스를 기다리는 고양이" aria-describedby="free-start-hint" /></label>
         </form>
 
