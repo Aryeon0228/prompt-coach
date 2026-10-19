@@ -8,43 +8,59 @@ export function Settings() {
   const [deleting, setDeleting] = useState(false)
   const deletionPending = useRef(false)
   if (!project || !template) return null
-  const size = Math.round(JSON.stringify(project).length / 1024)
 
   return (
-    <div className="stack">
-      <section className="card stack project-management">
-        <h2>프로젝트 관리</h2>
-        <label className="stack" style={{ gap: 6 }}>
-          <span className="small muted">프로젝트 이름</span>
-          <input type="text" disabled={deleting} value={project.name} onChange={(e) => updateProject((p) => ({ ...p, name: e.target.value }))} />
+    <div className="stack project-settings">
+      <section className="card settings-section" aria-labelledby="settings-name-title">
+        <header className="settings-section-heading">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m14 5 5 5M4 20l5-1L20 8a2 2 0 0 0-5-5L4 14Z"/></svg>
+          <div><h2 id="settings-name-title">프로젝트 이름 바꾸기</h2><p>목록에서 알아보기 쉬운 이름을 붙여 주세요.</p></div>
+        </header>
+        <label className="settings-name-field" htmlFor="settings-project-name">
+          <span>프로젝트 이름</span>
+          <input id="settings-project-name" type="text" aria-describedby="settings-name-help" disabled={deleting} value={project.name} onChange={(e) => updateProject((p) => ({ ...p, name: e.target.value }))} />
         </label>
-        <p className="small muted">
-          {template.name} · 참고 이미지 {project.references.length}장 · 수정 요청 {project.iterations.length}회 · 약 {size} KB
-        </p>
-        <section className="project-export stack">
-          <div>
-            <h3>파일로 보관하기</h3>
-            <p className="small muted">입력한 내용, 참고 이미지, 프롬프트와 수정 기록을 한 파일에 담아요. 내 프로젝트의 ‘JSON 열기’로 다시 불러올 수 있어요.</p>
+        <p className="settings-help" id="settings-name-help">이름을 바꾸면 이 브라우저에 자동 저장돼요.</p>
+      </section>
+
+      <section className="card settings-section" aria-labelledby="settings-export-title">
+        <header className="settings-section-heading">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2ZM3 9h18"/></svg>
+          <div><h2 id="settings-export-title">파일로 저장하기</h2><p>장면 설정·참고 이미지·프롬프트·수정 기록을 한 파일에 담아요.</p></div>
+        </header>
+        <div className="settings-file">
+          <div className="settings-file-info">
+            <span className="settings-file-type" aria-label="JSON 파일">JSON</span>
+            <div><h3>프로젝트 전체 파일</h3><p>참고 이미지 {project.references.length}장 · 수정 기록 {project.iterations.length}개</p></div>
           </div>
-          <div className="row">
             <button
               type="button"
+              className="settings-download"
               disabled={deleting}
               onClick={() => {
                 downloadText(`${project.name.replace(/[\\/:*?"<>|]/g, '_')}.prompt-coach.json`, JSON.stringify(project, null, 2))
                 toast('JSON 파일을 내려받아요.')
               }}
             >
-              프로젝트 JSON 내보내기
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg>
+              프로젝트 파일 저장
             </button>
-          </div>
-        </section>
-        <p className="project-storage-note small muted">내용은 이 브라우저에 자동 저장돼요. 다른 기기에서 이어가거나 브라우저 데이터를 지우기 전에는 JSON 파일로 보관해 주세요.</p>
-        <div className="project-danger row">
+        </div>
+        <div className="settings-storage-help">
+          <p>작업은 이 브라우저에 자동 저장돼요. 다른 기기로 옮기거나 브라우저 데이터를 지우기 전에는 파일로 보관하세요.</p>
+          <p><span>다시 불러오기</span> 내 프로젝트 → JSON 열기에서 저장한 파일을 선택하세요.</p>
+        </div>
+      </section>
+
+      <section className="settings-delete" aria-labelledby="settings-delete-title">
+        <header className="settings-section-heading">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg>
           <div>
-            <h3>프로젝트 삭제</h3>
-            <p className="small muted">현재 브라우저에서 이 프로젝트를 지워요.</p>
+            <h2 id="settings-delete-title">프로젝트 삭제</h2>
+            <p>이 브라우저에서 프로젝트와 수정 기록을 지워요.</p>
+            <p>삭제 전 파일로 저장해 두면 다시 불러올 수 있어요.</p>
           </div>
+        </header>
           <button
             type="button"
             className="danger"
@@ -66,7 +82,6 @@ export function Settings() {
           >
             {deleting ? '삭제 중…' : '이 프로젝트 삭제'}
           </button>
-        </div>
       </section>
     </div>
   )

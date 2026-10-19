@@ -1,0 +1,48 @@
+/* Rename, portable backup, and deletion are separate project actions. */
+.project-settings{gap:24px}
+.settings-section{display:grid;gap:20px;padding:24px;min-width:0}
+.settings-section-heading{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.settings-section-heading>svg{width:22px;height:22px;flex:0 0 22px;margin-top:3px;color:#bfbfbf}
+.settings-section-heading>div{display:grid;gap:8px;min-width:0}
+.settings-section-heading h2{font-size:18px;line-height:1.6}
+.settings-section-heading p,.settings-help{font-size:13px;line-height:1.8;color:var(--muted)}
+.settings-name-field{display:grid;gap:10px;min-width:0}
+.settings-name-field>span{font-size:13px;font-weight:500}
+.settings-name-field>input{width:100%;font-size:15px;line-height:1.8}
+.settings-name-field+.settings-help{margin-top:-10px;font-size:12px}
+.settings-file{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;padding:20px;background:#111;border:1px solid #383838;border-radius:14px}
+.settings-file-info{display:flex;align-items:center;gap:14px;min-width:0}
+.settings-file-type{display:grid;place-items:center;flex:0 0 50px;width:50px;height:60px;border:1px solid #4b4b4b;border-radius:8px;color:#bfbfbf;font:12px var(--f-lat);letter-spacing:.03em}
+.settings-file-info>div{display:grid;gap:6px;min-width:0}
+.settings-file-info h3{font-size:15px;line-height:1.6}
+.settings-file-info p{font-size:12px;line-height:1.8;color:var(--muted)}
+.settings-download{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:46px;font-size:14px;flex-shrink:0}
+.settings-download>svg{width:18px;height:18px;flex:0 0 18px}
+.settings-storage-help{display:grid;gap:8px;font-size:12px;line-height:1.8;color:var(--muted)}
+.settings-storage-help span{color:var(--ink);font-weight:500;margin-right:8px}
+.settings-delete{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;padding:24px;margin-top:8px;border:1px solid #333;border-radius:20px;background:#101010}
+.settings-delete .settings-section-heading h2{font-size:16px}
+.settings-delete .settings-section-heading>div{gap:6px}
+.settings-delete .settings-section-heading>svg{width:20px;height:20px;flex-basis:20px}
+.settings-delete p{font-size:12px}
+.settings-delete button{font-size:13px;min-height:44px;flex-shrink:0}
+
+@media(max-width:1000px){
+  .settings-file{align-items:stretch;flex-direction:column}
+  .settings-download{align-self:flex-start}
+  .settings-delete{align-items:flex-start;flex-direction:column}
+  .settings-delete button{margin-left:34px}
+}
+
+@media(max-width:759px){
+  .project-settings{gap:20px}
+  .settings-section{padding:20px;gap:18px}
+  .settings-section-heading{gap:10px}
+  .settings-section-heading h2{font-size:17px}
+  .settings-section-heading p{font-size:12px}
+  .settings-file{padding:16px;gap:18px}
+  .settings-file-info{gap:12px}
+  .settings-download{align-self:stretch;width:100%}
+  .settings-delete{padding:20px;gap:16px}
+  .settings-delete button{margin-left:0;width:100%}
+}
