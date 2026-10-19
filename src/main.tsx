@@ -6,6 +6,7 @@ import './styles.css'
 import './question-layout.css'
 import './prompt-output.css'
 import './revision-layout.css'
+import './history-layout.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -14,7 +14,7 @@ export function History({ onCreate }: { onCreate: () => void }) {
   }
 
   return (
-    <div className="stack">
+    <div className="stack history-page">
       {records.length === 0 && (
         <section className="card stack history-empty">
           <h2>아직 저장한 수정 요청이 없어요</h2>
@@ -25,48 +25,72 @@ export function History({ onCreate }: { onCreate: () => void }) {
 
       {records.map(({ it, n }) => {
         const l = label(it.categoryId, it.symptomId)
-        const evaluation = it.resolved === true ? '해결됨' : it.resolved === false ? '미해결' : it.rating !== undefined ? `만족도 ${it.rating}/5` : '미평가'
+        const resolution = it.resolved === true ? '해결됨' : it.resolved === false ? '미해결' : '확인 전'
+        const evaluation = it.rating === undefined && it.resolved === undefined ? '아직 평가하지 않았어요' : `${it.rating === undefined ? '만족도 미평가' : `만족도 ${it.rating}/5`} · ${resolution}`
         return (
           <section className="card stack history-record" key={it.id}>
-            <div className="iter">
-              <figure className="history-before">
-                {it.screenshot ? <img src={it.screenshot} alt={`${it.target} 수정 전 화면`} /> : <div className="thumb-empty">이미지 없음</div>}
-                <figcaption className="small muted">수정 전 화면</figcaption>
-              </figure>
-              <div className="stack" style={{ gap: 6, minWidth: 0 }}>
-                <div className="row" style={{ justifyContent: 'space-between' }}>
-                  <h2 className="history-record-title">#{n} {it.target}</h2>
-                  <span className="small muted">{new Date(it.createdAt).toLocaleString()}</span>
-                </div>
-                <p className="small"><span className="pill">{l.cat}</span> {l.sym}</p>
-                {it.note && <p className="small history-wanted-change"><b>바꿀 내용</b> {it.note}</p>}
+            <header className="history-record-heading">
+              <h2 className="history-record-title"><span>#{n}</span> {it.target}</h2>
+              <span className="history-record-date">{new Date(it.createdAt).toLocaleString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 저장</span>
+            </header>
+            <section className="history-change" aria-label={`${n}번 요청한 변경`}>
+              <div className="history-section-heading">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m14 5 5 5M4 20l5-1L20 8a2 2 0 0 0-5-5L4 14Z"/></svg>
+                <h3>요청한 변경</h3>
               </div>
-            </div>
+              <div className={`history-change-content${it.screenshot ? ' has-image' : ''}`}>
+                {it.screenshot && <figure className="history-before">
+                  <img src={it.screenshot} alt={`${it.target} 수정 전 화면`} />
+                  <figcaption>수정 전 화면</figcaption>
+                </figure>}
+                <div className="history-change-copy">
+                  <p className="history-category">{l.cat}</p>
+                  <dl className="history-change-facts">
+                    <div><dt>고칠 문제</dt><dd>{l.sym}</dd></div>
+                    <div><dt>원하는 변화</dt><dd className="history-wanted-change">{it.note?.trim() ? it.note : <span className="muted">선택한 문제에 맞는 수정 제안을 사용했어요. 구체적인 요청은 아래 프롬프트에서 확인하세요.</span>}</dd></div>
+                  </dl>
+                </div>
+              </div>
+            </section>
             <details className="history-request">
-              <summary>수정 프롬프트 보기</summary>
-              <PromptBox en={it.promptEn} ko={it.promptKo} filename={`${project.name}-fix-${n}.txt`} initialLang={template.id === 'free-scene' ? 'ko' : 'en'} title="저장된 수정 프롬프트" copyLabel="수정 프롬프트 복사" usageHint="복사한 뒤 작업 중인 AI 대화에 붙여 넣으세요." />
+              <summary>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9ZM14 3v6h6M8 13h8M8 17h5"/></svg>
+                <span className="history-disclosure-copy"><span>저장된 수정 프롬프트</span><small>당시 저장한 본문을 펼쳐서 확인하고 복사해요.</small></span>
+              </summary>
+              <PromptBox en={it.promptEn} ko={it.promptKo} filename={`${project.name}-fix-${n}.txt`} initialLang={template.id === 'free-scene' ? 'ko' : 'en'} copyLabel="수정 프롬프트 복사" usageHint="복사한 뒤 작업 중인 AI 대화에 붙여 넣으세요." />
             </details>
             <details className="history-evaluation">
-              <summary>결과를 받은 뒤 평가 <span className="small muted">{evaluation}</span></summary>
-              <div className="stack">
-                <p className="small muted">수정 결과를 확인한 뒤 만족도와 해결 여부를 남겨요.</p>
-                <div className="row" style={{ justifyContent: 'space-between' }}>
-                  <div className="stars" role="group" aria-label={`${n}번 수정 결과 만족도`}>
+              <summary>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>
+                <span className="history-disclosure-copy"><span>결과 평가</span><small>{evaluation}</small></span>
+              </summary>
+              <div className="history-assessment">
+                <p className="history-help">수정 결과를 받은 뒤 평가해 주세요. 선택한 내용은 자동으로 저장돼요.</p>
+                <div className="history-assessment-grid">
+                  <fieldset className="history-rating">
+                    <legend>만족도</legend>
+                    <p className="history-help">1점 아쉬워요 · 5점 만족해요</p>
+                    <div className="stars" role="group" aria-label={`${n}번 수정 결과 만족도`}>
                     {[1, 2, 3, 4, 5].map((k) => (
                       <button type="button" key={k} aria-pressed={it.rating === k} className={(it.rating ?? 0) >= k ? 'on' : ''} aria-label={`${k}점`} onClick={() => updateProject((p) => ({ ...p, iterations: p.iterations.map((x) => (x.id === it.id ? { ...x, rating: k } : x)) }))}>★</button>
                     ))}
-                  </div>
-                  <label className="row small" style={{ gap: 6 }}>
-                    <input type="checkbox" checked={!!it.resolved} onChange={(e) => updateProject((p) => ({ ...p, iterations: p.iterations.map((x) => (x.id === it.id ? { ...x, resolved: e.target.checked } : x)) }))} />
-                    문제가 해결됐어요
-                  </label>
+                    </div>
+                    <p className="history-rating-value">{it.rating === undefined ? '아직 선택하지 않았어요' : `${it.rating} / 5점`}</p>
+                  </fieldset>
+                  <fieldset className="history-resolution">
+                    <legend>해결 여부</legend>
+                    <p className="history-help">고치려던 문제가 해결됐나요?</p>
+                    <div className="history-resolution-options" role="group" aria-label={`${n}번 수정 해결 여부`}>
+                      {([{ label: '확인 전', value: undefined }, { label: '해결됨', value: true }, { label: '미해결', value: false }] as const).map(option => <button type="button" key={option.label} className={`choice ${it.resolved === option.value ? 'on' : ''}`} aria-pressed={it.resolved === option.value} onClick={() => updateProject(p => ({ ...p, iterations: p.iterations.map(x => x.id === it.id ? { ...x, resolved: option.value } : x) }))}>{option.label}</button>)}
+                    </div>
+                  </fieldset>
                 </div>
               </div>
             </details>
             <div className="row history-record-actions">
               <button type="button" className="ghost" aria-label={`${n}번 수정 기록 삭제`} onClick={() => {
                 if (confirm(`"${it.target}" 수정 기록을 지울까요?`)) updateProject((p) => ({ ...p, iterations: p.iterations.filter((x) => x.id !== it.id) }))
-              }}>기록 삭제</button>
+              }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg>기록 삭제</button>
             </div>
           </section>
         )
