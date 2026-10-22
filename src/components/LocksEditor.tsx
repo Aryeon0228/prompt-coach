@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useStore } from '../store'
 
 /** Persistent conditions that belong alongside the requested change. */
-export function LocksEditor() {
+export function LocksEditor({ onImage }: { onImage?: () => void } = {}) {
   const { project, updateProject } = useStore()
   const [value, setValue] = useState('')
   if (!project) return null
@@ -20,6 +20,7 @@ export function LocksEditor() {
         <h3 className="question-title" id="revision-locks-title"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>유지할 내용</h3>
         <p className="question-help">이미 마음에 드는 부분을 적어 두세요. 추가한 조건은 다음 수정 요청에도 계속 반영돼요.</p>
       </div>
+      {project.imagePrompt?.preserve.trim() && <div className="stack note"><span className="small muted">이미지 단계에서 정한 유지할 특징</span><p style={{ whiteSpace: 'pre-wrap' }}>{project.imagePrompt.preserve}</p>{onImage && <button type="button" className="ghost" onClick={onImage}>이미지 단계에서 수정하기 →</button>}</div>}
       {project.locks.length > 0 && (
         <ul className="locks-list">
           {project.locks.map((lock, index) => (

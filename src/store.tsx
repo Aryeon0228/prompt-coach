@@ -2,8 +2,14 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { db, uid } from './lib/db'
 import { loadIndex, loadTemplate, validateTemplate } from './lib/templates'
 import { isPromptCoaching } from './lib/coach-handoff'
+import { isImagePromptDraft, type ImagePromptDraft } from './lib/image-prompt'
 import type { FreePromptBrief } from './lib/free-prompt'
-import type { Project, Template, TemplateIndexEntry } from './types'
+import type { Project, Reference, Template, TemplateIndexEntry } from './types'
+
+export interface ImageProjectSeed {
+  references: Reference[]
+  imagePrompt: ImagePromptDraft
+}
 
 interface Store {
   ready: boolean
@@ -13,7 +19,7 @@ interface Store {
   project: Project | null
   template: Template | null
   openProject: (id: string | null) => Promise<void>
-  createProject: (entry: TemplateIndexEntry, name: string, freeform?: FreePromptBrief) => Promise<void>
+  createProject: (entry: TemplateIndexEntry, name: string, freeform?: FreePromptBrief, seed?: ImageProjectSeed) => Promise<void>
   updateProject: (patch: (p: Project) => Project) => void
   deleteProject: (id: string) => Promise<void>
   importProject: (json: string) => Promise<void>
@@ -28,6 +34,22 @@ function isFreePromptBrief(value: unknown): value is FreePromptBrief {
   const brief = value as Record<string, unknown>
   return (brief.mode === 'image' || brief.mode === 'video' || brief.mode === 'web') &&
     ['idea', 'purpose', 'subject', 'composition', 'style', 'details', 'constraints', 'success'].every((key) => typeof brief[key] === 'string')
+}
+
+/** Imported image projects may have lost their source image; retain their text for recovery. */
+function validateImageProject(templateId: string, references: unknown, draft: unknown, allowMissingSource: boolean) {
+  if (templateId !== 'free-scene' || !isImagePromptDraft(draft)) throw new Error('이미지에서 시작한 장면의 기록 형식이 올바르지 않아요.')
+  if (!Array.isArray(references) || references.some((reference) =>
+    !reference || typeof reference !== 'object' || typeof reference.id !== 'string' || !reference.id.trim()
+    || typeof reference.name !== 'string' || typeof reference.role !== 'string'
+    || typeof reference.dataUrl !== 'string' || !/^data:image\/(?:jpeg|png|webp);base64,/i.test(reference.dataUrl)
+    || (reference.note !== undefined && typeof reference.note !== 'string'),
+  ) || new Set(references.map((reference) => reference.id)).size !== references.length) {
+    throw new Error('참고 이미지 기록의 형식이 올바르지 않아요.')
+  }
+  if (!allowMissingSource && !references.some((reference) => reference.id === draft.referenceId)) {
+    throw new Error('프롬프트로 정리할 원본 이미지를 선택해 주세요.')
+  }
 }
 
 export function StoreProvider({ children }: { children: ReactNode }) {
@@ -115,9 +137,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [ready, index, openProject])
 
   const createProject = useCallback(
-    async (entry: TemplateIndexEntry, name: string, freeform?: FreePromptBrief) => {
+    async (entry: TemplateIndexEntry, name: string, freeform?: FreePromptBrief, seed?: ImageProjectSeed) => {
+      if (seed) {
+        if (!isFreePromptBrief(freeform)) throw new Error('이미지에서 만들 결과물 종류를 선택해 주세요.')
+        validateImageProject(entry.id, seed.references, seed.imagePrompt, false)
+      }
       const now = Date.now()
-      const p: Project = { id: uid(), templateId: entry.id, name: name || entry.name, createdAt: now, updatedAt: now, decisions: {}, references: [], locks: [], iterations: [], ...(freeform ? { freeform } : {}) }
+      const p: Project = { id: uid(), templateId: entry.id, name: name || entry.name, createdAt: now, updatedAt: now, decisions: {}, references: seed ? seed.references.map((reference) => ({ ...reference })) : [], locks: [], iterations: [], ...(freeform ? { freeform } : {}), ...(seed ? { imagePrompt: { ...seed.imagePrompt } } : {}) }
       await db.put(p)
       await refresh()
       await openProject(p.id)
@@ -155,6 +181,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (!index.some((e) => e.id === p.templateId)) throw new Error(`이 파일의 템플릿(${p.templateId})이 여기에는 없어요`)
       if (p.templateId === 'free-scene' && !isFreePromptBrief(p.freeform)) throw new Error('자유 장면의 입력 내용이 올바르지 않아요. 이미지·영상·3D 웹 장면 형식으로 저장한 파일인지 확인해 주세요.')
       if (p.promptCoaching !== undefined && !isPromptCoaching(p.promptCoaching)) throw new Error('프롬프트 코칭 기록의 형식이 올바르지 않아요. 이 앱에서 내보낸 프로젝트 파일인지 확인해 주세요.')
+      if (p.imagePrompt !== undefined) validateImageProject(p.templateId, p.references ?? [], p.imagePrompt, true)
       const copy: Project = { ...p, id: uid(), updatedAt: Date.now(), locks: p.locks ?? [], references: p.references ?? [], iterations: p.iterations ?? [] }
       await db.put(copy)
       await refresh()

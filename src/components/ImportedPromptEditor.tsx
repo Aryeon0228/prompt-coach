@@ -31,7 +31,7 @@ export function ImportedPromptEditor({ open, onOpenChange, onApplied, onEdit, fo
   if (!project) return null
   const { brief, source, session } = coachingContext(project)
   const coaching = project.promptCoaching ?? createPromptCoaching()
-  const requestText = buildMcpStarter({ medium: brief.mode, idea: brief.idea, requestText: buildCoachingRequest(brief, project.references, project.locks, session) })
+  const requestText = buildMcpStarter({ medium: brief.mode, idea: brief.idea, requestText: buildCoachingRequest(brief, project.references, project.locks, session, project.imagePrompt) })
   const sourceFits = source.length <= MAX_DRAFT
   const requestFits = requestText.length <= MAX_DRAFT
   const hasIdea = Boolean(brief.idea.trim())

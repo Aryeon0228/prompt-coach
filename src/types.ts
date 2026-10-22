@@ -1,5 +1,6 @@
 import type { FreePromptBrief } from './lib/free-prompt'
 import type { PromptCoaching } from './lib/coach-handoff'
+import type { ImagePromptDraft } from './lib/image-prompt'
 
 /** Text that goes to the coding AI (en) and its meaning for the student (ko). */
 export interface Localized {
@@ -184,6 +185,8 @@ export interface Project {
   freeform?: FreePromptBrief
   /** A coaching request and the user's imported draft, notes and accepted prompt. */
   promptCoaching?: PromptCoaching
+  /** A reference-image observation and the user's separate adaptation requests. */
+  imagePrompt?: ImagePromptDraft
   decisions: Record<string, DecisionAnswer>
   references: Reference[]
   /** things that are already right and must not change */

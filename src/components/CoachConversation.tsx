@@ -34,7 +34,7 @@ export function CoachConversation({ onPreview, onEdit, onHandoff }: {
   const focusProjectId = useRef<string | null>(null)
   const brief = project?.freeform ?? createFreeBrief()
   const currentConditions = project ? coachingContext(project).brief : brief
-  const source = project ? coachingSource(brief, project.references, project.locks) : ''
+  const source = project ? coachingSource(brief, project.references, project.locks, undefined, project.imagePrompt) : ''
   const session = project?.promptCoaching?.session
   const sourceFits = source.length <= SOURCE_LIMIT
   const hasIdea = Boolean(brief.idea.trim())
@@ -79,7 +79,7 @@ export function CoachConversation({ onPreview, onEdit, onHandoff }: {
     updateProject((currentProject) => {
       if (currentProject.id !== projectId) return currentProject
       const currentBrief = currentProject.freeform ?? createFreeBrief()
-      const currentSource = coachingSource(currentBrief, currentProject.references, currentProject.locks)
+      const currentSource = coachingSource(currentBrief, currentProject.references, currentProject.locks, undefined, currentProject.imagePrompt)
       const currentCoaching = currentProject.promptCoaching ?? createPromptCoaching()
       const currentSession = currentCoaching.session
       if (currentSource !== source || currentSource.length > SOURCE_LIMIT || !currentSession) return currentProject
@@ -98,7 +98,7 @@ export function CoachConversation({ onPreview, onEdit, onHandoff }: {
     updateProject((currentProject) => {
       if (currentProject.id !== projectId || currentProject.promptCoaching?.session) return currentProject
       const currentBrief = currentProject.freeform ?? createFreeBrief()
-      const currentSource = coachingSource(currentBrief, currentProject.references, currentProject.locks)
+      const currentSource = coachingSource(currentBrief, currentProject.references, currentProject.locks, undefined, currentProject.imagePrompt)
       if (currentSource !== source) return currentProject
       const next = createGuidedSession(currentBrief, currentSource)
       return {

@@ -6,14 +6,14 @@ import { guidedBrief, nextCoachingQuestion, type CoachingField, type GuidedSessi
 const SOURCE_LIMIT = 100_000
 
 /** Resolve confirmed answers without replacing the user's original scene or reusing stale answers. */
-export function coachingContext(project: Pick<Project, 'freeform' | 'references' | 'locks' | 'promptCoaching'>) {
+export function coachingContext(project: Pick<Project, 'freeform' | 'references' | 'locks' | 'promptCoaching' | 'imagePrompt'>) {
   const originalBrief = project.freeform ?? createFreeBrief()
-  const baseSource = coachingSource(originalBrief, project.references, project.locks)
+  const baseSource = coachingSource(originalBrief, project.references, project.locks, undefined, project.imagePrompt)
   const savedSession = project.promptCoaching?.session
   const sessionStale = Boolean(savedSession && (savedSession.source !== baseSource || savedSession.mode !== originalBrief.mode))
   const session = sessionStale ? undefined : savedSession
   const brief = guidedBrief(originalBrief, session, baseSource)
-  const source = coachingSource(brief, project.references, project.locks, session)
+  const source = coachingSource(brief, project.references, project.locks, session, project.imagePrompt)
   const answerCount = session ? Object.entries(session.answers).filter(([field, answer]) =>
     answer?.status === 'answered' && (session.conditionsApplied
       ? originalBrief[field as CoachingField] === answer.text
@@ -24,7 +24,7 @@ export function coachingContext(project: Pick<Project, 'freeform' | 'references'
 
 /** Commit scene conditions and their snapshot together, preserving all saved text/history. */
 function applyConditions(project: Project, brief: FreePromptBrief, session: GuidedSession): Project {
-  const source = coachingSource(brief, project.references, project.locks)
+  const source = coachingSource(brief, project.references, project.locks, undefined, project.imagePrompt)
   return {
     ...project,
     freeform: brief,

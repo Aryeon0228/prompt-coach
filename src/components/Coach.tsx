@@ -21,7 +21,7 @@ const STEPS: Array<{ id: Step; label: string }> = [
  * category, pick the symptom, say how it differs from the reference. The user never has to
  * find the technical word — the template carries it.
  */
-export function Coach({ onSaved }: { onSaved: () => void }) {
+export function Coach({ onSaved, onImage }: { onSaved: () => void; onImage?: () => void }) {
   const { project, template, updateProject } = useStore()
   const toast = useToast()
   const [step, setStep] = useState<Step>('shot')
@@ -282,7 +282,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
               </label>
               <p className="question-help" id="revision-change-help">비워 두면 선택한 문제에 맞는 수정 제안을 사용해요.</p>
             </section>
-            <LocksEditor />
+            <LocksEditor onImage={onImage} />
           </div>
           <details className="revision-comparison">
             <summary>참고 이미지와 비교하기 <span className="small muted">선택{referenceId || compareId ? ' · 비교 조건 있음' : ''}</span></summary>
@@ -333,7 +333,7 @@ export function Coach({ onSaved }: { onSaved: () => void }) {
             <summary><span className="prompt-secondary-copy"><span>수정 조건과 이유 확인하기</span><small>바꿀 내용과 유지할 내용을 다시 확인해요.</small></span></summary>
             <div className="revision-summary-grid">
               <section><h3>바꿀 내용</h3><p>{symptom.fix.ko.replaceAll('{target}', () => finalTarget)}</p>{note.trim() && <p>{note}</p>}</section>
-              <section><h3>유지할 내용</h3>{project.locks.length > 0 ? <ul>{project.locks.map((lock, index) => <li key={index}>{lock}</li>)}</ul> : <p className="muted">따로 추가한 유지 조건이 없어요.</p>}</section>
+              <section><h3>유지할 내용</h3>{project.imagePrompt?.preserve.trim() && <p style={{ whiteSpace: 'pre-wrap' }}>{project.imagePrompt.preserve}</p>}{project.locks.length > 0 ? <ul>{project.locks.map((lock, index) => <li key={index}>{lock}</li>)}</ul> : !project.imagePrompt?.preserve.trim() && <p className="muted">따로 추가한 유지 조건이 없어요.</p>}</section>
             </div>
             {symptom.why && <div className="revision-reason"><h3>왜 이렇게 바꿀까요?</h3><p>{symptom.why}</p></div>}
           </details>

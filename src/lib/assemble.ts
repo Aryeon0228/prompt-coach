@@ -169,6 +169,7 @@ export function assembleFix(
   if (it.note?.trim()) lines.push(it.note.trim())
   lines.push(lang === 'en' ? 'Change only this; leave everything else as it is.' : '이것만 바꾸고 나머지는 그대로 둬.')
   if (p.locks.length) lines.push((lang === 'en' ? 'In particular, do not touch: ' : '특히 다음은 건드리지 마: ') + p.locks.join('; ') + '.')
+  if (freeMode && p.imagePrompt?.preserve.trim()) lines.push((lang === 'en' ? 'Features to preserve from the reference-image plan:\n' : '참고 이미지 단계에서 유지하기로 한 특징:\n') + p.imagePrompt.preserve + (lang === 'en' ? '\nIf this conflicts with the requested change, ask me which condition takes priority.' : '\n이번 변경 요청과 충돌하면 어느 조건이 우선인지 먼저 확인해 주세요.'))
   if (freeMode) {
     if (p.freeform?.success.trim()) lines.push((lang === 'en' ? 'Result criteria:\n' : '결과 확인 기준:\n') + p.freeform.success)
     const verification: Record<typeof freeMode, Localized> = {

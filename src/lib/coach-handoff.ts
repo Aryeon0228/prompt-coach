@@ -2,6 +2,7 @@ import type { Reference } from '../types'
 import type { FreePromptBrief, FreePromptMode } from './free-prompt'
 import { getCoachingQuestions, isGuidedSession } from './coach-conversation.ts'
 import type { GuidedSession } from './coach-conversation'
+import type { ImagePromptDraft } from './image-prompt'
 
 export interface PromptCoaching {
   request?: { text: string; source: string; copiedAt: number }
@@ -54,7 +55,7 @@ export function createPromptCoaching(): PromptCoaching {
 }
 
 /** A stable snapshot for stale-result checks. Image bytes and filenames are deliberately excluded. */
-export function coachingSource(brief: FreePromptBrief, references: Reference[], locks: string[], session?: GuidedSession): string {
+export function coachingSource(brief: FreePromptBrief, references: Reference[], locks: string[], session?: GuidedSession, imagePrompt?: ImagePromptDraft): string {
   const guidedAnswers = session?.mode === brief.mode ? getCoachingQuestions(brief).flatMap(({ field }) => {
     const answer = session.answers[field]
     return answer ? [{ field, status: answer.status, text: answer.text }] : []
@@ -74,11 +75,18 @@ export function coachingSource(brief: FreePromptBrief, references: Reference[], 
     references: references.map((reference) => ({ id: reference.id, role: reference.role, note: reference.note ?? '' })),
     locks,
     ...(guidedAnswers.length ? { guidedAnswers } : {}),
+    ...(imagePrompt ? { imagePrompt: {
+      referenceId: imagePrompt.referenceId,
+      description: imagePrompt.description,
+      preserve: imagePrompt.preserve,
+      changes: imagePrompt.changes,
+      sourceUrl: imagePrompt.sourceUrl,
+    } } : {}),
   })
 }
 
 /** Instructions to paste into the user's own AI conversation; this function never calls a model. */
-export function buildCoachingRequest(brief: FreePromptBrief, references: Reference[], locks: string[], session?: GuidedSession): string {
+export function buildCoachingRequest(brief: FreePromptBrief, references: Reference[], locks: string[], session?: GuidedSession, imagePrompt?: ImagePromptDraft): string {
   const material: string[] = []
   for (const field of Object.keys(FIELD_LABELS) as Array<keyof typeof FIELD_LABELS>) {
     if (brief[field].trim()) material.push(`[${FIELD_LABELS[field]}]\n${brief[field]}`)
@@ -91,6 +99,14 @@ export function buildCoachingRequest(brief: FreePromptBrief, references: Referen
       return `이미지 ${index + 1} — ${role}${note}`
     }).join('\n\n'))
   }
+  if (imagePrompt) {
+    const imageIndex = references.findIndex((reference) => reference.id === imagePrompt.referenceId)
+    material.push(imageIndex >= 0 ? `[이미지에서 시작한 장면]\n원본 참고 이미지: 이미지 ${imageIndex + 1}` : '[이미지에서 시작한 장면]\n원본 참고 이미지 파일이 현재 프로젝트에 없습니다. 아래 묘사는 보관된 글이며 실제 이미지를 확인한 것으로 간주하지 마세요. 이미지 분석이 필요하면 파일을 다시 첨부하도록 안내하세요.')
+    if (imagePrompt.description.trim()) material.push(`[원본 이미지의 묘사 · 참고 자료]\n${imagePrompt.description}`)
+    if (imagePrompt.preserve.trim()) material.push(`[원본에서 유지할 내용]\n${imagePrompt.preserve}`)
+    if (imagePrompt.changes.trim()) material.push(`[원본에서 바꿀 내용 · 원본 묘사보다 우선]\n${imagePrompt.changes}`)
+    if (imagePrompt.sourceUrl.trim()) material.push(`[이미지 출처 · 기록용, 내용을 읽었다는 뜻이 아님]\n${imagePrompt.sourceUrl}`)
+  }
   const activeLocks = locks.filter((lock) => lock.trim())
   if (activeLocks.length) material.push('[유지할 조건]\n' + activeLocks.map((lock) => `- ${lock}`).join('\n'))
   if (!material.length) return ''
@@ -102,6 +118,7 @@ export function buildCoachingRequest(brief: FreePromptBrief, references: Referen
   return [
     '당신은 제가 원하는 장면을 구체화하도록 돕는 프롬프트 코치입니다. 무엇을 적어야 하는지뿐 아니라, 그 조건이 결과에 왜 중요한지 배우고 싶어요. 지금은 결과물을 제작하거나 코드를 실행하지 말고, 저와 대화하며 생성용 프롬프트를 함께 완성해 주세요.',
     `[만들 결과물]\n${mode.label}\n${mode.guidance}`,
+    ...(imagePrompt ? ['[이미지에서 출발할 때]\n실제 첨부 이미지가 보이면 관찰한 특징과 추측을 구분하세요. 원본 묘사는 참고 자료이며 최신 제작 조건이 아닙니다. 원본에서 바꿀 내용을 원본 묘사보다 우선해 반영하고, 대체된 원래 조건을 최종 프롬프트에 함께 넣지 마세요. 유지할 내용과 변경 요청 자체가 충돌하면 사용자에게 확인하세요. 웹의 이미지 파일이나 출처 링크가 자동으로 전송되었다고 말하지 마세요.'] : []),
     '[대화 방식]\n' + [
       '1. 아래 작성 자료 전체를 먼저 읽고, 제가 이미 정한 대상·목적·관계·표현을 근거가 있는 내용만으로 짧게 정리해 주세요. 어느 입력란에 있는지와 관계없이 같은 조건은 이미 답한 것으로 보세요.',
       '2. 결과를 가장 크게 바꿀 모호함, 빠진 조건 또는 서로 충돌하는 조건을 하나 골라 한 번에 질문 하나만 하세요. 질문의 근거가 된 제 표현을 짧게 짚고, 그 선택이 결과에 어떤 차이를 만드는지 설명해 주세요. 충돌이 있으면 무엇을 우선할지 물어보세요.',

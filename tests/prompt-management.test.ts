@@ -4,6 +4,7 @@ import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript'
 import * as freePrompt from '../src/lib/free-prompt.ts'
+import * as imagePrompt from '../src/lib/image-prompt.ts'
 import * as handoff from '../src/lib/coach-handoff.ts'
 import * as context from '../src/lib/coaching-context.ts'
 import * as connection from '../src/lib/mcp-connection.ts'
@@ -59,6 +60,7 @@ function harness(initial: Project) {
     }
     if (name === '../store') return { useStore: () => ({ project: saved, updateProject: (update: (p: Project) => Project) => { saved = update(saved) } }) }
     if (name === '../lib/free-prompt') return freePrompt
+    if (name === '../lib/image-prompt') return imagePrompt
     if (name === '../lib/coach-handoff') return handoff
     if (name === '../lib/coaching-context') return context
     if (name === '../lib/mcp-connection') return connection
@@ -297,4 +299,43 @@ test('ready state follows the selected version and optional next work stays fold
   assert.notEqual(afterCreation.props.open, true)
   assert.ok(nodes(afterCreation).includes(button(tree, '수정 코치 열기')))
   assert.ok(text(afterCreation).includes('현재는 빨간 책장을 유지'))
+})
+
+test('image workflow output carries baseline, changes and preserved features, and an edited condition invalidates an imported version', async () => {
+  const p = project()
+  p.references = [{ id: 'source', name: 'reference.jpg', role: 'any', dataUrl: 'data:image/jpeg;base64,AA==' }]
+  p.imagePrompt = { ...imagePrompt.createImagePrompt('source'), description: '낮의 작은 정원', preserve: '높은 시점', changes: '푸른 밤 정원으로' }
+  const source = context.coachingContext(p).source
+  p.promptCoaching = { ...handoff.createPromptCoaching(), draft: 'AI가 다듬은 밤 정원', draftSource: source, accepted: { text: 'AI가 다듬은 밤 정원', source, acceptedAt: 1 } }
+  const ui = harness(p)
+  let tree = ui.render()
+  button(tree, '이미지와 변경 조건').props.onClick()
+  tree = ui.render()
+  assert.ok(text(output(tree)).includes('낮의 작은 정원'))
+  assert.ok(text(output(tree)).includes('높은 시점'))
+  assert.ok(text(output(tree)).includes('푸른 밤 정원으로'))
+  await button(tree, '프롬프트 복사').props.onClick()
+  assert.ok(ui.copied.at(-1)!.includes('바꿀 내용을 우선'))
+  ui.update(p => ({ ...p, imagePrompt: { ...p.imagePrompt!, changes: '새벽의 분홍 정원으로' } }))
+  tree = ui.render()
+  button(tree, '코칭으로 다듬은 내용').props.onClick()
+  tree = ui.render()
+  assert.equal(button(tree, '프롬프트 복사').props.disabled, true)
+  assert.equal(ui.project().promptCoaching!.accepted!.text, 'AI가 다듬은 밤 정원')
+})
+
+test('an image project with a missing source or description offers recovery instead of a generic ready prompt', () => {
+  for (const missing of ['source', 'description']) {
+    const p = project()
+    p.references = missing === 'source' ? [] : [{ id: 'source', name: 'reference.jpg', role: 'any', dataUrl: 'data:image/jpeg;base64,AA==' }]
+    p.imagePrompt = { ...imagePrompt.createImagePrompt('source'), description: missing === 'description' ? '' : '보관된 원본 설명', preserve: '보관된 유지 조건' }
+    const source = context.coachingContext(p).source
+    p.promptCoaching = { ...handoff.createPromptCoaching(), draft: 'AI 완성본도 보관', accepted: { text: 'AI 완성본도 보관', source, acceptedAt: 1 } }
+    const ui = harness(p)
+    const tree = ui.render()
+    assert.match(text(tree), /원본 이미지와 설명을 먼저 확인/)
+    assert.ok(button(tree, '이미지와 설명 확인하기'))
+    assert.equal(nodes(tree).some(node => node.type === 'button' && text(node) === '프롬프트 복사'), false)
+    assert.equal(ui.project().imagePrompt!.preserve, '보관된 유지 조건')
+  }
 })

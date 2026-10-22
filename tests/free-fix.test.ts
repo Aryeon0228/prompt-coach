@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import test from 'node:test'
 import { assembleFix } from '../src/lib/assemble.ts'
 import { createFreeBrief } from '../src/lib/free-prompt.ts'
+import { createImagePrompt } from '../src/lib/image-prompt.ts'
 import type { FreePromptMode } from '../src/lib/free-prompt.ts'
 import type { Project, Template } from '../src/types.ts'
 
@@ -93,4 +94,17 @@ test('existing template fixes retain their previous verification request', () =>
   assert.ok(ko.endsWith('다 되면 내 스크린샷과 같은 카메라 각도로 전후 스크린샷을 보여주고, 검수 기준도 다시 확인해줘.'))
   assert.ok(en.endsWith('When done, show a before/after screenshot from the same camera angle as my screenshot and re-check the acceptance checklist.'))
   assert.equal(ko.includes('결과 확인 기준:'), false)
+})
+
+test('post-generation revisions keep chosen reference features without restoring the old baseline or old changes', () => {
+  const p = project('web')
+  p.imagePrompt = { ...createImagePrompt('reference'), description: '원본의 낮 풍경', preserve: '둥근 나무와 높은 시점\n집의 작은 비율', changes: '제작 때는 밤으로 바꾸기' }
+  for (const lang of ['ko', 'en'] as const) {
+    const prompt = assembleFix(template, p, { ...draft, note: '창문 빛만 약하게' }, lang)
+    assert.ok(prompt.includes(p.imagePrompt.preserve))
+    assert.ok(prompt.includes('창문 빛만 약하게'))
+    assert.equal(prompt.includes(p.imagePrompt.description), false)
+    assert.equal(prompt.includes(p.imagePrompt.changes), false)
+    assert.match(prompt, /충돌|conflicts/)
+  }
 })

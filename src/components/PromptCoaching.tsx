@@ -34,7 +34,7 @@ export function PromptCoaching({ onPreview, onImport, onEdit, initialMethod }: {
 
   if (!project) return null
   const { brief, source, session, sessionStale, answerCount } = coachingContext(project)
-  const requestText = buildMcpStarter({ medium: brief.mode, idea: brief.idea, requestText: buildCoachingRequest(brief, project.references, project.locks, session) })
+  const requestText = buildMcpStarter({ medium: brief.mode, idea: brief.idea, requestText: buildCoachingRequest(brief, project.references, project.locks, session, project.imagePrompt) })
   const coaching = project.promptCoaching ?? createPromptCoaching()
   const sourceFits = source.length <= MAX_DRAFT
   const requestFits = requestText.length <= MAX_DRAFT

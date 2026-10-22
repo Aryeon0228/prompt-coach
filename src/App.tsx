@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { FreeBrief } from './components/FreeBrief'
 import { FreePromptView } from './components/FreePromptView'
 import { PromptCoaching } from './components/PromptCoaching'
+import { ImagePrompt } from './components/ImagePrompt'
+import { createImagePrompt } from './lib/image-prompt'
 import './free-prompt.css'
 import './prompt-coaching.css'
 import { Brief } from './components/Brief'
@@ -16,8 +18,9 @@ import { useStore } from './store'
 import type { CoachingField } from './lib/coach-conversation'
 import type { CoachingMethod } from './components/CoachingMethodChoices'
 
-type Tab = 'brief' | 'refs' | 'refine' | 'prompt' | 'coach' | 'history' | 'settings'
+type Tab = 'image' | 'brief' | 'refs' | 'refine' | 'prompt' | 'coach' | 'history' | 'settings'
 const TABS: Array<{ id: Tab; label: string; description: string; group: string }> = [
+  { id: 'image', label: '이미지 → 프롬프트', description: '원본을 글로 읽고, 유지할 특징과 바꿀 부분을 정해요.', group: '장면 만들기' },
   { id: 'brief', label: '장면 설정', description: '원하는 장면의 조건을 하나씩 정해 보세요.', group: '장면 만들기' },
   { id: 'refs', label: '참고 이미지', description: '선택 사항 · 이미지에서 참고할 부분을 정해요.', group: '장면 만들기' },
   { id: 'refine', label: '질문으로 구체화', description: '한 번에 하나씩 답하고, 그 조건이 필요한 이유를 알아보세요.', group: '장면 만들기' },
@@ -29,7 +32,7 @@ const TABS: Array<{ id: Tab; label: string; description: string; group: string }
 const GROUPS = [...new Set(TABS.map(t => t.group))]
 
 export function App() {
-  const { ready, error, project, template, openProject } = useStore()
+  const { ready, error, project, template, openProject, updateProject } = useStore()
   const [tab, setTab] = useState<Tab>(() => {
     if (window.location.hash === '#scene') return 'brief'
     const stored = localStorage.getItem('prompt-coach:tab')
@@ -42,10 +45,10 @@ export function App() {
   const [coachingEntry, setCoachingEntry] = useState<{ projectId: string; method?: CoachingMethod; key: number } | null>(null)
   const [importRequest, setImportRequest] = useState<{ projectId: string; key: number } | null>(null)
   const isFree = project?.templateId === 'free-scene'
-  const tabs = TABS.filter(t => isFree || t.id !== 'refine')
-  const activeTab = tab === 'refine' && !isFree ? 'brief' : tab
+  const tabs = TABS.filter(t => (isFree || t.id !== 'refine') && (t.id !== 'image' || (isFree && project?.imagePrompt)))
+  const activeTab = tabs.some(t => t.id === tab) ? tab : 'brief'
   const current = tabs.find(t => t.id === activeTab)!
-  const stepNumber = (id: Tab) => id === 'brief' ? '01' : id === 'refine' ? '02' : id === 'prompt' ? (isFree ? '03' : '02') : null
+  const stepNumber = (id: Tab) => id === 'image' ? '01' : id === 'brief' ? (project?.imagePrompt ? null : '01') : id === 'refine' ? '02' : id === 'prompt' ? (isFree ? '03' : '02') : null
   useEffect(() => { localStorage.setItem('prompt-coach:tab', tab) }, [tab])
   useEffect(() => { window.scrollTo({ top: 0 }) }, [tab, project?.id])
   useEffect(() => {
@@ -87,6 +90,13 @@ export function App() {
     navigate('brief')
   }
 
+  const readReference = (referenceId: string) => {
+    if (!project || !isFree) return
+    const projectId = project.id
+    updateProject(current => current.id !== projectId || current.imagePrompt || !current.references.some(item => item.id === referenceId) ? current : { ...current, imagePrompt: createImagePrompt(referenceId) })
+    navigate('image')
+  }
+
   return (
     <ToastProvider>
       <a className="skip-link" href="#main-content">본문으로 건너뛰기</a>
@@ -124,10 +134,11 @@ export function App() {
               <header className="page-heading">{stepNumber(current.id) && <span className="page-number" aria-hidden="true">{stepNumber(current.id)}</span>}<div><h1 ref={heading} tabIndex={-1}>{current.label}</h1><p>{current.description}</p></div></header>
               {error ? <div className="note warn" role="alert">{error}</div> : null}
               <div hidden={activeTab !== 'brief'} key={`brief-${project.id}`}>{isFree ? <FreeBrief onPreview={() => navigate('prompt')} onRefine={refineScene} onReferences={() => navigate('refs')} focusField={activeTab === 'brief' && sceneFocus?.projectId === project.id ? sceneFocus.field : undefined} focusKey={activeTab === 'brief' && sceneFocus?.projectId === project.id ? sceneFocus.key : undefined} /> : <Brief />}</div>
-              {activeTab === 'refs' && <References />}
+              {activeTab === 'image' && <ImagePrompt key={project.id} onPreview={() => navigate('prompt')} onRefine={() => refineScene('chatgpt')} onReferences={() => navigate('refs')} />}
+              {activeTab === 'refs' && <References onReadImage={readReference} />}
               {isFree && activeTab === 'refine' && <PromptCoaching key={`${project.id}-${coachingEntry?.projectId === project.id ? coachingEntry.key : 0}`} initialMethod={coachingEntry?.projectId === project.id ? coachingEntry.method : undefined} onPreview={() => navigate('prompt')} onImport={importPrompt} onEdit={editScene} />}
-              {activeTab === 'prompt' && (isFree ? <FreePromptView key={project.id} importRequestKey={importRequest?.projectId === project.id ? importRequest.key : undefined} onEdit={() => editScene()} onRefine={() => refineScene()} onRevise={() => navigate('coach')} /> : <PromptView onGoBrief={() => navigate('brief')} onRevise={() => navigate('coach')} />)}
-              <div hidden={tab !== 'coach'} key={`coach-${project.id}`}><Coach onSaved={() => navigate('history')} /></div>
+              {activeTab === 'prompt' && (isFree ? <FreePromptView key={project.id} importRequestKey={importRequest?.projectId === project.id ? importRequest.key : undefined} onEdit={() => editScene()} onRefine={() => refineScene()} onImage={() => navigate('image')} onRevise={() => navigate('coach')} /> : <PromptView onGoBrief={() => navigate('brief')} onRevise={() => navigate('coach')} />)}
+              <div hidden={tab !== 'coach'} key={`coach-${project.id}`}><Coach onSaved={() => navigate('history')} onImage={() => navigate('image')} /></div>
               {tab === 'history' && <History onCreate={() => navigate('coach')} />}
               {tab === 'settings' && <Settings />}
               {activeTab === 'brief' && !isFree && <nav className="page-pager" aria-label="장면 설정 다음 작업">
@@ -142,7 +153,7 @@ export function App() {
           </div>
         ) : (
           <main className="start-content" id="main-content" tabIndex={-1}>
-            {!ready ? <p className="muted" role="status">불러오는 중…</p> : <Start onOpening={clearNavigationIntents} onCreated={() => { clearNavigationIntents(); navigate('brief') }} />}
+            {!ready ? <p className="muted" role="status">불러오는 중…</p> : <Start onOpening={clearNavigationIntents} onCreated={destination => { clearNavigationIntents(); navigate(destination ?? 'brief') }} />}
             {error ? <div className="note warn" role="alert">{error}</div> : null}
           </main>
         )}

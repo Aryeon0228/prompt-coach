@@ -5,6 +5,7 @@ import vm from 'node:vm'
 import ts from 'typescript'
 import { createPromptCoaching, isPromptCoaching } from '../src/lib/coach-handoff.ts'
 import { createFreeBrief } from '../src/lib/free-prompt.ts'
+import { isImagePromptDraft } from '../src/lib/image-prompt.ts'
 import { createGuidedSession } from '../src/lib/coach-conversation.ts'
 import type { Project, TemplateIndexEntry } from '../src/types.ts'
 
@@ -65,6 +66,7 @@ function storageHarness(initial: Project[] = []) {
       if (name === 'react/jsx-runtime') return { jsx: (_: unknown, props: { value: TestStore }) => { store = props.value; return null } }
       if (name === './lib/db') return { db, uid: () => `imported-${++nextId}` }
       if (name === './lib/coach-handoff') return { isPromptCoaching }
+      if (name === './lib/image-prompt') return { isImagePromptDraft }
       if (name === './lib/templates') return { loadIndex: async () => entries, loadTemplate: async (entry: TemplateIndexEntry) => ({ id: entry.id }), validateTemplate: () => [] }
       throw new Error(`Unexpected dependency: ${name}`)
     },

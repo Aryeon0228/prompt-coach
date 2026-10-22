@@ -9,6 +9,7 @@ import type { Project, TemplateIndexEntry } from '../src/types.ts'
 
 type Element = { type: unknown; props: Record<string, any> }
 const CoachConnectionStub = () => null
+const ImageStartStub = () => null
 const entries: TemplateIndexEntry[] = [
   { id: 'free-scene', name: '자유 장면', description: '', file: 'free-scene.json' },
   { id: 'island', name: '미니어처 섬', description: '작은 섬을 둘러보는 예시', file: 'island.json' },
@@ -64,6 +65,7 @@ function harness(initial: Project[] = []) {
       if (name === '../lib/free-modes') return { FREE_MODES }
       if (name === './ui') return { useToast: () => (message: string) => toasts.push(message) }
       if (name === './CoachConnection') return { CoachConnection: CoachConnectionStub }
+      if (name === './ImageStart') return { ImageStart: ImageStartStub }
       throw new Error(`Unexpected dependency: ${name}`)
     },
     window: { confirm }, confirm,
@@ -143,6 +145,23 @@ test('example choices are subordinate to the scene form without nesting forms or
   assert.equal((ui.created[0][2] as ReturnType<typeof createFreeBrief>).idea, idea)
   assert.equal((ui.created[0][2] as ReturnType<typeof createFreeBrief>).mode, 'web')
   assert.equal(ui.navigations(), 1)
+})
+
+test('switching image and text entry preserves the text draft and keeps the image entry mounted', () => {
+  const ui = harness()
+  let tree = ui.render()
+  find(tree, node => node.type === 'textarea').props.onChange({ target: { value: '정리 중인 도서관 장면' } })
+  find(tree, node => node.type === 'button' && text(node).startsWith('3D Web')).props.onClick()
+  find(tree, node => node.type === 'button' && text(node).startsWith('이미지로 시작')).props.onClick()
+  tree = ui.render()
+  assert.equal(find(tree, node => node.type === ImageStartStub).props.active, true)
+  assert.equal(find(tree, node => node.type === 'textarea').props.value, '정리 중인 도서관 장면')
+  find(tree, node => node.type === 'button' && text(node).startsWith('글로 시작')).props.onClick()
+  tree = ui.render()
+  assert.equal(find(tree, node => node.type === ImageStartStub).props.active, false)
+  assert.equal(find(tree, node => node.type === 'textarea').props.value, '정리 중인 도서관 장면')
+  assert.equal(find(tree, node => node.type === 'button' && text(node).startsWith('3D Web')).props['aria-pressed'], true)
+  assert.equal(ui.created.length, 0)
 })
 
 test('declining project deletion preserves both saved projects and the scene draft', async () => {

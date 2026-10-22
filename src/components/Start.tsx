@@ -5,8 +5,9 @@ import { createFreeBrief, type FreePromptMode } from '../lib/free-prompt'
 import { FREE_MODES } from '../lib/free-modes'
 import { useToast } from './ui'
 import { CoachConnection } from './CoachConnection'
+import { ImageStart } from './ImageStart'
 
-export function Start({ onCreated, onOpening }: { onCreated: () => void; onOpening?: () => void }) {
+export function Start({ onCreated, onOpening }: { onCreated: (destination?: 'brief' | 'image') => void; onOpening?: () => void }) {
   const { index, projects, createProject, openProject, deleteProject, importProject } = useStore()
   const [picked, setPicked] = useState<TemplateIndexEntry | null>(null)
   const [name, setName] = useState('')
@@ -14,6 +15,7 @@ export function Start({ onCreated, onOpening }: { onCreated: () => void; onOpeni
   const [mode, setMode] = useState<FreePromptMode | null>(null)
   const [creating, setCreating] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [entryMethod, setEntryMethod] = useState<'text' | 'image'>('text')
   const deletePending = useRef(false)
   const file = useRef<HTMLInputElement>(null)
   const toast = useToast()
@@ -23,16 +25,21 @@ export function Start({ onCreated, onOpening }: { onCreated: () => void; onOpeni
     <div className="stack start-stack">
       <section className="start-intro">
         <div><div className="eyebrow">MAKE · OBSERVE · REFINE</div><h1>만들고 싶은 장면을 프롬프트로</h1></div>
-        <p className="muted">장면을 적고 필요한 조건을 하나씩 정해 보세요. 사이트의 기본 질문이나 내 AI와의 대화를 선택해 프롬프트를 완성할 수 있어요.</p>
+        <p className="muted">떠오르는 아이디어나 참고 이미지에서 시작해 보세요. 필요한 조건을 정하고, 유지할 특징과 바꿀 부분을 나눠 나만의 프롬프트를 만들어요.</p>
         <ol className="start-steps" aria-label="사용 흐름">
-          <li><span>01</span><div><strong>장면 입력</strong><p>만들 결과물과 떠오르는 아이디어를 적어요.</p></div></li>
+          <li><span>01</span><div><strong>장면 입력</strong><p>아이디어를 적거나 참고 이미지를 가져와요.</p></div></li>
           <li><span>02</span><div><strong>구체화 방법 선택</strong><p>사이트 기본 질문 또는 내 AI와 대화해요.</p></div></li>
           <li><span>03</span><div><strong>프롬프트로 제작 시작</strong><p>완성한 프롬프트를 복사해 제작 도구에서 사용해요.</p></div></li>
         </ol>
       </section>
 
       <section className="card stack free-start">
-        <div className="section-title"><h2>어떤 장면을 만들고 싶나요?</h2><span className="small muted">한 문장으로 시작해도 좋아요</span></div>
+        <div className="section-title"><h2>어떤 장면을 만들고 싶나요?</h2></div>
+        <div className="start-methods" role="group" aria-label="장면 시작 방법">
+          <button type="button" className={`start-method ${entryMethod === 'text' ? 'on' : ''}`} aria-pressed={entryMethod === 'text'} disabled={creating} onClick={() => setEntryMethod('text')}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 5h16M12 5v15M8 20h8" /></svg><span>글로 시작<span className="start-method-hint">떠오르는 아이디어 적기</span></span></button>
+          <button type="button" className={`start-method ${entryMethod === 'image' ? 'on' : ''}`} aria-pressed={entryMethod === 'image'} disabled={creating} onClick={() => setEntryMethod('image')}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="8" cy="8" r="1.5" /><path d="m3 17 6-6 4 4 3-3 5 5" /></svg><span>이미지로 시작<span className="start-method-hint">참고 이미지를 내 장면으로 바꾸기</span></span></button>
+        </div>
+        <div className="stack" hidden={entryMethod !== 'text'}>
         <p className="small muted">별도 설치 없이 사이트의 기본 질문으로 시작할 수 있어요.</p>
         <form id="free-scene-form" className="stack" onSubmit={async e => {
           e.preventDefault()
@@ -61,6 +68,8 @@ export function Start({ onCreated, onOpening }: { onCreated: () => void; onOpeni
         </details>
 
         <div className="free-start-action"><p className="small muted" id="free-start-hint">입력한 내용을 바탕으로 목적·구도·표현을 차근차근 정해요.<br />아직 정하지 않은 조건은 비워 두어도 괜찮아요.</p><button type="submit" form="free-scene-form" disabled={!freeEntry || !mode || !idea.trim() || creating}>{creating ? '만드는 중…' : !mode ? '결과물을 먼저 골라 주세요' : '내 장면으로 시작하기'} <span aria-hidden="true">→</span></button></div>
+        </div>
+        <ImageStart entry={freeEntry} active={entryMethod === 'image'} disabled={creating} onBusyChange={setCreating} onCreated={onCreated} />
         {!freeEntry && <p className="small muted" role="status">시작 화면을 불러오지 못했어요. 잠시 후 새로고침해 주세요.</p>}
       </section>
 
