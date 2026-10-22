@@ -43,11 +43,28 @@ test('image coaching starts with direct attachment and stays in the connected AI
   assert.equal(nodes(tree).filter(node => node.type === 'button').length, 0, 'No copy or site-upload action is required to start connected coaching')
 })
 
-test('the exact image menu is a subordinate alternative to the natural-language request', () => {
+test('ChatGPT selects the plugin and sends the image with an explicit coaching request', () => {
   const tree = render()
-  const menu = nodes(tree).find(node => node.type === 'details')!
+  const guide = nodes(tree).find(node => node.type === 'details' && node.props['aria-label'] === 'ChatGPT 이미지 코칭 안내')!
+  assert.ok(guide)
+  assert.notEqual(guide.props.open, true)
+  const steps = nodes(guide).filter(node => node.type === 'li')
+  assert.match(text(steps[0]), /새 대화.*@.*설치한 Prompt Coach.*선택/)
+  assert.match(text(steps[1]), /\+ → 사진 및 파일 추가.*참고 이미지 파일을 첨부/)
+  assert.match(text(steps[2]), /이 이미지로 프롬프트 코칭 시작해줘.*이미지와 함께 보내/)
+  assert.match(text(guide), /목록에 Prompt Coach가 없다면.*AI 연결 방법 및 도움말/)
+  assert.doesNotMatch(text(guide), /요청문 카드|Prompt Coach에서 추가|이미지로 시작하기 — 원본 읽기·유지·변경/)
+})
+
+test('the Claude image menu is a subordinate alternative to the natural-language request', () => {
+  const tree = render()
+  const menu = nodes(tree).find(node => node.type === 'details' && node.props['aria-label'] === 'Claude 이미지 코칭 메뉴 안내')!
+  assert.ok(menu)
   assert.notEqual(menu.props.open, true)
+  assert.match(text(menu), /\+ → 커넥터 → Prompt Coach에서 추가/)
   assert.match(text(menu), /이미지로 시작하기 — 원본 읽기·유지·변경/)
+  assert.match(text(menu), /요청문 카드와 이미지를 함께 보내세요/)
+  assert.match(text(menu), /두 방법 중 하나만 사용하면 돼요/)
   const urls = nodes(tree).filter(node => node.type === 'a').map(node => node.props.href)
   assert.deepEqual(urls, ['https://chatgpt.com/', 'https://claude.ai/new'])
 })

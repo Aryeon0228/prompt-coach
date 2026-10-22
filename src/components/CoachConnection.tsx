@@ -80,27 +80,37 @@ export function CoachConnection({ collapsed = false, setupOnly = false }: { coll
 
         <ol className="coach-connection-steps" aria-label={`${provider === 'claude' ? 'Claude' : 'ChatGPT'} 연결 순서`}>
           <li><strong>내 계정으로 로그인하기</strong><p>{provider === 'claude' ? 'Claude의 커넥터 설정을 열어요.' : 'ChatGPT의 플러그인 페이지를 열어요.'}</p><a href={provider === 'claude' ? 'https://claude.ai/customize/connectors' : 'https://chatgpt.com/plugins'} target="_blank" rel="noopener noreferrer" className="coach-connection-link" aria-label={`${provider === 'claude' ? 'Claude 커넥터' : 'ChatGPT 플러그인'} 열기 (새 탭)`}>{provider === 'claude' ? 'Claude 커넥터 열기' : 'ChatGPT 플러그인 열기'} <span aria-hidden="true">↗</span></a></li>
-          <li><strong>프롬프트 코치 추가하기</strong><p>{provider === 'claude' ? '추가(+) → 사용자 지정 커넥터 추가를 눌러요. 이름은 “Prompt Coach”, 서버 URL은 복사한 주소로 입력하세요. “No sign in”을 선택한 뒤 추가하세요.' : '추가(+) → 사용자 지정 MCP 서버 추가를 눌러요. 이름은 “Prompt Coach”, 서버 URL은 복사한 주소로 입력하고, 인증은 “No authentication”을 선택하세요. 플러그인으로 만든 뒤 설치하세요.'}</p><p>프롬프트 코치용 계정이나 API 키는 필요 없어요.</p></li>
-          <li><strong>대화에서 도구 켜기</strong><p>{provider === 'claude' ? '대화의 커넥터 목록에서 Prompt Coach를 켜세요.' : '새 대화에서 @로 Prompt Coach를 선택하세요.'} 도구 실행 허용이 표시되면 내용을 확인해 주세요.</p></li>
+          <li><strong>프롬프트 코치 추가하기</strong>
+            {provider === 'claude' ? <p>추가(+) → 사용자 지정 커넥터 추가를 눌러요. 이름은 “Prompt Coach”, 서버 URL은 복사한 주소로 입력하세요. “No sign in”을 선택한 뒤 추가하세요.</p> : <>
+              <p>추가 → 사용자 지정 MCP 서버 추가를 눌러요.</p>
+              <p>이름: “Prompt Coach”<br />서버 URL: 위에서 복사한 주소<br />인증: “인증 없음”</p>
+              <p>안내를 읽고 “이해했으며 계속 진행하겠습니다”에 체크하세요.<br />“플러그인으로 생성” → “Prompt Coach 연결”을 누르면 설치도 함께 완료돼요.</p>
+            </>}
+            <p>프롬프트 코치용 계정이나 API 키는 필요 없어요.</p>
+          </li>
+          <li><strong>대화에서 도구 켜기</strong><p>{provider === 'claude' ? '대화의 커넥터 목록에서 Prompt Coach를 켜세요.' : '연결을 완료하면 Prompt Coach 상세에서 “채팅에서 사용해 보기”를 누르세요. 또는 새 대화의 입력칸에 @를 입력하고 검색 목록에서 Prompt Coach를 선택하세요.'} 도구 실행 허용이 표시되면 내용을 확인해 주세요.</p></li>
           {!setupOnly && <li><strong>AI 대화에서 시작하기</strong><p><b>“프롬프트 코치로 이 대화에서 코칭 시작해줘”</b>라고 말하고 만들 결과물과 장면을 설명하세요. 질문의 이유를 읽으며 답하면 됩니다.</p><a className="coach-connection-link" href={provider === 'claude' ? 'https://claude.ai/' : 'https://chatgpt.com/'} target="_blank" rel="noopener noreferrer" aria-label={`${provider === 'claude' ? 'Claude' : 'ChatGPT'} 대화 열기 (새 탭)`}>{provider === 'claude' ? 'Claude' : 'ChatGPT'} 대화 열기 <span aria-hidden="true">↗</span></a></li>}
         </ol>
         {provider === 'claude' && <p className="small muted">전에 연결했다면 커넥터 설정의 ⋯ → ‘도구 목록 새로 고침’을 누른 뒤 새 대화에서 Prompt Coach를 켜 주세요. 기존 대화에는 예전 도구 목록이 남아 있을 수 있어요.</p>}
         <div className="coach-connection-menu-guide">
-          <h3>연결 후 코칭 시작하기</h3>
-          <dl>
+          <h3>{provider === 'claude' ? 'Claude 메뉴로 코칭 시작하기' : 'ChatGPT에서 이미지로 코칭 시작하기'}</h3>
+          {provider === 'claude' ? <dl>
             <div><dt>이미지로 시작하기 — 원본 읽기·유지·변경</dt><dd>이 메뉴는 준비된 코칭 시작 요청문을 대화에 추가해요. 참고 이미지 파일을 함께 첨부하고 메시지를 보내세요. 메뉴 대신 “이 이미지로 프롬프트 코칭 시작해줘”라고 직접 요청해도 같은 흐름으로 이어져요. 두 방법 중 하나만 사용하면 됩니다. 원본 읽기·유지·변경 질문부터 완성까지 같은 AI 대화에서 진행해요.</dd></div>
             <div><dt>코칭 시작하기 — 장면 입력·질문·답변</dt><dd>내 장면에 필요한 질문을 받는 메뉴예요. “프롬프트 코치 화면 열어줘”라고 요청하면 시험 중인 화면을 시도합니다.</dd></div>
-          </dl>
+          </dl> : <ol className="coach-connection-steps" aria-label="ChatGPT 이미지 코칭 시작 순서">
+            <li><strong>참고 이미지와 요청 보내기</strong><p>위에서 Prompt Coach를 선택한 대화의 + → 사진 및 파일 추가로 참고 이미지를 첨부하세요. “이 이미지로 프롬프트 코칭 시작해줘”라고 이미지와 함께 보내세요.</p></li>
+            <li><strong>같은 대화에서 질문에 답하기</strong><p>AI가 원본을 읽고 유지할 특징과 바꿀 부분을 물어봐요. 조건을 정한 뒤 “지금까지 정한 내용으로 프롬프트를 완성해줘”라고 요청하세요.</p></li>
+          </ol>}
           <p className="small muted">이미지 코칭을 위해 웹으로 돌아와 질문·답변을 복사할 필요는 없어요. 웹에 올린 이미지·프로젝트는 AI 대화로 자동 전송·동기화되지 않습니다.</p>
-          <p className="small muted">사용법은 이 홈페이지의 도움말에서 확인하세요. 예전 ‘사용 방법 보기’나 ‘coaching-rules’가 남아 있다면 연결 목록을 새로 고치고 새 대화에서 시작하세요.</p>
+          {provider === 'claude' && <p className="small muted">사용법은 이 홈페이지의 도움말에서 확인하세요. 예전 ‘사용 방법 보기’나 ‘coaching-rules’가 남아 있다면 연결 목록을 새로 고치고 새 대화에서 시작하세요.</p>}
         </div>
         <details className="coach-connection-desktop">
-          <summary>코칭은 이렇게 시작해요</summary>
+          <summary>{provider === 'claude' ? '코칭은 이렇게 시작해요' : '글로 장면을 설명하며 시작하기'}</summary>
           <div className="stack small">
-            <p><b>코칭 시작하기</b>를 추가하고 메시지를 보내세요. AI가 결과물 종류를 물으면 번호나 한국어로 골라 주세요.</p>
+            <p>{provider === 'claude' ? <><b>코칭 시작하기</b>를 추가하고 메시지를 보내세요. </> : <>Prompt Coach를 선택한 대화에 만들고 싶은 장면을 적어 보내세요. </>}AI가 결과물 종류를 물으면 번호나 한국어로 골라 주세요.</p>
             <p><b>① 2D 이미지</b> — 한 장의 그림 · 3D 제작 전 참고 이미지<br /><b>② 3D 웹</b> — 회전·클릭하며 살펴보는 장면</p>
             <p>장면은 평소 쓰는 <b>채팅 입력칸</b>에 자유롭게 적으세요.<br />예: “유리구 속 작은 섬을 드래그해서 둘러보고 싶어.”<br />이미 종류와 장면을 말했다면 바로 다음 질문으로 이어가요. 영상을 원하면 그렇게 말해도 돼요.</p>
-            <p className="muted">예전 Medium · Idea 입력칸이 보이면 연결 목록을 새로 고치고 새 대화에서 시작하세요. 메뉴를 쓰지 않고 “프롬프트 코치로 3D 웹 장면 만들기를 도와줘”라고 말해도 됩니다.</p>
+            {provider === 'claude' && <p className="muted">예전 Medium · Idea 입력칸이 보이면 연결 목록을 새로 고치고 새 대화에서 시작하세요. 메뉴를 쓰지 않고 “프롬프트 코치로 3D 웹 장면 만들기를 도와줘”라고 말해도 됩니다.</p>}
           </div>
         </details>
         <p className="small muted coach-connection-account-note">{!setupOnly && <>본인 AI 계정의 이용 한도가 적용돼요. </>}계정·조직에 따라 연결 메뉴나 MCP 도구를 지원하지 않을 수 있어요. 연결 메뉴가 없다면 코칭 요청문으로 대화를 이어갈 수 있습니다.</p>

@@ -5,11 +5,11 @@
 .image-chat-guide strong{font-weight:500;color:var(--ink)}
 .image-chat-guide details{border-top:1px solid var(--line);padding-top:4px}
 .image-chat-guide summary{font-size:12px;color:var(--muted)}
-.image-chat-direct,.image-chat-menu-body{display:grid;gap:12px;min-width:0}
+.image-chat-direct,.image-chat-provider-body{display:grid;gap:12px;min-width:0}
 .image-chat-direct h4{margin:0;font-size:14px;line-height:1.6;font-weight:500}
-.image-chat-menu-heading{display:grid;gap:4px;min-width:0;padding:8px 0}
-.image-chat-menu-heading>strong{font-size:14px;line-height:1.6}
-.image-chat-menu-heading>span{font-size:12px;line-height:1.8}
+.image-chat-provider-heading{display:grid;gap:4px;min-width:0;padding:8px 0}
+.image-chat-provider-heading>strong{font-size:14px;line-height:1.6}
+.image-chat-provider-heading>span{font-size:12px;line-height:1.8}
 .image-chat-guide .image-chat-note{font-size:12px}
 .image-chat-links{display:flex;flex-wrap:wrap;gap:12px}
 .image-chat-links a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 16px;border-radius:999px;background:var(--ink);color:#111;font-size:13px;font-weight:500}
