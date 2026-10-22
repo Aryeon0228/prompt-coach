@@ -23,6 +23,8 @@ export function Start({ onCreated, onOpening }: { onCreated: (destination?: 'bri
 
   return (
     <div className="stack start-stack">
+      <CoachConnection collapsed setupOnly />
+
       <section className="start-intro">
         <div><div className="eyebrow">MAKE · OBSERVE · REFINE</div><h1>만들고 싶은 장면을 프롬프트로</h1></div>
         <p className="muted">떠오르는 아이디어나 참고 이미지에서 시작해 보세요. 필요한 조건을 정하고, 유지할 특징과 바꿀 부분을 나눠 나만의 프롬프트를 만들어요.</p>
@@ -90,8 +92,6 @@ export function Start({ onCreated, onOpening }: { onCreated: (destination?: 'bri
         </div>
         <p className="local-storage-note">내용은 이 브라우저에 저장돼요. 보관 · 설정에서 JSON 파일로 내보내면 다른 기기에서도 이어갈 수 있어요.</p>
       </section>
-
-      <CoachConnection collapsed setupOnly />
     </div>
   )
 }

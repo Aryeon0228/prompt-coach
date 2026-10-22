@@ -58,10 +58,13 @@ export function CoachConnection({ collapsed = false, setupOnly = false }: { coll
 
   return (
     <details className="card coach-connection" open={open} onToggle={(event) => setOpen(event.currentTarget.open)}>
-      <summary><span className="coach-connection-heading"><span>{setupOnly ? 'AI 연결 방법 · 도움말' : '내 AI에 프롬프트 코치 연결하기'}</span><span className="small muted">{setupOnly ? 'MCP 연결은 선택 · 처음 한 번 설정' : '처음 한 번 연결 · 내 계정으로 질문·답변'}</span></span></summary>
+      <summary>
+        <svg className="coach-connection-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M9 3v4m6-4v4M7 7h10v4a5 5 0 0 1-10 0V7Zm5 9v5" /></svg>
+        <span className="coach-connection-heading"><span>{setupOnly ? 'AI 연결 방법 및 도움말' : '내 AI에 프롬프트 코치 연결하기'}</span><span className="small muted">{setupOnly ? 'ChatGPT · Claude에서 코칭을 시작하려면 여기를 펼쳐 보세요.' : '처음 한 번 연결 · 내 계정으로 질문·답변'}</span></span>
+      </summary>
       <div className="stack coach-connection-body">
         {!setupOnly && <><p className="muted">내 ChatGPT나 Claude에 프롬프트 코치를 연결하고 같은 AI 대화에서 질문에 답하세요. 장면을 구체화하며 각 조건이 왜 필요한지 배울 수 있어요.</p><CoachCompatibilityNotice /></>}
-        {setupOnly && <p className="small muted">코치의 안내 도구를 내 AI에서 사용하려면 아래 순서로 연결하세요. 이미 연결했다면 다시 설정할 필요는 없어요.</p>}
+        {setupOnly && <p className="small muted">코치의 안내 도구를 내 AI에서 사용하려면 아래 순서로 처음 한 번 연결하세요. 이미 연결했다면 다시 설정할 필요는 없어요. AI 연결 없이 사이트의 기본 질문으로 시작할 수도 있어요.</p>}
         <div className="coach-connection-providers" role="group" aria-label="연결할 AI">
           <button type="button" className={provider === 'claude' ? 'on' : ''} aria-pressed={provider === 'claude'} onClick={() => setProvider('claude')}>Claude</button>
           <button type="button" className={provider === 'chatgpt' ? 'on' : ''} aria-pressed={provider === 'chatgpt'} onClick={() => setProvider('chatgpt')}>ChatGPT</button>

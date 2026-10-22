@@ -7,7 +7,7 @@ import { getImageCoachingGuide } from './image-coaching.mjs'
 import { COACH_UI_HTML } from './generated/coach-ui.mjs'
 import { COACH_UI_URI, CoachStateError, openCoachSchema, submitCoachSchema, showCoachSchema, openCoach, submitCoachInput, showCoach } from './coach-session.mjs'
 
-export const VERSION = '0.3.0'
+export const VERSION = '0.3.2'
 export const MAX_BODY_BYTES = 96 * 1024
 const textField = z.string().max(5000)
 const fields = ['purpose', 'subject', 'composition', 'style', 'details', 'constraints', 'success']

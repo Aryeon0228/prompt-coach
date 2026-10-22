@@ -1,4 +1,5 @@
 import { IMAGE_ENTRY_INSTRUCTIONS, IMAGE_COACHING_INSTRUCTIONS } from './image-coaching.mjs';
+import { ACCURACY_RULES } from './accuracy.mjs';
 
 /** Stateless prompt-coaching material. The connected ChatGPT or Claude does the reasoning. */
 export const MODE_VALUES = Object.freeze(['image', 'video', 'web']);
@@ -52,6 +53,7 @@ export const FIELD_LABELS = Object.freeze({
 });
 
 const RULES = Object.freeze([
+  ...ACCURACY_RULES,
   '대화와 작성 자료 전체를 읽고, 결과를 크게 바꿀 모호함·누락·충돌 하나를 고르세요. 입력란이 비어 있어도 다른 문장에 이미 답이 있으면 다시 묻지 마세요.',
   '한 번에 질문 하나만 하세요. 질문의 근거가 된 사용자 표현과 그 조건이 필요한 이유를 짧게 설명하세요.',
   '장면에 맞는 답변 예시 2~3개를 제안하고 예시일 뿐이며 자유롭게 답하거나 보류할 수 있다고 알려 주세요. 선택하기 전에는 확정 조건으로 넣지 마세요.',

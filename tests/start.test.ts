@@ -105,13 +105,14 @@ function deleteButton(tree: Element, name: string): Element {
   return find(row, node => node.type === 'button' && /삭제/.test(String(node.props['aria-label'] ?? node.props.title ?? text(node))))
 }
 
-test('new visitors reach scene input before optional, collapsed AI setup', () => {
+test('new visitors find collapsed AI connection help first, then scene input and projects', () => {
   const tree = harness().render()
   const children = tree.props.children as Element[]
   const sceneIndex = children.findIndex(node => nodes(node).some(child => child.props.id === 'free-scene-form'))
   const projectsIndex = children.findIndex(node => node.props.className === 'card saved-projects')
   const setupIndex = children.findIndex(node => node.type === CoachConnectionStub)
-  assert.ok(sceneIndex >= 0 && sceneIndex < projectsIndex && projectsIndex < setupIndex)
+  assert.equal(setupIndex, 0)
+  assert.ok(setupIndex < sceneIndex && sceneIndex < projectsIndex)
   assert.equal(children[setupIndex].props.collapsed, true)
   assert.equal(children[setupIndex].props.setupOnly, true)
   assert.match(text(children[sceneIndex]), /별도 설치 없이/)
