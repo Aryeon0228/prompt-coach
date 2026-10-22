@@ -7,6 +7,7 @@ import { createImagePrompt, IMAGE_PROMPT_LIMITS } from '../lib/image-prompt'
 import { loadImage } from '../lib/image'
 import { uid } from '../lib/db'
 import { useToast } from './ui'
+import { ImageChatGuide } from './ImageChatGuide'
 import '../image-start.css'
 
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024
@@ -92,6 +93,8 @@ export function ImageStart({ entry, active, disabled, onBusyChange, onCreated }:
       onBusyChange(false)
     }
   }}>
+    <ImageChatGuide />
+    <div className="image-start-local-heading"><h3>웹에 보관하며 작업하기 <span className="small muted">선택</span></h3><p className="small muted">이미지와 원본 설명, 변경 조건을 이 브라우저에 따로 정리하고 싶다면 아래에서 시작하세요.</p></div>
     <fieldset className="free-mode-fieldset" disabled={disabled} aria-describedby="image-start-mode-help">
       <legend>이 이미지에서 어떤 결과물로 발전시킬까요?</legend>
       <div className="free-mode-grid">{FREE_MODES.map(item => <button type="button" key={item.id} className={`choice big ${mode === item.id ? 'on' : ''}`} aria-pressed={mode === item.id} onClick={() => setMode(item.id)}><span>{item.label}</span><span className="hint">{item.hint}</span></button>)}</div>
@@ -111,6 +114,6 @@ export function ImageStart({ entry, active, disabled, onBusyChange, onCreated }:
 
     <label className="stack image-start-intent"><span>어떤 장면으로 바꾸고 싶나요? <span className="small muted">(선택)</span></span><textarea rows={3} value={intent} maxLength={10000} disabled={disabled} onChange={e => setIntent(e.target.value)} placeholder="예: 이 이미지의 구도를 살려, 밤에 빛나는 작은 도서관으로 만들고 싶어요." /></label>
     {error && <p className="image-start-error" role="alert">{error}</p>}
-    <div className="image-start-next"><div><strong>다음: 이미지 특징을 프롬프트로</strong><p>내 ChatGPT·Claude에 같은 이미지를 첨부해 설명을 받아와요.<br />여기에서 유지할 특징과 바꿀 부분을 이어서 정할 수 있어요.</p></div><button type="submit" disabled={!entry || !mode || !reference || loading || disabled}>{disabled ? '만드는 중…' : !mode ? '결과물을 먼저 골라 주세요' : !reference ? '이미지를 먼저 골라 주세요' : '이미지로 시작하기'} <span aria-hidden="true">→</span></button></div>
+    <div className="image-start-next"><div><strong>다음: 웹에서 원본 설명과 변경 조건 정리</strong><p>AI가 만든 설명을 가져오거나 직접 적어 보관할 수 있어요.<br />AI에서 코칭만 진행하려면 위 안내대로 대화에서 시작하세요.</p></div><button type="submit" disabled={!entry || !mode || !reference || loading || disabled}>{disabled ? '만드는 중…' : !mode ? '결과물을 먼저 골라 주세요' : !reference ? '이미지를 먼저 골라 주세요' : '웹 프로젝트로 보관하기'} <span aria-hidden="true">→</span></button></div>
   </form>
 }

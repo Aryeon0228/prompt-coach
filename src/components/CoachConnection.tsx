@@ -85,8 +85,10 @@ export function CoachConnection({ collapsed = false, setupOnly = false }: { coll
         <div className="coach-connection-menu-guide">
           <h3>연결 후 코칭 시작하기</h3>
           <dl>
+            <div><dt>이미지로 시작하기 — 원본 읽기·유지·변경</dt><dd>같은 AI 대화에 참고 이미지 파일을 첨부하고 “이 이미지로 프롬프트 코칭 시작해줘”라고 보내세요. 원본을 프롬프트로 읽은 뒤, 유지할 특징과 바꿀 부분을 질문해요. 질문·답변부터 완성까지 그 대화에서 이어가면 돼요.</dd></div>
             <div><dt>코칭 시작하기 — 장면 입력·질문·답변</dt><dd>내 장면에 필요한 질문을 받는 메뉴예요. “프롬프트 코치 화면 열어줘”라고 요청하면 시험 중인 화면을 시도합니다.</dd></div>
           </dl>
+          <p className="small muted">이미지 코칭을 위해 웹으로 돌아와 질문·답변을 복사할 필요는 없어요. 웹에 올린 이미지·프로젝트는 AI 대화로 자동 전송·동기화되지 않습니다.</p>
           <p className="small muted">사용법은 이 홈페이지의 도움말에서 확인하세요. 예전 ‘사용 방법 보기’나 ‘coaching-rules’가 남아 있다면 연결 목록을 새로 고치고 새 대화에서 시작하세요.</p>
         </div>
         <details className="coach-connection-desktop">

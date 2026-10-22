@@ -10,6 +10,7 @@ import * as imagePrompt from '../src/lib/image-prompt.ts'
 import type { Project, Template } from '../src/types.ts'
 
 type Element = { type: unknown; props: Record<string, any> }
+const ImageChatGuideStub = () => null
 const template: Template = JSON.parse(readFileSync(new URL('../public/templates/free-scene.json', import.meta.url), 'utf8'))
 const compiled = ts.transpileModule(readFileSync(new URL('../src/components/ImagePrompt.tsx', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 },
@@ -48,6 +49,7 @@ function harness(initial = project()) {
     if (name === '../lib/image') return { loadImage(file: File) { loaded.push(file); return loading(file) } }
     if (name === '../lib/free-modes') return { FREE_MODES }
     if (name === './ui') return { copyText(value: string) { copied.push(value); return copying(value) }, useToast: () => (value: string) => toasts.push(value) }
+    if (name === './ImageChatGuide') return { ImageChatGuide: ImageChatGuideStub }
     if (name === '../image-prompt.css') return {}
     throw new Error(`Unexpected dependency: ${name}`)
   } })
@@ -234,4 +236,20 @@ test('preview and AI refinement wait until active Korean composition finishes', 
   button(ui.render(), '이 조건으로 프롬프트 보기').props.onClick()
   button(ui.render(), '내 AI로 더 구체화하기').props.onClick()
   assert.deepEqual(ui.navigations, ['preview', 'refine'])
+})
+
+test('connected-AI guidance comes first while copying and web storage are optional', () => {
+  const original = project()
+  original.imagePrompt!.description = ''
+  const tree = harness(original).render()
+  const all = nodes(tree)
+  const guideIndex = all.findIndex(node => node.type === ImageChatGuideStub)
+  const fallbackIndex = all.findIndex(node => node.type === 'details' && node.props.className === 'image-copy-alternative')
+  assert.ok(guideIndex >= 0 && fallbackIndex > guideIndex)
+  const fallback = all[fallbackIndex]
+  assert.notEqual(fallback.props.open, true)
+  assert.match(text(fallback), /MCP 없이 시작하기/)
+  assert.ok(nodes(fallback).some(node => node.type === 'button' && text(node) === '이미지 읽기 요청 복사'))
+  assert.match(text(tree), /웹에도 보관하고 싶다면 · 선택/)
+  assert.match(text(tree), /AI 대화에서 계속할 때는 이 입력이 필요 없어요/)
 })

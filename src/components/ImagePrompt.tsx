@@ -5,6 +5,7 @@ import { loadImage } from '../lib/image'
 import { FREE_MODES } from '../lib/free-modes'
 import { useStore } from '../store'
 import { copyText, useToast } from './ui'
+import { ImageChatGuide } from './ImageChatGuide'
 import '../image-prompt.css'
 
 export function ImagePrompt({ onPreview, onRefine, onReferences }: { onPreview: () => void; onRefine: () => void; onReferences: () => void }) {
@@ -65,14 +66,17 @@ export function ImagePrompt({ onPreview, onRefine, onReferences }: { onPreview: 
 
     {currentStep === 'read' ? <>
       <section className="card stack image-analysis" aria-labelledby="image-read-title">
-        <header className="image-section-heading"><span className="eyebrow">원본 이해하기</span><h2 ref={sectionHeading} tabIndex={-1} id="image-read-title">이 이미지의 장면을 글로 읽어볼까요?</h2><p className="small muted">내 ChatGPT·Claude에 아래 요청문과 같은 이미지를 첨부하세요. AI가 보이는 특징을 먼저 정리하고, 바꿀 부분을 물어봐요.</p></header>
+        <header className="image-section-heading"><span className="eyebrow">원본 이해하기</span><h2 ref={sectionHeading} tabIndex={-1} id="image-read-title">이 이미지의 장면을 글로 읽어볼까요?</h2></header>
+        <ImageChatGuide />
         {reference && <div className="image-source-preview"><img src={reference.dataUrl} alt={`시작 이미지: ${reference.name}`} /><div className="stack"><strong>{reference.name}</strong><span className="small muted">만들 결과물 · {mode.label}</span><a className="image-download" href={reference.dataUrl} download={`${reference.name.replace(/\.[^.]+$/, '').replace(/[\\/:*?"<>|]/g, '_')}-reference.jpg`}>AI에 첨부할 이미지 저장 ↓</a>{draft.sourceUrl && <a className="small muted image-source-link" href={safeSourceUrl(draft)} target="_blank" rel="noreferrer">출처 보기 ↗</a>}</div></div>}
-        <div className="image-handoff"><button type="button" disabled={!reference} onClick={async () => toast(await copyText(request) ? '이미지 읽기 요청을 복사했어요. 내 AI에 붙여 넣고 같은 이미지도 첨부하세요.' : '복사하지 못했어요. 아래 요청문을 펼쳐 직접 복사해 주세요.')}>이미지 읽기 요청 복사</button><div className="image-ai-links"><a href="https://chatgpt.com/" target="_blank" rel="noreferrer">ChatGPT 열기 ↗</a><a href="https://claude.ai/new" target="_blank" rel="noreferrer">Claude 열기 ↗</a></div></div>
-        <p className="small muted">이미지는 이 브라우저에 보관돼요. 사이트가 이미지를 분석하거나 AI로 자동 전송하지는 않아요.</p>
-        <details className="image-request-detail"><summary>AI에 보낼 요청문 보기</summary><div className="mono image-request-text" tabIndex={0}>{request}</div></details>
+        <details className="image-copy-alternative"><summary>MCP 없이 시작하기 · 요청문 복사</summary><div className="stack">
+          <p className="small muted">연결하지 않았다면 요청문을 복사해 내 AI에 붙여 넣고, 같은 이미지도 첨부하세요. 그 대화에서 원본 읽기와 변경 질문을 이어갈 수 있어요.</p>
+          <div className="image-handoff"><button type="button" disabled={!reference} onClick={async () => toast(await copyText(request) ? '이미지 읽기 요청을 복사했어요. 내 AI에 붙여 넣고 같은 이미지도 첨부하세요.' : '복사하지 못했어요. 아래 요청문을 펼쳐 직접 복사해 주세요.')}>이미지 읽기 요청 복사</button></div>
+          <details className="image-request-detail"><summary>AI에 보낼 요청문 보기</summary><div className="mono image-request-text" tabIndex={0}>{request}</div></details>
+        </div></details>
       </section>
       <section className="card stack" aria-labelledby="image-description-title">
-        <header className="image-section-heading"><h2 id="image-description-title">이미지에서 읽은 원본 설명</h2><p className="small muted" id="image-description-help">AI가 만든 기본 묘사 프롬프트를 가져오세요. 직접 적어도 좋아요. 사진과 다른 추측은 고치고, 바꾸고 싶은 부분은 다음 단계에서 따로 적어요.</p></header>
+        <header className="image-section-heading"><span className="eyebrow">웹에도 보관하고 싶다면 · 선택</span><h2 id="image-description-title">이미지에서 읽은 원본 설명</h2><p className="small muted" id="image-description-help">AI가 만든 기본 묘사 프롬프트를 가져오거나 직접 적어 보관하세요. 이 웹 프로젝트에서 유지·변경 조건을 정리할 수 있어요. AI 대화에서 계속할 때는 이 입력이 필요 없어요.</p></header>
         <label className="sr-only" htmlFor="image-description">원본 설명</label>
         <textarea id="image-description" rows={8} value={draft.description} maxLength={IMAGE_PROMPT_LIMITS.description} onChange={event => update('description', event.target.value)} onCompositionStart={() => { composing.current = true }} onCompositionEnd={() => { composing.current = false }} aria-describedby="image-description-help" placeholder="예: 중앙에 작은 집이 있고, 둥근 나무들이 둘러싸고 있다. 높은 시점에서 내려다보며, 왼쪽 위의 따뜻한 빛이 긴 그림자를 만든다…" />
         <details className="image-observation-guide"><summary>어떤 특징을 읽으면 좋을까요?</summary><dl><div><dt>대상과 구도</dt><dd>무엇이 어디에 있고, 어느 크기와 시점으로 보이나요?</dd></div><div><dt>색·빛·재질</dt><dd>따뜻한 빛, 거친 표면처럼 눈으로 확인되는 특징을 적어요.</dd></div><div><dt>아직 알 수 없는 것</dt><dd>보이지 않는 뒷면이나 클릭 동작은 이미지에서 알 수 없어요. 내 장면의 조건으로 따로 정해요.</dd></div></dl></details>

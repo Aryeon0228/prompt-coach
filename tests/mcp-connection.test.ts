@@ -202,9 +202,10 @@ test('setup prioritizes chat coaching while UI compatibility is unresolved and k
   assert.equal(text.includes('prompt-coach://rules'), false)
 })
 
-test('setup starts with Korean result choices and a normal chat field without re-asking supplied scene details', () => {
+test('text-first setup uses Korean result choices and a normal chat field without re-asking supplied scene details', () => {
   const text = buildMcpSetup(endpoint)
   for (const instruction of [
+    '이미지 코칭이 아닌 글로 시작하는 경우, 결과물 종류가 없을 때만',
     '결과물 종류가 없을 때만',
     '① 2D 이미지 — 한 장의 그림·3D 제작 전 참고 이미지',
     '② 3D 웹 — 회전·클릭하며 살펴보는 장면',
@@ -222,4 +223,32 @@ test('setup starts with Korean result choices and a normal chat field without re
   const starter = buildMcpStarter({ medium: 'web', idea: '유리구 안의 섬', requestText: '이미 정한 장면과 조건' })
   assert.ok(starter.includes('장면과 결과물 종류가 이미 있으므로 다시 입력하게 하거나 코칭 시작 여부를 묻지'))
   assert.equal(starter.includes('① 2D 이미지'), false, 'An existing scene handoff must not restart result selection')
+})
+
+test('image-first setup reads the current chat attachment before asking for a medium and stays in that chat', () => {
+  const text = buildMcpSetup(endpoint)
+  const imageStart = text.indexOf('### 참고 이미지로 시작하면 이미지부터 읽기')
+  const textStart = text.indexOf('### 글로 시작할 때의 결과물 선택')
+  assert.ok(imageStart >= 0 && textStart > imageStart)
+  const imageInstructions = text.slice(imageStart, textStart)
+  for (const instruction of [
+    '글 입력·결과물 종류 선택보다 이미지 흐름을 먼저',
+    'get_image_coaching_guide({})를 실제 호출',
+    '도구가 없거나 호출에 실패하면 그 사실을 짧게',
+    '코칭과 무관한 이미지 질문을 임의로 코칭으로 바꾸지는',
+    '원본 이미지에서 읽은 초안',
+    '이미지가 없거나 Pinterest 주소·파일 이름만 있다면 본 척하지',
+    '이미지를 먼저 글로 설명하라고 요구하지',
+    '유지할 특징을 질문 하나로 묻고, 답을 받으면 바꿀 부분을 질문 하나로',
+    '결과물 종류가 미정이라면 원본 초안과 유지·변경 대화 이후에',
+    '이미 답한 조건은 다시 묻지',
+    '이미지로만 시작한 경우 assemble_prompt를 필수로 호출하지',
+    'AI가 관찰한 설명을 사용자가 작성한 idea로 꾸미지',
+  ]) assert.ok(imageInstructions.includes(instruction), instruction)
+  for (const instruction of [
+    'coach-image / “이미지로 시작하기 — 원본 읽기·유지·변경”',
+    '이 이미지로 프롬프트 코칭 시작해줘',
+    'MCP 서버에 파일을 보냈다고 말하지',
+    '질문·답변부터 완성까지 같은 대화에서 진행',
+  ]) assert.ok(text.includes(instruction), instruction)
 })

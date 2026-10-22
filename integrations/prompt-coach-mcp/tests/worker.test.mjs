@@ -39,7 +39,7 @@ test('Workers handler completes the actual SDK initialize, tools, prompts and re
   assert.equal(transport.sessionId, undefined)
   assert.match(client.getInstructions(), /한 번에 질문 하나/)
   const tools = (await client.listTools()).tools
-  assert.deepEqual(tools.map(tool => tool.name).sort(), ['assemble_prompt', 'get_prompt_coaching_guide', 'open_prompt_coach', 'review_prompt_brief', 'show_prompt_coach', 'submit_prompt_coach_input'])
+  assert.deepEqual(tools.map(tool => tool.name).sort(), ['assemble_prompt', 'get_image_coaching_guide', 'get_prompt_coaching_guide', 'open_prompt_coach', 'review_prompt_brief', 'show_prompt_coach', 'submit_prompt_coach_input'])
   assert.ok(tools.every(tool => tool.annotations.readOnlyHint && !tool.annotations.destructiveHint))
   for (const medium of ['image', 'video', 'web']) {
     assert.equal(data(await client.callTool({ name: 'get_prompt_coaching_guide', arguments: { medium } })).medium, medium)
@@ -51,7 +51,7 @@ test('Workers handler completes the actual SDK initialize, tools, prompts and re
   assert.match(final.prompt, /나중에 확정한 파란 꽃/)
   assert.equal(final.prompt.includes('처음 빨간 꽃'), false)
   assert.equal(final.originalIdea, '처음 빨간 꽃')
-  assert.deepEqual((await client.listPrompts()).prompts.map(prompt => prompt.name), ['coach-scene'])
+  assert.deepEqual((await client.listPrompts()).prompts.map(prompt => prompt.name), ['coach-scene', 'coach-image'])
   const prompt = await client.getPrompt({ name: 'coach-scene', arguments: {} })
   assert.match(prompt.messages[0].content.text, /① 2D 이미지/)
   assert.deepEqual((await client.listResources()).resources.map(resource => resource.uri), [COACH_UI_URI])
@@ -241,7 +241,7 @@ test('previous UI hashes resolve current HTML without listing aliases or accepti
 test('connector menus offer coaching start without an attachable rules document or hidden help template', async t => {
   const { client } = await connect(t, 'coaching-start-menu');
   const prompts = (await client.listPrompts()).prompts;
-  assert.deepEqual(prompts.map(prompt => prompt.name), ['coach-scene']);
+  assert.deepEqual(prompts.map(prompt => prompt.name), ['coach-scene', 'coach-image']);
   assert.deepEqual(prompts[0].arguments ?? [], [], 'no Medium or Idea form is advertised');
   const start = await client.getPrompt({ name: 'coach-scene', arguments: {} });
   assert.match(start.messages[0].content.text, /① 2D 이미지/);

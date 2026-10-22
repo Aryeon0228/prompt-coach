@@ -1,6 +1,6 @@
 {
   "name": "studio-penumbra-prompt-coach-mcp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Prompt coaching tools for a user's own ChatGPT or Claude. No model API calls or shared conversation storage.",
   "type": "module",

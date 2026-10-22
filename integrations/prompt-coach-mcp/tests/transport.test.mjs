@@ -10,7 +10,7 @@ import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/
 import { createHttpServer, MAX_BODY_BYTES, VERSION } from '../server.mjs';
 
 const SERVER_PATH = fileURLToPath(new URL('../server.mjs', import.meta.url));
-const EXPECTED_TOOLS = ['assemble_prompt', 'get_prompt_coaching_guide', 'open_prompt_coach', 'review_prompt_brief', 'show_prompt_coach', 'submit_prompt_coach_input'];
+const EXPECTED_TOOLS = ['assemble_prompt', 'get_image_coaching_guide', 'get_prompt_coaching_guide', 'open_prompt_coach', 'review_prompt_brief', 'show_prompt_coach', 'submit_prompt_coach_input'];
 const JSON_HEADERS = { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' };
 
 function makeClient(name) {
@@ -123,7 +123,7 @@ test('stdio SDK initializes, lists and executes tools, prompts and resources', {
   assert.equal(final.originalIdea, '처음에는 빨간 화분');
 
   const { prompts } = await client.listPrompts();
-  assert.deepEqual(prompts.map(({ name }) => name), ['coach-scene']);
+  assert.deepEqual(prompts.map(({ name }) => name), ['coach-scene', 'coach-image']);
   const prompt = await client.getPrompt({ name: 'coach-scene', arguments: {} });
   assert.match(prompt.messages[0].content.text, /② 3D 웹/);
   assert.match(prompt.messages[0].content.text, /get_prompt_coaching_guide/);

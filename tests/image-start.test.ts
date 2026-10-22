@@ -9,6 +9,7 @@ import { createImagePrompt, IMAGE_PROMPT_LIMITS } from '../src/lib/image-prompt.
 import type { Reference } from '../src/types.ts'
 
 type Element = { type: unknown; props: Record<string, any> }
+const ImageChatGuideStub = () => null
 const compiled = ts.transpileModule(readFileSync(new URL('../src/components/ImageStart.tsx', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 },
 }).outputText
@@ -43,6 +44,7 @@ function harness() {
       if (name === '../lib/image') return { loadImage: (file: File) => new Promise<string>((resolve, reject) => loads.push({ file, resolve, reject })) }
       if (name === '../lib/db') return { uid: () => `reference-${++nextId}` }
       if (name === './ui') return { useToast: () => (message: string) => toasts.push(message) }
+      if (name === './ImageChatGuide') return { ImageChatGuide: ImageChatGuideStub }
       if (name === '../image-start.css') return {}
       throw new Error(`Unexpected dependency: ${name}`)
     },
@@ -176,5 +178,15 @@ test('source links are attribution only and unsupported protocols do not create 
   await submit(ui)
   assert.equal(ui.created.length, 0)
   assert.match(text(ui.render()), /링크는 출처 기록용/)
-  assert.match(text(ui.render()), /같은 이미지를 첨부/)
+  assert.match(text(ui.render()), /AI에서 코칭만 진행하려면/)
+})
+
+test('connected-AI entry appears before the optional local project form', () => {
+  const tree = harness().render()
+  const children = tree.props.children as Element[]
+  const guide = children.findIndex(node => node?.type === ImageChatGuideStub)
+  const mode = children.findIndex(node => node?.type === 'fieldset')
+  assert.ok(guide >= 0 && mode > guide)
+  assert.match(text(tree), /웹에 보관하며 작업하기\s*선택/)
+  assert.match(text(tree), /AI에서 코칭만 진행하려면 위 안내대로 대화에서 시작/)
 })

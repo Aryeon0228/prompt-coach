@@ -2,11 +2,12 @@ import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mc
 import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js'
 import { z } from 'zod'
 import { registerAppTool, registerAppResource, RESOURCE_MIME_TYPE, EXTENSION_ID } from '@modelcontextprotocol/ext-apps/server'
-import { MODE_VALUES, FIELD_LABELS, COACHING_INSTRUCTIONS, getGuide, reviewBrief, assemblePrompt, buildCoachingPrompt } from './coaching.mjs'
+import { MODE_VALUES, FIELD_LABELS, COACHING_INSTRUCTIONS, getGuide, reviewBrief, assemblePrompt, buildCoachingPrompt, buildImageCoachingPrompt } from './coaching.mjs'
+import { getImageCoachingGuide } from './image-coaching.mjs'
 import { COACH_UI_HTML } from './generated/coach-ui.mjs'
 import { COACH_UI_URI, CoachStateError, openCoachSchema, submitCoachSchema, showCoachSchema, openCoach, submitCoachInput, showCoach } from './coach-session.mjs'
 
-export const VERSION = '0.2.0'
+export const VERSION = '0.3.0'
 export const MAX_BODY_BYTES = 96 * 1024
 const textField = z.string().max(5000)
 const fields = ['purpose', 'subject', 'composition', 'style', 'details', 'constraints', 'success']
@@ -67,9 +68,15 @@ export function createCoachServer() {
     }
     return { contents: [{ uri: uri.href, mimeType: RESOURCE_MIME_TYPE, text: COACH_UI_HTML, _meta: uiMeta }] }
   })
+  server.registerTool('get_image_coaching_guide', {
+    title: '이미지에서 프롬프트 코칭 시작',
+    description: '사용자가 참고 이미지를 첨부하고 프롬프트로 정리하거나 수정하려 할 때 먼저 읽는 진행 규칙입니다. 이미지 파일·URL·매체 입력은 받지 않습니다. 이 도구가 이미지를 분석한 것은 아닙니다. 호스트 AI가 같은 대화의 실제 이미지를 읽고 원본 프롬프트 초안부터 제시한 뒤, 유지할 특징과 바꿀 부분을 이유와 함께 하나씩 묻고 최종 프롬프트를 완성하세요. 홈페이지 방문·분석문 복사·재입력을 요구하지 마세요. 이미지가 없거나 보이지 않을 때만 이 대화에 첨부하도록 안내하세요.',
+    inputSchema: z.object({}).strict(),
+    annotations: readOnlyAnnotations,
+  }, () => result(getImageCoachingGuide()))
   server.registerTool('get_prompt_coaching_guide', {
     title: '매체별 코칭 관점 읽기',
-    description: '사용자가 정한 매체의 코칭 관점을 반환합니다. 일반 채팅 코칭에서도 사용할 수 있습니다. 기본 코칭 시작은 현재 채팅에서 진행하세요. 코치 화면은 호환 확인 중이며 사용자가 화면 시험을 명시적으로 요청했을 때만 open_prompt_coach를 사용하세요. 미입력 매체를 임의로 선택하지 마세요. 실제 질문은 이 대화의 AI가 문맥을 읽고 한 번에 하나씩 만들며 이유와 선택적인 예시를 붙입니다.',
+    description: '첨부 이미지로 시작한다면 매체를 묻기 전에 get_image_coaching_guide로 원본 읽기부터 진행하세요. 이 도구는 사용자가 정한 매체의 코칭 관점을 반환합니다. 일반 채팅 코칭에서도 사용할 수 있습니다. 기본 코칭 시작은 현재 채팅에서 진행하세요. 코치 화면은 호환 확인 중이며 사용자가 화면 시험을 명시적으로 요청했을 때만 open_prompt_coach를 사용하세요. 미입력 매체를 임의로 선택하지 마세요. 실제 질문은 이 대화의 AI가 문맥을 읽고 한 번에 하나씩 만들며 이유와 선택적인 예시를 붙입니다.',
     inputSchema: z.object({ medium }).strict(),
     annotations: readOnlyAnnotations,
   }, ({ medium }) => result(getGuide(medium)))
@@ -81,7 +88,7 @@ export function createCoachServer() {
   }, brief => result(reviewBrief(brief)))
   server.registerTool('assemble_prompt', {
     title: '확정한 조건으로 프롬프트 완성',
-    description: '사용자가 완성을 요청하거나 정리된 조건을 확인한 뒤 사용하세요. 먼저 원문 속 변경·보류·충돌을 반영한 최신 확정 장면을 confirmedScene에 정리하세요. idea 원문은 결과 밖에 보존하고 최신 장면과 확정 답변만 조립합니다. 이 도구는 문맥을 판단하지 않으므로 호스트 AI가 조건 간 모순을 확인해야 합니다. 미정·예시·추측은 넣지 않으며 이미지·영상 생성이나 코드 실행은 하지 않습니다.',
+    description: '사용자가 작성한 장면 원문이 있는 글 코칭용입니다. 이미지로만 시작했다면 AI 관찰문을 idea 원문으로 꾸미거나 글 재입력을 요구하지 말고 호스트가 같은 대화에서 직접 완성하세요. 사용자가 완성을 요청하거나 정리된 조건을 확인한 뒤 사용하세요. 먼저 원문 속 변경·보류·충돌을 반영한 최신 확정 장면을 confirmedScene에 정리하세요. idea 원문은 결과 밖에 보존하고 최신 장면과 확정 답변만 조립합니다. 이 도구는 문맥을 판단하지 않으므로 호스트 AI가 조건 간 모순을 확인해야 합니다. 미정·예시·추측은 넣지 않으며 이미지·영상 생성이나 코드 실행은 하지 않습니다.',
     inputSchema: z.object({ ...briefShape,
       confirmedScene: z.string().min(1).max(10000).refine(value => value.trim().length > 0, '최신 확정 장면이 필요해요.').describe('원래 아이디어에서 나중에 바뀌거나 보류한 내용을 반영한 최신 장면. 사용자와 확인한 내용만 포함하며 예시나 추측은 제외하세요.'),
       userConfirmed: z.literal(true).describe('사용자가 이 조건으로 완성해 달라고 요청했거나 확인했을 때만 true.'),
@@ -90,8 +97,12 @@ export function createCoachServer() {
   }, ({ userConfirmed: _confirmed, ...brief }) => result(assemblePrompt(brief)))
   server.registerPrompt('coach-scene', {
     title: '코칭 시작하기 — 장면 입력·질문·답변',
-    description: '채팅에서 2D 이미지·3D 웹 중 원하는 결과물을 고르고, 장면을 자유롭게 설명해요. 이미 설명했다면 바로 다음 질문으로 이어갑니다.',
+    description: '이미지를 첨부했다면 원본 초안과 유지·변경 질문으로 바로 시작합니다. 글로 시작할 때는 채팅에서 2D 이미지·3D 웹 중 원하는 결과물을 고르고, 장면을 자유롭게 설명해요. 이미 설명했다면 바로 다음 질문으로 이어갑니다.',
   }, () => ({ messages: [{ role: 'user', content: { type: 'text', text: buildCoachingPrompt() } }] }))
+  server.registerPrompt('coach-image', {
+    title: '이미지로 시작하기 — 원본 읽기·유지·변경',
+    description: '이 AI 대화에 참고 이미지를 첨부하세요. 원본 프롬프트 초안 → 유지할 특징 → 바꿀 부분 → 최종 프롬프트까지 같은 대화에서 이어갑니다. 따로 채울 입력칸이나 웹으로 옮길 내용은 없어요.',
+  }, () => ({ messages: [{ role: 'user', content: { type: 'text', text: buildImageCoachingPrompt() } }] }))
   return server
 }
 
