@@ -32,7 +32,8 @@ function text(value: unknown): string {
 
 test('image coaching starts with direct attachment and stays in the connected AI conversation', () => {
   const tree = render()
-  const steps = nodes(tree).filter(node => node.type === 'li')
+  const direct = nodes(tree).find(node => node.type === 'ol' && node.props['aria-label'] === '채팅에 직접 요청하는 순서')!
+  const steps = nodes(direct).filter(node => node.type === 'li')
   assert.equal(steps.length, 2)
   assert.match(text(steps[0]), /Prompt Coach를 켠 ChatGPT·Claude 대화에 참고 이미지 파일을 첨부/)
   assert.match(text(steps[1]), /이 이미지로 프롬프트 코칭 시작해줘/)
