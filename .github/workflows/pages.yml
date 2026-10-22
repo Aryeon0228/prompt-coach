@@ -23,7 +23,10 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      # Keep lockfile/integrity checks; advisory lookup must not stall publication.
+      - name: Install dependencies
+        timeout-minutes: 3
+        run: npm ci --no-audit --no-fund --fetch-retries=1 --fetch-timeout=30000
       # the site is served at https://<user>.github.io/<repo>/
       - run: BASE_PATH="/${GITHUB_REPOSITORY#*/}/" npm run build
       - uses: actions/upload-pages-artifact@v3
