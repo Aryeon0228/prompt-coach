@@ -101,3 +101,10 @@ summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;
 .history-record-title{font-size:16px}
 .history-record-actions{justify-content:flex-end}
 .history-record-actions button{font-size:12px}
+
+/* Keep action feedback beside the content it belongs to. */
+.reference-upload-status,.prompt-action-status{min-height:1.5em;line-height:1.6;overflow-wrap:anywhere;margin:0;color:var(--muted)}
+.reference-upload-status[role="alert"],.prompt-action-status[role="alert"]{color:var(--text);font-weight:500}
+.upload:has(input:disabled){opacity:.6;cursor:wait}
+.prompt-copy-button{min-width:148px}
+@media(max-width:640px){.prompt-document-options button,.refs button{min-height:44px}}

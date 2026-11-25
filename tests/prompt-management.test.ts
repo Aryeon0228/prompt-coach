@@ -14,8 +14,8 @@ import type { Project } from '../src/types.ts'
 type Element = { type: any; props: Record<string, any> }
 type Component = (props: any) => Element
 
-const compiled = Object.fromEntries(['FreePromptView', 'ImportedPromptEditor'].map(name => [name,
-  ts.transpileModule(readFileSync(new URL(`../src/components/${name}.tsx`, import.meta.url), 'utf8'), {
+const compiled = Object.fromEntries(['FreePromptView', 'ImportedPromptEditor', 'use-copy-feedback'].map(name => [name,
+  ts.transpileModule(readFileSync(new URL(name === 'use-copy-feedback' ? '../src/lib/use-copy-feedback.ts' : `../src/components/${name}.tsx`, import.meta.url), 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 },
   }).outputText,
 ]))
@@ -66,6 +66,7 @@ function harness(initial: Project) {
     if (name === '../lib/mcp-connection') return connection
     if (name === '../lib/free-modes') return { FREE_MODES }
     if (name === './ui') return { useToast: () => (message: string) => toasts.push(message), copyText: async (text: string) => { copied.push(text); return true }, downloadText() {} }
+    if (name === '../lib/use-copy-feedback') return load('use-copy-feedback')
     if (name === './ImportedPromptEditor') return load('ImportedPromptEditor')
     throw new Error(`Unexpected dependency: ${name}`)
   }
@@ -151,6 +152,8 @@ test('import and inline editing preserve the accepted prompt until explicit appl
   assert.equal(text(output(tree)), '기존 완성본')
   await button(tree, '프롬프트 복사').props.onClick()
   assert.deepEqual(ui.copied, ['기존 완성본'])
+  tree = ui.render()
+  assert.ok(text(tree).includes('복사 완료 · 사용할 AI에 붙여 넣으세요.'))
   assert.equal(apply(tree).props.disabled, false)
   button(tree, '직접 작성한 내용').props.onClick()
   tree = ui.render()

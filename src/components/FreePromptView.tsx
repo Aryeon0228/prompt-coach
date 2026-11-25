@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { assembleFreePrompt, reviewFreeBrief } from '../lib/free-prompt'
 import { coachingContext } from '../lib/coaching-context'
 import { useStore } from '../store'
-import { copyText, downloadText, useToast } from './ui'
+import { copyText, downloadText } from './ui'
+import { useCopyFeedback } from '../lib/use-copy-feedback'
 import { FREE_MODES } from '../lib/free-modes'
 import { ImportedPromptEditor } from './ImportedPromptEditor'
 import { assembleImageScenePrompt } from '../lib/image-prompt'
@@ -17,7 +18,6 @@ export function FreePromptView({ onEdit, onRefine, onRevise, onImage, importRequ
   const accepted = project?.promptCoaching?.accepted
   const isStale = Boolean(accepted && accepted.source !== source)
   const [version, setVersion] = useState<'original' | 'coached'>(() => accepted && !isStale ? 'coached' : 'original')
-  const toast = useToast()
 
   useEffect(() => {
     if (importRequestKey === undefined || importRequestKey === lastImportRequest.current) return
@@ -26,11 +26,12 @@ export function FreePromptView({ onEdit, onRefine, onRevise, onImage, importRequ
     setEditorFocusKey(key => key + 1)
   }, [importRequestKey])
 
-  if (!project) return null
-  const original = project.imagePrompt ? assembleImageScenePrompt(brief, project.references, project.locks, project.imagePrompt) : assembleFreePrompt(brief, project.references, project.locks)
-  const imageIncomplete = Boolean(project.imagePrompt && !original)
+  const original = !project ? '' : project.imagePrompt ? assembleImageScenePrompt(brief, project.references, project.locks, project.imagePrompt) : assembleFreePrompt(brief, project.references, project.locks)
   const showingCoached = version === 'coached' && Boolean(accepted)
   const prompt = showingCoached ? accepted!.text : original
+  const { feedback, copying, copy, downloadStarted } = useCopyFeedback(prompt, `${project?.id}:${version}`, copyText)
+  if (!project) return null
+  const imageIncomplete = Boolean(project.imagePrompt && !original)
   const canUsePrompt = Boolean(prompt.trim() && brief.idea.trim() && !imageIncomplete && !(showingCoached && isStale))
   const checks = reviewFreeBrief(brief)
   const missing = checks.filter(check => !check.filled)
@@ -63,17 +64,18 @@ export function FreePromptView({ onEdit, onRefine, onRevise, onImage, importRequ
           <h2 id="free-prompt-body-title">프롬프트 본문</h2>
           <p className="prompt-output-help" id="free-prompt-use-help">{canUsePrompt ? '복사한 뒤 사용할 AI에 붙여 넣으세요.' : '현재 조건과 비교한 뒤 다시 적용하면 복사할 수 있어요.'}</p>
         </div>
-        <button type="button" className="prompt-copy-button" aria-describedby="free-prompt-use-help" disabled={!canUsePrompt} onClick={async () => toast(await copyText(prompt) ? '프롬프트를 복사했어요. 사용할 AI에 붙여 넣고 제작을 요청하세요.' : '복사할 수 없어요. 글을 선택해 복사해 주세요.')}>
+        <button type="button" className="prompt-copy-button" aria-describedby="free-prompt-use-help" disabled={!canUsePrompt || copying} onClick={copy}>
           <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>
-          프롬프트 복사
+          {copying ? '복사 중…' : feedback?.copied ? '복사 완료' : '프롬프트 복사'}
         </button>
       </div>
+      <p className="small prompt-action-status" role={feedback?.error ? "alert" : "status"}>{feedback?.text}</p>
       <div className="prompt-document-options">
         {accepted ? <div className="tabs prompt-version-tabs" role="group" aria-label="프롬프트 버전">
           <button className={!showingCoached ? 'on' : ''} aria-pressed={!showingCoached} onClick={() => setVersion('original')}>{project.imagePrompt ? '이미지와 변경 조건' : '직접 작성한 내용'}</button>
           <button className={showingCoached ? 'on' : ''} aria-pressed={showingCoached} onClick={() => setVersion('coached')}>코칭으로 다듬은 내용</button>
         </div> : <span className="prompt-source-label">{mode.label} · {project.imagePrompt ? '원본 설명과 변경 조건으로 작성' : '장면 설정으로 작성'}</span>}
-        <button className="ghost prompt-save-button" disabled={!canUsePrompt} onClick={() => downloadText(`${project.name.replace(/[\\/:*?"<>|]/g, '_')}-${showingCoached ? 'coached' : 'prompt'}.txt`, prompt)}>
+        <button className="ghost prompt-save-button" disabled={!canUsePrompt} onClick={() => { downloadText(`${project.name.replace(/[\\/:*?"<>|]/g, '_')}-${showingCoached ? 'coached' : 'prompt'}.txt`, prompt); downloadStarted() }}>
           <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4"/></svg>
           TXT 저장
         </button>

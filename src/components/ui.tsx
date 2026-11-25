@@ -1,3 +1,4 @@
+import { useCopyFeedback } from '../lib/use-copy-feedback'
 import { createContext, useCallback, useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react'
 
 // ---- toast -------------------------------------------------------------------------------
@@ -9,8 +10,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const show = useCallback((m: string) => {
     setMsg(m)
     if (timer.current) window.clearTimeout(timer.current)
-    timer.current = window.setTimeout(() => setMsg(null), 2600)
+    timer.current = window.setTimeout(() => setMsg(null), 4500)
   }, [])
+  useEffect(() => () => { if (timer.current) window.clearTimeout(timer.current) }, [])
   return (
     <ToastCtx.Provider value={show}>
       {children}
@@ -37,9 +39,7 @@ export async function copyText(text: string): Promise<boolean> {
     ta.style.opacity = '0'
     document.body.append(ta)
     ta.select()
-    const ok = document.execCommand('copy')
-    ta.remove()
-    return ok
+    try { return document.execCommand('copy') } catch { return false } finally { ta.remove() }
   }
 }
 
@@ -75,8 +75,8 @@ export function Segmented<T extends string>({ value, options, onChange, label }:
 // ---- language tabs + copy ------------------------------------------------------------
 export function PromptBox({ en, ko, filename, initialLang = 'en', title = '프롬프트 본문', copyLabel = '프롬프트 복사', usageHint = '복사한 뒤 사용할 AI에 붙여 넣으세요.' }: { en: string; ko: string; filename: string; initialLang?: 'en' | 'ko'; title?: string; copyLabel?: string; usageHint?: string }) {
   const [lang, setLang] = useState<'en' | 'ko'>(initialLang)
-  const toast = useToast()
   const text = lang === 'en' ? en : ko
+  const { feedback, copying, copy, downloadStarted } = useCopyFeedback(text, lang, copyText)
   const titleId = useId()
   const helpId = useId()
   const languageNote = useId()
@@ -87,11 +87,12 @@ export function PromptBox({ en, ko, filename, initialLang = 'en', title = '프�
           <h2 id={titleId}>{title}</h2>
           <p className="prompt-output-help" id={helpId}>{usageHint}</p>
         </div>
-        <button type="button" className="prompt-copy-button" aria-describedby={`${helpId} ${languageNote}`} disabled={!text.trim()} onClick={async () => toast((await copyText(text)) ? '프롬프트를 복사했어요. 사용할 AI에 붙여 넣으세요.' : '복사할 수 없어요. 글을 직접 선택해서 복사해 주세요.')}>
+        <button type="button" className="prompt-copy-button" aria-describedby={`${helpId} ${languageNote}`} disabled={!text.trim() || copying} onClick={copy}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" /></svg>
-          {copyLabel}
+          {copying ? '복사 중…' : feedback?.copied ? '복사 완료' : copyLabel}
         </button>
       </div>
+      <p className="small prompt-action-status" role={feedback?.error ? "alert" : "status"}>{feedback?.text}</p>
       <div className="prompt-document-options">
         <div className="tabs" role="group" aria-label="프롬프트 언어">
           <button type="button" className={lang === 'en' ? 'on' : ''} aria-pressed={lang === 'en'} onClick={() => setLang('en')}>
@@ -101,7 +102,7 @@ export function PromptBox({ en, ko, filename, initialLang = 'en', title = '프�
             한국어
           </button>
         </div>
-        <button type="button" className="ghost prompt-save-button" disabled={!en.trim() && !ko.trim()} onClick={() => downloadText(filename, `=== 영어 형식 · 직접 입력한 내용은 원문 유지 ===\n\n${en}\n\n=== 한국어 ===\n\n${ko}\n`)}>
+        <button type="button" className="ghost prompt-save-button" disabled={!en.trim() && !ko.trim()} onClick={() => { downloadText(filename, `=== 영어 형식 · 직접 입력한 내용은 원문 유지 ===\n\n${en}\n\n=== 한국어 ===\n\n${ko}\n`); downloadStarted() }}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4" /></svg>
           두 언어 TXT 저장
         </button>
