@@ -10,7 +10,7 @@
 .revision-change-panel .question-help{font-size:13px;line-height:1.8;color:var(--muted)}
 .revision-change-input,.revision-lock-input{display:grid;gap:10px}
 .revision-change-panel .question-answer-label{font-size:13px}
-.revision-change-panel .question-answer-label>.small{margin-left:6px;font-size:11px;font-weight:400}
+.revision-change-panel .question-answer-label>.small{margin-left:6px;font-size:13px;font-weight:400}
 .revision-change-panel textarea,.revision-change-panel input{font-size:14px;line-height:1.8}
 .revision-lock-add{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:start}
 .revision-lock-add button{padding:12px 16px}
@@ -30,7 +30,7 @@
 .revision-record-actions{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px 24px;padding-top:20px;border-top:1px solid var(--line)}
 .revision-record-actions>.ghost{padding-left:0;font-size:13px}
 .revision-record-save{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px}
-.revision-record-save p{font-size:12px;line-height:1.7;color:var(--muted)}
+.revision-record-save p{font-size:13px;line-height:1.7;color:var(--muted)}
 .revision-record-save button{font-size:13px}
 
 @media(max-width:759px){
