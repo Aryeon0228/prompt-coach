@@ -19,7 +19,7 @@ export function History({ onCreate }: { onCreate: () => void }) {
         <section className="card stack history-empty">
           <h2>아직 저장한 수정 요청이 없어요</h2>
           <p className="small muted">수정 코치에서 바꿀 부분을 정하고 요청문을 저장하면 여기에 모여요.</p>
-          <div className="row"><button type="button" onClick={onCreate}>수정 요청 만들기</button></div>
+          <div className="row"><button type="button" onClick={onCreate}>수정 요청 작성</button></div>
         </section>
       )}
 
@@ -55,7 +55,7 @@ export function History({ onCreate }: { onCreate: () => void }) {
             <details className="history-request">
               <summary>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9ZM14 3v6h6M8 13h8M8 17h5"/></svg>
-                <span className="history-disclosure-copy"><span>저장된 수정 프롬프트</span><small>당시 저장한 본문을 펼쳐서 확인하고 복사해요.</small></span>
+                <span className="history-disclosure-copy"><span>저장된 수정 프롬프트</span><small>저장한 본문 확인·복사</small></span>
               </summary>
               <PromptBox en={it.promptEn} ko={it.promptKo} filename={`${project.name}-fix-${n}.txt`} initialLang={template.id === 'free-scene' ? 'ko' : 'en'} copyLabel="수정 프롬프트 복사" usageHint="복사한 뒤 작업 중인 AI 대화에 붙여 넣으세요." />
             </details>

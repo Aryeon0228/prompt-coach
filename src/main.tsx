@@ -8,6 +8,7 @@ import './prompt-output.css'
 import './revision-layout.css'
 import './history-layout.css'
 import './settings-layout.css'
+import './interface-guidelines.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

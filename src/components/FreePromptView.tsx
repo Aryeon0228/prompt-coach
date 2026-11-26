@@ -45,7 +45,7 @@ export function FreePromptView({ onEdit, onRefine, onRevise, onImage, importRequ
     <section className="prompt-ready stack" aria-labelledby="free-prompt-ready-title">
       <div className="prompt-ready-heading">
         <div className="prompt-ready-copy">
-          <h2 id="free-prompt-ready-title">{imageIncomplete ? '원본 이미지와 설명을 먼저 확인해 주세요' : canUsePrompt ? '프롬프트 준비 완료' : brief.idea.trim() ? '현재 조건과 비교해 주세요' : '장면을 먼저 적어 주세요'}</h2>
+          <h2 id="free-prompt-ready-title" className={canUsePrompt ? "sr-only" : undefined}>{imageIncomplete ? '원본 이미지와 설명을 먼저 확인해 주세요' : canUsePrompt ? '제작 요청문' : brief.idea.trim() ? '현재 조건과 비교해 주세요' : '장면을 먼저 적어 주세요'}</h2>
           <p className="prompt-output-help">{imageIncomplete ? '이미지와 원본 설명이 있어야 원하는 변경을 담은 요청문을 만들 수 있어요.' : canUsePrompt ? `${mode.label}용 요청문 · ${showingCoached ? '내 AI에서 다듬고 직접 가져온 내용이에요.' : project.imagePrompt ? '원본 설명과 유지·변경 조건을 정리했어요.' : answerCount ? `장면 설정과 저장한 답변 ${answerCount}개를 정리했어요.` : '장면 설정에 쓴 내용을 정리했어요.'}` : brief.idea.trim() ? '가져온 문장에 현재 장면 조건이 반영됐는지 확인하고 다시 적용하세요.' : '만들고 싶은 장면을 적으면 제작을 요청할 문장이 준비돼요.'}</p>
         </div>
         <button type="button" className="ghost prompt-import-action" aria-expanded={editorOpen} onClick={openImporter}>AI 완성본 가져오기 <span aria-hidden="true">↗</span></button>

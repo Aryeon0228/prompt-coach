@@ -48,7 +48,6 @@ export function App() {
   const tabs = TABS.filter(t => (isFree || t.id !== 'refine') && (t.id !== 'image' || (isFree && project?.imagePrompt)))
   const activeTab = tabs.some(t => t.id === tab) ? tab : 'brief'
   const current = tabs.find(t => t.id === activeTab)!
-  const stepNumber = (id: Tab) => id === 'image' ? '01' : id === 'brief' ? (project?.imagePrompt ? null : '01') : id === 'refine' ? '02' : id === 'prompt' ? (isFree ? '03' : '02') : null
   useEffect(() => { localStorage.setItem('prompt-coach:tab', tab) }, [tab])
   useEffect(() => { window.scrollTo({ top: 0 }) }, [tab, project?.id])
   useEffect(() => {
@@ -120,18 +119,18 @@ export function App() {
         {project && template ? (
           <div className="workspace">
             <aside className="workspace-sidebar">
-              <div className="project-context"><span className="eyebrow">PROJECT</span><strong>{project.name}</strong><span className="small muted">{template.name}</span></div>
+              <div className="project-context"><strong>{project.name}</strong><span className="small muted">{template.name}</span></div>
               <nav className="nav" aria-label="프로젝트 작업">
                 {GROUPS.map(group => <div className="nav-group" key={group}><p className="nav-group-label">{group}</p>{tabs.filter(t => t.group === group).map(t => (
                   <button key={t.id} className={activeTab === t.id ? 'active' : ''} onClick={() => navigate(t.id)} aria-current={activeTab === t.id ? 'page' : undefined}>
-                    {stepNumber(t.id) && <span className="nav-index" aria-hidden="true">{stepNumber(t.id)}</span>}{t.label}{t.id === 'refs' && <span className="nav-optional">선택</span>}<span className="nav-arrow" aria-hidden="true">↗</span>
+                    {t.label}{t.id === 'refs' && <span className="nav-optional">선택</span>}<span className="nav-arrow" aria-hidden="true">↗</span>
                   </button>
                 ))}</div>)}
               </nav>
               <label className="mobile-navigation"><span className="small muted">작업 메뉴</span><select value={activeTab} onChange={e => navigate(e.target.value as Tab)}>{GROUPS.map(group => <optgroup label={group} key={group}>{tabs.filter(t => t.group === group).map(t => <option key={t.id} value={t.id}>{t.label}{t.id === 'refs' ? ' (선택)' : ''}</option>)}</optgroup>)}</select></label>
             </aside>
             <main className="content" id="main-content" tabIndex={-1}>
-              <header className="page-heading">{stepNumber(current.id) && <span className="page-number" aria-hidden="true">{stepNumber(current.id)}</span>}<div><h1 ref={heading} tabIndex={-1}>{current.label}</h1><p>{current.description}</p></div></header>
+              <header className="page-heading"><div><h1 ref={heading} tabIndex={-1}>{current.label}</h1><p>{current.description}</p></div></header>
               {error ? <div className="note warn" role="alert">{error}</div> : null}
               <div hidden={activeTab !== 'brief'} key={`brief-${project.id}`}>{isFree ? <FreeBrief onPreview={() => navigate('prompt')} onRefine={refineScene} onReferences={() => navigate('refs')} focusField={activeTab === 'brief' && sceneFocus?.projectId === project.id ? sceneFocus.field : undefined} focusKey={activeTab === 'brief' && sceneFocus?.projectId === project.id ? sceneFocus.key : undefined} /> : <Brief />}</div>
               {activeTab === 'image' && <ImagePrompt key={project.id} onPreview={() => navigate('prompt')} onRefine={() => refineScene('chatgpt')} onReferences={() => navigate('refs')} />}

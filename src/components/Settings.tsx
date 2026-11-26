@@ -14,19 +14,19 @@ export function Settings() {
       <section className="card settings-section" aria-labelledby="settings-name-title">
         <header className="settings-section-heading">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m14 5 5 5M4 20l5-1L20 8a2 2 0 0 0-5-5L4 14Z"/></svg>
-          <div><h2 id="settings-name-title">프로젝트 이름 바꾸기</h2><p>목록에서 알아보기 쉬운 이름을 붙여 주세요.</p></div>
+          <div><h2 id="settings-name-title">프로젝트 이름</h2><p>목록에서 알아보기 쉬운 이름을 붙여 주세요.</p></div>
         </header>
         <label className="settings-name-field" htmlFor="settings-project-name">
-          <span>프로젝트 이름</span>
+          <span className="sr-only">프로젝트 이름</span>
           <input id="settings-project-name" type="text" aria-describedby="settings-name-help" disabled={deleting} value={project.name} onChange={(e) => updateProject((p) => ({ ...p, name: e.target.value }))} />
         </label>
-        <p className="settings-help" id="settings-name-help">이름을 바꾸면 이 브라우저에 자동 저장돼요.</p>
+        <p className="settings-help" id="settings-name-help">변경한 이름은 이 브라우저에 자동 저장됩니다.</p>
       </section>
 
       <section className="card settings-section" aria-labelledby="settings-export-title">
         <header className="settings-section-heading">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2ZM3 9h18"/></svg>
-          <div><h2 id="settings-export-title">파일로 저장하기</h2><p>장면 설정·참고 이미지·프롬프트·수정 기록을 한 파일에 담아요.</p></div>
+          <div><h2 id="settings-export-title">프로젝트 파일 저장</h2><p>장면 설정·참고 이미지·프롬프트·수정 기록을 함께 저장합니다.</p></div>
         </header>
         <div className="settings-file">
           <div className="settings-file-info">
@@ -57,8 +57,8 @@ export function Settings() {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg>
           <div>
             <h2 id="settings-delete-title">프로젝트 삭제</h2>
-            <p>이 브라우저에서 프로젝트와 수정 기록을 지워요.</p>
-            <p>삭제 전 파일로 저장해 두면 다시 불러올 수 있어요.</p>
+            <p>이 브라우저에서 프로젝트와 수정 기록을 삭제합니다.</p>
+            <p>삭제 후에는 복구할 수 없습니다. 보관하려면 먼저 프로젝트 파일을 저장하세요.</p>
           </div>
         </header>
           <button

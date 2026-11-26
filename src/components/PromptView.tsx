@@ -15,7 +15,7 @@ export function PromptView({ onGoBrief, onRevise }: { onGoBrief: () => void; onR
   return (
     <div className="stack prompt-result-page">
       <section className="prompt-ready stack" aria-labelledby={readyTitleId}>
-        <h2 id={readyTitleId}>프롬프트 준비 완료</h2>
+        <h2 id={readyTitleId} className="sr-only">제작 요청문</h2>
         <p className="prompt-output-help">3D 웹 · 장면 설정을 제작 요청문으로 정리했어요.</p>
       </section>
       <PromptBox en={en} ko={ko} filename={`${project.name}-first-prompt.txt`} />

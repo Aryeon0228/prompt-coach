@@ -26,8 +26,8 @@ export function Start({ onCreated, onOpening }: { onCreated: (destination?: 'bri
       <CoachConnection collapsed setupOnly />
 
       <section className="start-intro">
-        <div><div className="eyebrow">MAKE · OBSERVE · REFINE</div><h1>만들고 싶은 장면을 프롬프트로</h1></div>
-        <p className="muted">떠오르는 아이디어나 참고 이미지에서 시작해 보세요. 필요한 조건을 정하고, 유지할 특징과 바꿀 부분을 나눠 나만의 프롬프트를 만들어요.</p>
+        <div><h1>만들고 싶은 장면을 프롬프트로</h1></div>
+        <p className="muted">아이디어나 참고 이미지에서 시작합니다. 필요한 조건과 바꿀 부분을 정해 제작용 프롬프트로 정리합니다.</p>
         <ol className="start-steps" aria-label="사용 흐름">
           <li><span>01</span><div><strong>장면 입력</strong><p>아이디어를 적거나 참고 이미지를 가져와요.</p></div></li>
           <li><span>02</span><div><strong>구체화 방법 선택</strong><p>사이트 기본 질문 또는 내 AI와 대화해요.</p></div></li>
@@ -58,24 +58,24 @@ export function Start({ onCreated, onOpening }: { onCreated: (destination?: 'bri
         <details className="example-templates">
           <summary>
             <span className="example-summary-copy">
-              <span className="example-summary-title">예시 장면으로 시작하기</span>
+              <span className="example-summary-title">예시 장면 선택</span>
               <span className="example-summary-hint">아이디어가 떠오르지 않으면 예시를 펼쳐 보세요.</span>
             </span>
           </summary>
           <div className="stack">
             <p className="small muted">3D 웹 예시예요. 장면을 고르면 정해진 선택지를 따라 새 프로젝트를 시작할 수 있어요.</p>
             <div className="template-grid">{index.filter(e => e.id !== 'free-scene').map(e => <button type="button" key={e.id} className={`choice template-card ${picked?.id === e.id ? 'on' : ''}`} onClick={() => setPicked(e)} aria-pressed={picked?.id === e.id}><span className="template-title">{e.name}</span><span className="hint">{e.description}</span></button>)}</div>
-            {picked && <form className="project-create" onSubmit={async e => { e.preventDefault(); if (creating) return; setCreating(true); try { await createProject(picked, name.trim()); onCreated() } catch (err) { toast((err as Error).message) } finally { setCreating(false) } }}><label className="stack"><span className="small">프로젝트 이름 <span className="muted">(선택)</span></span><input type="text" placeholder={picked.name} value={name} onChange={e => setName(e.target.value)} /></label><button type="submit" disabled={creating}>{creating ? '만드는 중…' : '이 예시로 시작하기'} <span aria-hidden="true">→</span></button></form>}
+            {picked && <form className="project-create" onSubmit={async e => { e.preventDefault(); if (creating) return; setCreating(true); try { await createProject(picked, name.trim()); onCreated() } catch (err) { toast((err as Error).message) } finally { setCreating(false) } }}><label className="stack"><span className="small">프로젝트 이름 <span className="muted">· 선택</span></span><input type="text" placeholder={picked.name} value={name} onChange={e => setName(e.target.value)} /></label><button type="submit" disabled={creating}>{creating ? '프로젝트 생성 중…' : '예시로 시작'} <span aria-hidden="true">→</span></button></form>}
           </div>
         </details>
 
-        <div className="free-start-action"><p className="small muted" id="free-start-hint">입력한 내용을 바탕으로 목적·구도·표현을 차근차근 정해요.<br />아직 정하지 않은 조건은 비워 두어도 괜찮아요.</p><button type="submit" form="free-scene-form" disabled={!freeEntry || !mode || !idea.trim() || creating}>{creating ? '만드는 중…' : !mode ? '결과물을 먼저 골라 주세요' : '내 장면으로 시작하기'} <span aria-hidden="true">→</span></button></div>
+        <div className="free-start-action"><p className="small muted" id="free-start-hint">목적·구도·표현을 질문으로 구체화합니다.<br />정하지 않은 조건은 나중에 추가해도 됩니다.</p><button type="submit" form="free-scene-form" disabled={!freeEntry || !mode || !idea.trim() || creating}>{creating ? '프로젝트 생성 중…' : !mode ? '결과물을 먼저 골라 주세요' : '장면 설정'} <span aria-hidden="true">→</span></button></div>
         </div>
         <ImageStart entry={freeEntry} active={entryMethod === 'image'} disabled={creating} onBusyChange={setCreating} onCreated={onCreated} />
         {!freeEntry && <p className="small muted" role="status">시작 화면을 불러오지 못했어요. 잠시 후 새로고침해 주세요.</p>}
       </section>
 
-      <section className="card saved-projects"><div className="section-title"><h2 className="saved-projects-heading"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="4" rx="1" /><path d="M5 7v13h14V7M10 11h4" /></svg>내 프로젝트</h2><span className="small muted">저장한 장면 이어서 작업하기</span></div>{projects.map(p => <div className="project-row" key={p.id}><div className="grow"><div className="name">{p.name}</div><div className="small muted">{p.freeform ? `자유 장면 · ${FREE_MODES.find(m => m.id === p.freeform?.mode)?.label ?? ''}` : index.find(e => e.id === p.templateId)?.name ?? p.templateId} · 마지막 수정 {new Date(p.updatedAt).toLocaleDateString()} · 수정 요청 {p.iterations.length}회</div></div><div className="project-row-actions"><button type="button" className="secondary" disabled={deleting !== null} onClick={() => { onOpening?.(); openProject(p.id) }}>열기</button><button type="button" className="project-delete" title="프로젝트 삭제" aria-label={`${p.name} 프로젝트 삭제`} disabled={deleting !== null} onClick={async () => {
+      <section className="card saved-projects"><div className="section-title"><h2 className="saved-projects-heading"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="4" rx="1" /><path d="M5 7v13h14V7M10 11h4" /></svg>내 프로젝트</h2><span className="small muted">저장한 장면</span></div>{projects.map(p => <div className="project-row" key={p.id}><div className="grow"><div className="name">{p.name}</div><div className="small muted">{p.freeform ? `자유 장면 · ${FREE_MODES.find(m => m.id === p.freeform?.mode)?.label ?? ''}` : index.find(e => e.id === p.templateId)?.name ?? p.templateId} · 마지막 수정 {new Date(p.updatedAt).toLocaleDateString()} · 수정 요청 {p.iterations.length}회</div></div><div className="project-row-actions"><button type="button" className="secondary" disabled={deleting !== null} onClick={() => { onOpening?.(); openProject(p.id) }}>열기</button><button type="button" className="project-delete" title="프로젝트 삭제" aria-label={`${p.name} 프로젝트 삭제`} disabled={deleting !== null} onClick={async () => {
         if (deletePending.current || !window.confirm(`“${p.name}” 프로젝트를 이 브라우저에서 삭제할까요?\n내보낸 JSON 파일이 없으면 되살릴 수 없어요.`)) return
         deletePending.current = true
         setDeleting(p.id)
@@ -86,7 +86,7 @@ export function Start({ onCreated, onOpening }: { onCreated: (destination?: 'bri
         {projects.length === 0 && <p className="small muted projects-empty">아직 저장한 프로젝트가 없어요.</p>}
 
         <div className="import-project row">
-          <div><h3>저장한 프로젝트 불러오기</h3><p className="small muted" id="project-import-help">내보낸 JSON 파일로 참고 이미지와 기록까지 불러와요.</p></div>
+          <div><h3>프로젝트 파일 열기</h3><p className="small muted" id="project-import-help">내보낸 JSON 파일로 참고 이미지와 기록까지 불러와요.</p></div>
           <button type="button" className="ghost" aria-describedby="project-import-help" disabled={deleting !== null} onClick={() => file.current?.click()}>JSON 열기</button>
           <input ref={file} type="file" accept="application/json,.json" hidden onChange={async e => { const f = e.target.files?.[0]; if (!f) return; try { await importProject(await f.text()); onCreated(); toast('프로젝트를 불러왔어요.') } catch (err) { toast((err as Error).message) } e.target.value = '' }} />
         </div>

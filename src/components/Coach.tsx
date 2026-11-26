@@ -141,7 +141,7 @@ export function Coach({ onSaved, onImage }: { onSaved: () => void; onImage?: () 
           </label>
           <div className="row step-actions">
             <button className="secondary" onClick={() => setStep('where')}>
-              이미지 없이 시작하기
+              이미지 없이 수정
             </button>
           </div>
           <details className="feel-dictionary">
@@ -330,7 +330,7 @@ export function Coach({ onSaved, onImage }: { onSaved: () => void; onImage?: () 
           <PromptBox en={en} ko={ko} filename={`${project.name}-fix-${project.iterations.length + 1}.txt`} initialLang={isFreeScene ? 'ko' : 'en'} title="완성된 수정 프롬프트" copyLabel="수정 프롬프트 복사" usageHint="복사한 뒤 작업 중인 AI 대화에 붙여 넣으세요." />
           {(shot || project.references.length > 0) && <aside className="prompt-use-note revision-attachment-note" aria-label="이미지 첨부 안내"><span>함께 첨부하기</span><p>{[shot ? isVideo ? '대표 프레임' : '결과 이미지' : '', project.references.length > 0 ? '참고 이미지' : ''].filter(Boolean).join('와 ')} 파일은 복사한 글에 포함되지 않아요. 사용할 AI에 직접 첨부하세요.{isVideo && ' 영상 업로드를 지원하면 원본 영상도 함께 전달하세요.'}</p></aside>}
           <details className="card prompt-secondary revision-result-details">
-            <summary><span className="prompt-secondary-copy"><span>수정 조건과 이유 확인하기</span><small>바꿀 내용과 유지할 내용을 다시 확인해요.</small></span></summary>
+            <summary><span className="prompt-secondary-copy"><span>수정 조건과 이유</span><small>바꿀 내용과 유지할 내용을 다시 확인해요.</small></span></summary>
             <div className="revision-summary-grid">
               <section><h3>바꿀 내용</h3><p>{symptom.fix.ko.replaceAll('{target}', () => finalTarget)}</p>{note.trim() && <p>{note}</p>}</section>
               <section><h3>유지할 내용</h3>{project.imagePrompt?.preserve.trim() && <p style={{ whiteSpace: 'pre-wrap' }}>{project.imagePrompt.preserve}</p>}{project.locks.length > 0 ? <ul>{project.locks.map((lock, index) => <li key={index}>{lock}</li>)}</ul> : !project.imagePrompt?.preserve.trim() && <p className="muted">따로 추가한 유지 조건이 없어요.</p>}</section>

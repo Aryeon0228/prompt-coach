@@ -1,0 +1,34 @@
+/* Shared interface scale; preserve the neutral Lab identity. */
+:root { --paper:#101112; --card:#1b1c1e; --muted:#b2b2b5; }
+body :is(button,input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),select,textarea) { border-radius:8px; }
+body :is(button,input[type=text],select) { min-height:44px; }
+body :is(.card,.note,.choice,.prompt-document,.question-card,.settings-section) { border-radius:10px; }
+body :is(.tabs,.segmented) { border-radius:10px; padding:4px; gap:4px; }
+body :is(.tabs,.segmented) button { border-radius:8px; min-height:40px; }
+body :is(.small,.hint,.eyebrow,.lab-subtitle,.project-list-button,.nav-group-label,.local-note,.portfolio-link,.prompt-output-help,.prompt-language-note) { font-size:14px; line-height:1.65; }
+body .lab-heading { padding:32px 0; gap:24px; }
+body .stack { gap:16px; }
+body :is(.start-stack,.prompt-result-page,.project-settings) { gap:32px !important; }
+body .page-heading p { margin-top:8px; max-width:64ch; }
+body .page-heading { margin-bottom:24px; }
+body .prompt-ready { border:0; padding:0; background:transparent; }
+body .prompt-ready-heading { gap:16px; }
+body .prompt-ready h2 { font-size:16px; color:var(--muted); }
+body .prompt-document-heading { gap:16px; }
+body .start-intro h1 { margin-top:0; }
+body :is(.start-intro,.settings-storage-help) p { max-width:64ch; }
+body .prompt-document-body { border-radius:8px; }
+@media(max-width:639px) {
+ body .lab-heading { padding:24px 0; }
+ body :is(.tabs,.segmented) button { min-height:44px; }
+}
+
+body .settings-file { padding:16px 0; border:0; border-radius:0; background:transparent; gap:16px; }
+body .settings-name-field { gap:0; }
+body :is(.settings-section-heading h2,.prompt-document-heading h2) { font-size:20px; }
+body :is(.settings-help,.settings-section-heading p,.settings-storage-help,.settings-file-info p,.settings-delete p,.prompt-use-note,.prompt-source-label) { font-size:14px; }
+body .settings-delete { border-radius:10px; }
+body .prompt-document { row-gap:12px; }
+body .prompt-action-status { min-height:24px; }
+body .prompt-action-status:empty { margin-block:-8px; }
+body .prompt-document-options { padding-top:12px; }
